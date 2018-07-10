@@ -50,7 +50,7 @@ export const accountGetAccountBalances = () => (dispatch, getState) => {
     accountType,
   } = getState().account;
   let cachedAccount = { ...accountInfo };
-  let cachedTransactions = [];
+  //let cachedTransactions = [];
   const accountLocal = getAccountLocal(accountAddress) || null;
   if (accountLocal && accountLocal[network]) {
     if (accountLocal[network].balances) {
@@ -63,6 +63,7 @@ export const accountGetAccountBalances = () => (dispatch, getState) => {
     if (accountLocal[network].type && !cachedAccount.type) {
       cachedAccount.type = accountLocal[network].type;
     }
+    /*
     if (accountLocal[network].pending) {
       cachedTransactions = [...accountLocal[network].pending];
     }
@@ -74,13 +75,14 @@ export const accountGetAccountBalances = () => (dispatch, getState) => {
       );
       updateLocalTransactions(accountAddress, cachedTransactions, network);
     }
+    */
   }
   dispatch({
     type: ACCOUNT_GET_ACCOUNT_BALANCES_REQUEST,
     payload: {
       accountType: cachedAccount.type || accountType,
       accountInfo: cachedAccount,
-      transactions: cachedTransactions,
+      //transactions: cachedTransactions,
       fetching: (accountLocal && !accountLocal[network]) || !accountLocal,
     },
   });
@@ -129,7 +131,6 @@ export const accountUpdateAccountAddress = (accountAddress, accountType) => (
     type: ACCOUNT_UPDATE_ACCOUNT_ADDRESS,
     payload: { accountAddress, accountType },
   });
-  dispatch(accountGetAccountTransactions());
   dispatch(accountGetAccountBalances());
   dispatch(accountGetUniqueTokens());
 };
@@ -214,7 +215,7 @@ export default (state = INITIAL_STATE, action) => {
         ...state,
         accountType: action.payload.accountType,
         accountAddress: action.payload.accountAddress,
-        transactions: [],
+        //transactions: [],
       };
     case ACCOUNT_GET_ACCOUNT_UNIQUE_TOKENS_REQUEST:
       return {
@@ -235,7 +236,7 @@ export default (state = INITIAL_STATE, action) => {
         fetching: action.payload.fetching,
         accountType: action.payload.accountType,
         accountInfo: action.payload.accountInfo,
-        transactions: action.payload.transactions,
+        //transactions: action.payload.transactions,
       };
     case ACCOUNT_GET_ACCOUNT_BALANCES_SUCCESS:
     case ACCOUNT_GET_ACCOUNT_BALANCES_FAILURE:

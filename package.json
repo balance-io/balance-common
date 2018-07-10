@@ -4,6 +4,7 @@
   "version": "0.1.0",
   "author": "Jin Chung <jin@balance.io>",
   "license": "GPL-3",
+  "main": "src/index.js",
   "repository": {
     "type": "git",
     "url": "https://github.com/balance-io/balance-common.git"

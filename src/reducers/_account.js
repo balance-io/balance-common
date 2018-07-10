@@ -12,7 +12,7 @@ import {
   getNativeCurrency,
   saveNativePrices,
   updateLocalBalances,
-} from '../handlers/localstorage';
+} from '../handlers/storage';
 import { notificationShow } from './_notification';
 
 // -- Constants ------------------------------------------------------------- //

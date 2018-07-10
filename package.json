@@ -1,0 +1,48 @@
+{
+  "name": "balance-common",
+  "description": "Common library for web and mobile",
+  "version": "0.1.0",
+  "author": "Jin Chung <jin@balance.io>",
+  "license": "GPL-3",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/balance-io/balance-common.git"
+  },
+  "bugs": {
+    "url": "https://github.com/balance-io/balance-common/issues"
+  },
+  "dependencies": {
+    "axios": "^0.18.0",
+    "bignumber.js": "^7.0.1",
+    "i18next": "^11.3.2",
+    "jsonp": "^0.2.1",
+    "lodash": "^4.17.5",
+    "redux": "^4.0.0"
+  },
+  "scripts": {
+    "precommit": "lint-staged",
+    "format": "prettier --write \"src/**/*.js\"",
+    "lint": "eslint src --ext .js"
+  },
+  "lint-staged": {
+    "src/**/*.js": [
+      "eslint src --ext .js",
+      "prettier --write",
+      "git add"
+    ]
+  },
+  "devDependencies": {
+    "babel-eslint": "^8.2.2",
+    "cross-env": "^5.2.0",
+    "eslint-config-prettier": "^2.9.0",
+    "eslint-config-react-app": "^2.1.0",
+    "eslint-plugin-flowtype": "^2.46.1",
+    "eslint-plugin-import": "^2.9.0",
+    "eslint-plugin-jsx-a11y": "^6.0.3",
+    "eslint-plugin-prettier": "^2.6.0",
+    "eslint-plugin-react": "^7.7.0",
+    "husky": "^0.14.3",
+    "lint-staged": "^7.1.0",
+    "prettier": "^1.13.5"
+  }
+}

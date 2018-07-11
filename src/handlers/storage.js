@@ -14,7 +14,7 @@ export default class Storage {
    * @param  {Object}  [data={}]
    * @param  {String} [version=defaultVersion]
    */
-  const saveLocal = (key = '', data = {}, version = defaultVersion) => {
+  saveLocal(key = '', data = {}, version = defaultVersion) {
     data['storageVersion'] = version;
     const jsonData = JSON.stringify(data);
     this.storage.setItem(key, jsonData);
@@ -25,7 +25,7 @@ export default class Storage {
    * @param  {String}  [key='']
    * @return {Object}
    */
-  const getLocal = (key = '', version = defaultVersion) => {
+  getLocal(key = '', version = defaultVersion) {
     const data = this.storage.getItem(key) ? JSON.parse(this.storage.getItem(key)) : null;
     if (data && data['storageVersion'] === version) {
       return data;
@@ -40,14 +40,14 @@ export default class Storage {
    * @param  {String}  [key='']
    * @return {Object}
    */
-  const removeLocal = (key = '') => this.storage.removeItem(key);
+  removeLocal(key = '') { this.storage.removeItem(key); }
 
   /**
    * @desc get account local
    * @param  {String}   [address]
    * @return {Object}
    */
-  const getAccountLocal = accountAddress => {
+  getAccountLocal(accountAddress) {
     return getLocal(accountAddress, accountLocalVersion);
   };
 
@@ -55,7 +55,7 @@ export default class Storage {
    * @desc get native prices
    * @return {Object}
    */
-  const getNativePrices = () => {
+  getNativePrices() {
     const nativePrices = getLocal('native_prices', accountLocalVersion);
     return nativePrices ? nativePrices.data : null;
   };
@@ -64,7 +64,7 @@ export default class Storage {
    * @desc save native prices
    * @param  {String}   [address]
    */
-  const saveNativePrices = nativePrices => {
+  saveNativePrices(nativePrices) {
     saveLocal('native_prices', { data: nativePrices }, accountLocalVersion);
   };
 
@@ -72,7 +72,7 @@ export default class Storage {
    * @desc get native currency
    * @return {Object}
    */
-  const getNativeCurrency = () => {
+  getNativeCurrency() {
     const nativeCurrency = getLocal('native_currency', globalSettingsVersion);
     return nativeCurrency ? nativeCurrency.data : null;
   };
@@ -81,7 +81,7 @@ export default class Storage {
    * @desc save native currency
    * @param  {String}   [currency]
    */
-  const saveNativeCurrency = nativeCurrency => {
+  saveNativeCurrency(nativeCurrency) {
     saveLocal('native_currency', { data: nativeCurrency }, globalSettingsVersion);
   };
 
@@ -92,7 +92,7 @@ export default class Storage {
    * @param  {String}   [network]
    * @return {Void}
    */
-  const updateLocalBalances = (address, account, network) => {
+  updateLocalBalances(address, account, network) {
     if (!address) return;
     let accountLocal = getLocal(address) || {};
     if (!accountLocal[network]) {
@@ -113,7 +113,7 @@ export default class Storage {
    * @param  {String}   [network]
    * @return {Void}
    */
-  const updateLocalTransactions = (address, transactions, network) => {
+  updateLocalTransactions(address, transactions, network) {
     if (!address) return;
     let accountLocal = getLocal(address) || {};
     const pending = [];
@@ -134,47 +134,10 @@ export default class Storage {
   };
 
   /**
-   * @desc get suppress reminder ribbon setting
-   * @return {Boolean}
-   */
-  const getSupressReminderRibbon = () => {
-    const reminderRibbon = getLocal(
-      'supressreminderribbon',
-      globalSettingsVersion,
-    );
-    return reminderRibbon ? reminderRibbon.data : null;
-  };
-
-  /**
-   * @desc save suppress reminder ribbon setting
-   * @param  {Boolean}   [supress state]
-   */
-  const saveSupressReminderRibbon = state => {
-    saveLocal('supressreminderribbon', { data: state }, globalSettingsVersion);
-  };
-
-  /**
-   * @desc get wallet connect account
-   * @return {Object}
-   */
-  const getWalletConnectAccount = () => {
-    const walletConnectAccount = getLocal('walletconnect', walletConnectVersion);
-    return walletConnectAccount ? walletConnectAccount.data : null;
-  };
-
-  /**
-   * @desc save wallet connect account
-   * @param  {String}   [address]
-   */
-  const saveWalletConnectAccount = account => {
-    saveLocal('walletconnect', { data: account }, walletConnectVersion);
-  };
-
-  /**
    * @desc get language
    * @return {Object}
    */
-  const getLanguage = () => {
+  getLanguage() {
     const language = getLocal('language', globalSettingsVersion);
     return language ? language.data : null;
   };
@@ -183,7 +146,7 @@ export default class Storage {
    * @desc save language
    * @param  {String}   [language]
    */
-  const saveLanguage = language => {
+  saveLanguage(language) {
     saveLocal('language', { data: language }, globalSettingsVersion);
   };
 

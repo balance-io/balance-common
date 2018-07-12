@@ -1,6 +1,8 @@
 import { combineReducers } from 'redux';
 import account from './_account';
 
-export default combineReducers({
+const reducers = combineReducers({
   account,
 });
+
+export default reducers;

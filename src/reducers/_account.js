@@ -37,6 +37,7 @@ const ACCOUNT_GET_ACCOUNT_UNIQUE_TOKENS_SUCCESS =
 const ACCOUNT_GET_ACCOUNT_UNIQUE_TOKENS_FAILURE =
   'account/ACCOUNT_GET_ACCOUNT_UNIQUE_TOKENS_FAILURE';
 
+const ACCOUNT_CLEAR_STATE = 'account/ACCOUNT_CLEAR_STATE';
 const ACCOUNT_UPDATE_ACCOUNT_ADDRESS = 'account/ACCOUNT_UPDATE_ACCOUNT_ADDRESS';
 
 // -- Actions --------------------------------------------------------------- //
@@ -177,6 +178,11 @@ export const accountGetNativePrices = accountInfo => (dispatch, getState) => {
   getPricesInterval = setInterval(getPrices, 15000); // 15secs
 };
 
+export const accountClearState = () => dispatch => {
+  clearInterval(getPricesInterval);
+  dispatch({ type: ACCOUNT_CLEAR_STATE });
+};
+
 // -- Reducer --------------------------------------------------------------- //
 const INITIAL_STATE = {
   nativePriceRequest: getNativeCurrency() || 'USD',
@@ -260,6 +266,11 @@ export default (state = INITIAL_STATE, action) => {
         ...state,
         fetchingNativePrices: false,
         nativePriceRequest: '',
+      };
+    case ACCOUNT_CLEAR_STATE:
+      return {
+        ...state,
+        ...INITIAL_STATE,
       };
     default:
       return state;

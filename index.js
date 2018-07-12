@@ -1,4 +1,4 @@
-import reducers from './src';
+import { reducers } from './src';
 
 export {
   reducers,

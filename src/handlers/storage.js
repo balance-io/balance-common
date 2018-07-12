@@ -10,8 +10,7 @@ const globalSettingsVersion = '0.1.0';
  */
 export const saveLocal = (key = '', data = {}, version = defaultVersion) => {
   data['storageVersion'] = version;
-  const jsonData = JSON.stringify(data);
-  storage.setItem(key, jsonData);
+  storage.save({ key, data, expires: null});
 };
 
 /**
@@ -20,13 +19,16 @@ export const saveLocal = (key = '', data = {}, version = defaultVersion) => {
  * @return {Object}
  */
 export const getLocal = (key = '', version = defaultVersion) => {
-  const data = storage.getItem(key) ? JSON.parse(storage.getItem(key)) : null;
-  if (data && data['storageVersion'] === version) {
-    return data;
-  } else if (data) {
-    removeLocal(key);
-  }
-  return null;
+  let response = null;
+  storage.load({ key, autoSync: false, syncInBackground: false })
+  .then(ret => {
+    if (ret && ret.storageVersion === version) {
+      response = data;
+    } else if (ret) {
+      removeLocal(key);
+    }
+    return response;
+  }).catch(err => {});
 };
 
 /**
@@ -34,7 +36,7 @@ export const getLocal = (key = '', version = defaultVersion) => {
  * @param  {String}  [key='']
  * @return {Object}
  */
-export const removeLocal = (key = '') => storage.removeItem(key);
+export const removeLocal = (key = '') => storage.removeItem({ key });
 
 /**
  * @desc get account local

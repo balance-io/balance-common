@@ -52,7 +52,7 @@ export const getAccountLocal = accountAddress => {
  * @return {Object}
  */
 export const getNativePrices = () => {
-  const nativePrices = getLocal('native_prices', accountLocalVersion);
+  const nativePrices = getLocal('nativePrices', accountLocalVersion);
   return nativePrices ? nativePrices.data : null;
 };
 
@@ -61,7 +61,7 @@ export const getNativePrices = () => {
  * @param  {String}   [address]
  */
 export const saveNativePrices = nativePrices => {
-  saveLocal('native_prices', { data: nativePrices }, accountLocalVersion);
+  saveLocal('nativePrices', { data: nativePrices }, accountLocalVersion);
 };
 
 /**
@@ -69,7 +69,7 @@ export const saveNativePrices = nativePrices => {
  * @return {Object}
  */
 export const getNativeCurrency = () => {
-  const nativeCurrency = getLocal('native_currency', globalSettingsVersion);
+  const nativeCurrency = getLocal('nativeCurrency', globalSettingsVersion);
   return nativeCurrency ? nativeCurrency.data : null;
 };
 
@@ -78,7 +78,7 @@ export const getNativeCurrency = () => {
  * @param  {String}   [currency]
  */
 export const saveNativeCurrency = nativeCurrency => {
-  saveLocal('native_currency', { data: nativeCurrency }, globalSettingsVersion);
+  saveLocal('nativeCurrency', { data: nativeCurrency }, globalSettingsVersion);
 };
 
 /**
@@ -127,26 +127,6 @@ export const updateLocalTransactions = (address, transactions, network) => {
   accountLocal[network].transactions = _transactions;
   accountLocal[network].pending = pending;
   saveLocal(address, accountLocal, accountLocalVersion);
-};
-
-/**
- * @desc get suppress reminder ribbon setting
- * @return {Boolean}
- */
-export const getSupressReminderRibbon = () => {
-  const reminderRibbon = getLocal(
-    'supressreminderribbon',
-    globalSettingsVersion,
-  );
-  return reminderRibbon ? reminderRibbon.data : null;
-};
-
-/**
- * @desc save suppress reminder ribbon setting
- * @param  {Boolean}   [supress state]
- */
-export const saveSupressReminderRibbon = state => {
-  saveLocal('supressreminderribbon', { data: state }, globalSettingsVersion);
 };
 
 /**

@@ -1,6 +1,6 @@
-import { reducers, accountUpdateAccountAddress } from './reducers';
+import { account, accountUpdateAccountAddress } from './reducers';
 
 export {
-  reducers,
+  account,
   accountUpdateAccountAddress,
 };

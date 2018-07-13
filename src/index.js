@@ -1,3 +1,3 @@
 import { account, accountUpdateAccountAddress } from './reducers';
-import * as storage from './handlers/storage';
+import * as commonStorage from './handlers/commonStorage';
 export { storage, account, accountUpdateAccountAddress };

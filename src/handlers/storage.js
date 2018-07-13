@@ -1,6 +1,7 @@
 const defaultVersion = '0.1.0';
 const accountLocalVersion = '0.1.0';
 const globalSettingsVersion = '0.1.0';
+const walletConnectVersion = '0.1.0';
 
 /**
  * @desc save to storage

@@ -10,7 +10,7 @@ const globalSettingsVersion = '0.1.0';
  */
 export const saveLocal = (key = '', data = {}, version = defaultVersion) => {
   data['storageVersion'] = version;
-  storage.save({ key, data, expires: null});
+  storage.save({ key, data, expires: null });
 };
 
 /**
@@ -20,15 +20,17 @@ export const saveLocal = (key = '', data = {}, version = defaultVersion) => {
  */
 export const getLocal = (key = '', version = defaultVersion) => {
   let response = null;
-  storage.load({ key, autoSync: false, syncInBackground: false })
-  .then(ret => {
-    if (ret && ret.storageVersion === version) {
-      response = data;
-    } else if (ret) {
-      removeLocal(key);
-    }
-    return response;
-  }).catch(err => {});
+  storage
+    .load({ key, autoSync: false, syncInBackground: false })
+    .then(ret => {
+      if (ret && ret.storageVersion === version) {
+        response = data;
+      } else if (ret) {
+        removeLocal(key);
+      }
+      return response;
+    })
+    .catch(err => {});
 };
 
 /**

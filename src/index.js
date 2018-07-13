@@ -1,6 +1,3 @@
 import { account, accountUpdateAccountAddress } from './reducers';
 
-export {
-  account,
-  accountUpdateAccountAddress,
-};
+export { account, accountUpdateAccountAddress };

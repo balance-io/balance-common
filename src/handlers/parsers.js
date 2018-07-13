@@ -9,7 +9,6 @@ import {
   convertStringToNumber,
   convertAssetAmountToBigNumber,
 } from '../helpers/bignumber';
-import { fromWei } from './web3';
 import nativeCurrencies from '../references/native-currencies.json';
 
 /**
@@ -231,7 +230,9 @@ export const parseAccountUniqueTokens = data => {
     name: el.name,
     imageUrl: el.image_url,
     id: el.token_id,
-    lastPrice: el.last_sale && Number(fromWei(el.last_sale.total_price)),
+    lastPrice:
+      el.last_sale &&
+      Number(convertAmountFromBigNumber(el.last_sale.total_price)),
     contractAddress: el.asset_contract.address,
   }));
   return uniqueTokens;

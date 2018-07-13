@@ -9,6 +9,7 @@ import {
   convertStringToNumber,
   convertAssetAmountToBigNumber,
 } from '../helpers/bignumber';
+import { fromWei } from './web3';
 import nativeCurrencies from '../references/native-currencies.json';
 
 /**

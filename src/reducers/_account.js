@@ -54,7 +54,7 @@ export const initializeAccountPrices = () => (dispatch, getState) => {
   dispatch({ type: ACCOUNT_INITIALIZE_PRICES_REQUEST });
   getNativeCurrency().then(nativeCurrency => {
     getNativePrices().then(nativePrices => {
-      dispatch({ type: ACCOUNT_INITIALIZE_PRICES_SUCCESS, payload: { nativePriceRequest: nativeCurrency, nativeCurrency, nativePrices });
+      dispatch({ type: ACCOUNT_INITIALIZE_PRICES_SUCCESS, payload: { nativeCurrency, nativePrices }});
     })
     .catch(error => {
       const message = parseError(error);
@@ -308,7 +308,7 @@ export default (state = INITIAL_STATE, action) => {
     case ACCOUNT_INITIALIZE_PRICES_SUCCESS:
       return {
         ...state,
-        nativePriceRequest: action.payload.nativePriceRequest,
+        nativePriceRequest: action.payload.nativeCurrency,
         nativeCurrency: action.payload.nativeCurrency,
         prices: action.payload.prices,
       };

@@ -37,11 +37,37 @@ const ACCOUNT_GET_ACCOUNT_UNIQUE_TOKENS_SUCCESS =
 const ACCOUNT_GET_ACCOUNT_UNIQUE_TOKENS_FAILURE =
   'account/ACCOUNT_GET_ACCOUNT_UNIQUE_TOKENS_FAILURE';
 
+const ACCOUNT_INITIALIZE_PRICES_REQUEST =
+  'account/ACCOUNT_INITIALIZE_PRICES_REQUEST';
+const ACCOUNT_INITIALIZE_PRICES_SUCCESS =
+  'account/ACCOUNT_INITIALIZE_PRICES_SUCCESS';
+const ACCOUNT_INITIALIZE_PRICES_FAILURE =
+  'account/ACCOUNT_INITIALIZE_PRICES_FAILURE';
+
 const ACCOUNT_CLEAR_STATE = 'account/ACCOUNT_CLEAR_STATE';
 const ACCOUNT_UPDATE_ACCOUNT_ADDRESS = 'account/ACCOUNT_UPDATE_ACCOUNT_ADDRESS';
 
 // -- Actions --------------------------------------------------------------- //
 let getPricesInterval = null;
+
+export const initializeAccountPrices = () => (dispatch, getState) => {
+  dispatch({ type: ACCOUNT_INITIALIZE_PRICES_REQUEST });
+  getNativeCurrency().then(nativeCurrency => {
+    getNativePrices().then(nativePrices => {
+      dispatch({ type: ACCOUNT_INITIALIZE_PRICES_SUCCESS, payload: { nativePriceRequest: nativeCurrency, nativeCurrency, nativePrices });
+    })
+    .catch(error => {
+      const message = parseError(error);
+      dispatch(notificationShow(message, true));
+      dispatch({ type: ACCOUNT_INITIALIZE_PRICES_FAILURE });
+    });
+  })
+  .catch(error => {
+    const message = parseError(error);
+    dispatch(notificationShow(message, true));
+    dispatch({ type: ACCOUNT_INITIALIZE_PRICES_FAILURE });
+  });
+};
 
 export const accountGetAccountBalances = () => (dispatch, getState) => {
   const {
@@ -52,53 +78,58 @@ export const accountGetAccountBalances = () => (dispatch, getState) => {
   } = getState().account;
   let cachedAccount = { ...accountInfo };
   //let cachedTransactions = [];
-  const accountLocal = getAccountLocal(accountAddress) || null;
-  if (accountLocal && accountLocal[network]) {
-    if (accountLocal[network].balances) {
-      cachedAccount = {
-        ...cachedAccount,
-        assets: accountLocal[network].balances.assets,
-        total: accountLocal[network].balances.total,
-      };
+  getAccountLocal(accountAddress).then(accountLocal => {
+    if (accountLocal && accountLocal[network]) {
+      if (accountLocal[network].balances) {
+        cachedAccount = {
+          ...cachedAccount,
+          assets: accountLocal[network].balances.assets,
+          total: accountLocal[network].balances.total,
+        };
+      }
+      if (accountLocal[network].type && !cachedAccount.type) {
+        cachedAccount.type = accountLocal[network].type;
+      }
+      /*
+      if (accountLocal[network].pending) {
+        cachedTransactions = [...accountLocal[network].pending];
+      }
+      if (accountLocal[network].transactions) {
+        cachedTransactions = _.unionBy(
+          cachedTransactions,
+          accountLocal[network].transactions,
+          'hash',
+        );
+        updateLocalTransactions(accountAddress, cachedTransactions, network);
+      }
+      */
     }
-    if (accountLocal[network].type && !cachedAccount.type) {
-      cachedAccount.type = accountLocal[network].type;
-    }
-    /*
-    if (accountLocal[network].pending) {
-      cachedTransactions = [...accountLocal[network].pending];
-    }
-    if (accountLocal[network].transactions) {
-      cachedTransactions = _.unionBy(
-        cachedTransactions,
-        accountLocal[network].transactions,
-        'hash',
-      );
-      updateLocalTransactions(accountAddress, cachedTransactions, network);
-    }
-    */
-  }
-  dispatch({
-    type: ACCOUNT_GET_ACCOUNT_BALANCES_REQUEST,
-    payload: {
-      accountType: cachedAccount.type || accountType,
-      accountInfo: cachedAccount,
-      //transactions: cachedTransactions,
-      fetching: (accountLocal && !accountLocal[network]) || !accountLocal,
-    },
-  });
-  apiGetAccountBalances(accountAddress, network)
-    .then(({ data }) => {
-      let accountInfo = { ...data, type: accountType };
-      updateLocalBalances(accountAddress, accountInfo, network);
-      dispatch({ type: ACCOUNT_GET_ACCOUNT_BALANCES_SUCCESS });
-      dispatch(accountGetNativePrices(accountInfo));
-    })
-    .catch(error => {
-      const message = parseError(error);
-      dispatch(notificationShow(message, true));
-      dispatch({ type: ACCOUNT_GET_ACCOUNT_BALANCES_FAILURE });
+    dispatch({
+      type: ACCOUNT_GET_ACCOUNT_BALANCES_REQUEST,
+      payload: {
+        accountType: cachedAccount.type || accountType,
+        accountInfo: cachedAccount,
+        //transactions: cachedTransactions,
+        fetching: (accountLocal && !accountLocal[network]) || !accountLocal,
+      },
     });
+    apiGetAccountBalances(accountAddress, network)
+      .then(({ data }) => {
+        let accountInfo = { ...data, type: accountType };
+        updateLocalBalances(accountAddress, accountInfo, network);
+        dispatch({ type: ACCOUNT_GET_ACCOUNT_BALANCES_SUCCESS });
+        dispatch(accountGetNativePrices(accountInfo));
+      })
+      .catch(error => {
+        const message = parseError(error);
+        dispatch(notificationShow(message, true));
+        dispatch({ type: ACCOUNT_GET_ACCOUNT_BALANCES_FAILURE });
+      });
+  })
+  .catch(error => {
+     const message = parseError(error);
+     dispatch(notificationShow(message, true));
+  });
 };
 
 export const accountGetUniqueTokens = () => (dispatch, getState) => {
@@ -185,9 +216,9 @@ export const accountClearState = () => dispatch => {
 
 // -- Reducer --------------------------------------------------------------- //
 const INITIAL_STATE = {
-  nativePriceRequest: getNativeCurrency() || 'USD',
-  nativeCurrency: getNativeCurrency() || 'USD',
-  prices: getNativePrices() || {},
+  nativePriceRequest: 'USD',
+  nativeCurrency: 'USD',
+  prices: {},
   network: 'mainnet',
   accountType: '',
   accountAddress: '',
@@ -265,7 +296,28 @@ export default (state = INITIAL_STATE, action) => {
       return {
         ...state,
         fetchingNativePrices: false,
-        nativePriceRequest: '',
+        nativePriceRequest: 'USD',
+      };
+    case ACCOUNT_INITIALIZE_PRICES_REQUEST:
+      return {
+        ...state,
+        nativePriceRequest: 'USD',
+        nativeCurrency: 'USD',
+        prices: {},
+      };
+    case ACCOUNT_INITIALIZE_PRICES_SUCCESS:
+      return {
+        ...state,
+        nativePriceRequest: action.payload.nativePriceRequest,
+        nativeCurrency: action.payload.nativeCurrency,
+        prices: action.payload.prices,
+      };
+    case ACCOUNT_INITIALIZE_PRICES_FAILURE:
+      return {
+        ...state,
+        nativePriceRequest: 'USD',
+        nativeCurrency: 'USD',
+        prices: {},
       };
     case ACCOUNT_CLEAR_STATE:
       return {

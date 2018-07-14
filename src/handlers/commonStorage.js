@@ -9,9 +9,9 @@ const walletConnectVersion = '0.1.0';
  * @param  {Object}  [data={}]
  * @param  {String} [version=defaultVersion]
  */
-export const saveLocal = (key = '', data = {}, version = defaultVersion) => {
+export const saveLocal = async (key = '', data = {}, version = defaultVersion) => {
   data['storageVersion'] = version;
-  storage.save({ key, data, expires: null });
+  await storage.save({ key, data, expires: null });
 };
 
 /**
@@ -19,19 +19,14 @@ export const saveLocal = (key = '', data = {}, version = defaultVersion) => {
  * @param  {String}  [key='']
  * @return {Object}
  */
-export const getLocal = (key = '', version = defaultVersion) => {
-  let response = null;
-  storage
-    .load({ key, autoSync: false, syncInBackground: false })
-    .then(ret => {
-      if (ret && ret.storageVersion === version) {
-        response = data;
-      } else if (ret) {
-        removeLocal(key);
-      }
-      return response;
-    })
-    .catch(err => {});
+export const getLocal = async (key = '', version = defaultVersion) => {
+  const result = await storage.load({ key, autoSync: false, syncInBackground: false });
+  if (result && result.storageVersion === version) {
+    return result;
+  } else if (result) {
+    await removeLocal(key);
+  }
+  return null;
 };
 
 /**
@@ -39,23 +34,23 @@ export const getLocal = (key = '', version = defaultVersion) => {
  * @param  {String}  [key='']
  * @return {Object}
  */
-export const removeLocal = (key = '') => storage.removeItem({ key });
+export const removeLocal = async (key = '') => { await storage.removeItem({ key }); }
 
 /**
  * @desc get account local
  * @param  {String}   [address]
  * @return {Object}
  */
-export const getAccountLocal = accountAddress => {
-  return getLocal(accountAddress, accountLocalVersion);
+export const getAccountLocal = async (accountAddress) => {
+  return await getLocal(accountAddress, accountLocalVersion);
 };
 
 /**
  * @desc get native prices
  * @return {Object}
  */
-export const getNativePrices = () => {
-  const nativePrices = getLocal('nativePrices', accountLocalVersion);
+export const getNativePrices = async () => {
+  const nativePrices = await getLocal('nativePrices', accountLocalVersion);
   return nativePrices ? nativePrices.data : null;
 };
 
@@ -63,16 +58,16 @@ export const getNativePrices = () => {
  * @desc save native prices
  * @param  {String}   [address]
  */
-export const saveNativePrices = nativePrices => {
-  saveLocal('nativePrices', { data: nativePrices }, accountLocalVersion);
+export const saveNativePrices = async (nativePrices) => {
+  await saveLocal('nativePrices', { data: nativePrices }, accountLocalVersion);
 };
 
 /**
  * @desc get native currency
  * @return {Object}
  */
-export const getNativeCurrency = () => {
-  const nativeCurrency = getLocal('nativeCurrency', globalSettingsVersion);
+export const getNativeCurrency = async () => {
+  const nativeCurrency = await getLocal('nativeCurrency', globalSettingsVersion);
   return nativeCurrency ? nativeCurrency.data : null;
 };
 
@@ -80,8 +75,8 @@ export const getNativeCurrency = () => {
  * @desc save native currency
  * @param  {String}   [currency]
  */
-export const saveNativeCurrency = nativeCurrency => {
-  saveLocal('nativeCurrency', { data: nativeCurrency }, globalSettingsVersion);
+export const saveNativeCurrency = async (nativeCurrency) => {
+  await saveLocal('nativeCurrency', { data: nativeCurrency }, globalSettingsVersion);
 };
 
 /**
@@ -91,9 +86,9 @@ export const saveNativeCurrency = nativeCurrency => {
  * @param  {String}   [network]
  * @return {Void}
  */
-export const updateLocalBalances = (address, account, network) => {
+export const updateLocalBalances = async (address, account, network) => {
   if (!address) return;
-  let accountLocal = getLocal(address) || {};
+  let accountLocal = await getLocal(address) || {};
   if (!accountLocal[network]) {
     accountLocal[network] = {};
   }
@@ -102,7 +97,7 @@ export const updateLocalBalances = (address, account, network) => {
     assets: account.assets,
     total: account.total || '———',
   };
-  saveLocal(address, accountLocal, accountLocalVersion);
+  await saveLocal(address, accountLocal, accountLocalVersion);
 };
 
 /**
@@ -112,9 +107,9 @@ export const updateLocalBalances = (address, account, network) => {
  * @param  {String}   [network]
  * @return {Void}
  */
-export const updateLocalTransactions = (address, transactions, network) => {
+export const updateLocalTransactions = async (address, transactions, network) => {
   if (!address) return;
-  let accountLocal = getLocal(address) || {};
+  let accountLocal = await getLocal(address) || {};
   const pending = [];
   const _transactions = [];
   transactions.forEach(tx => {
@@ -129,15 +124,15 @@ export const updateLocalTransactions = (address, transactions, network) => {
   }
   accountLocal[network].transactions = _transactions;
   accountLocal[network].pending = pending;
-  saveLocal(address, accountLocal, accountLocalVersion);
+  await saveLocal(address, accountLocal, accountLocalVersion);
 };
 
 /**
  * @desc get wallet connect account
  * @return {Object}
  */
-export const getWalletConnectAccount = () => {
-  const walletConnectAccount = getLocal('walletconnect', walletConnectVersion);
+export const getWalletConnectAccount = async () => {
+  const walletConnectAccount = await getLocal('walletconnect', walletConnectVersion);
   return walletConnectAccount ? walletConnectAccount.data : null;
 };
 
@@ -145,16 +140,16 @@ export const getWalletConnectAccount = () => {
  * @desc save wallet connect account
  * @param  {String}   [address]
  */
-export const saveWalletConnectAccount = account => {
-  saveLocal('walletconnect', { data: account }, walletConnectVersion);
+export const saveWalletConnectAccount = async (account) => {
+  await saveLocal('walletconnect', { data: account }, walletConnectVersion);
 };
 
 /**
  * @desc get language
  * @return {Object}
  */
-export const getLanguage = () => {
-  const language = getLocal('language', globalSettingsVersion);
+export const getLanguage = async () => {
+  const language = await getLocal('language', globalSettingsVersion);
   return language ? language.data : null;
 };
 
@@ -162,6 +157,6 @@ export const getLanguage = () => {
  * @desc save language
  * @param  {String}   [language]
  */
-export const saveLanguage = language => {
-  saveLocal('language', { data: language }, globalSettingsVersion);
+export const saveLanguage = async (language) => {
+  await saveLocal('language', { data: language }, globalSettingsVersion);
 };

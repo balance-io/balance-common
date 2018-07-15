@@ -10,8 +10,12 @@ const walletConnectVersion = '0.1.0';
  * @param  {String} [version=defaultVersion]
  */
 export const saveLocal = async (key = '', data = {}, version = defaultVersion) => {
-  data['storageVersion'] = version;
-  await storage.save({ key, data, expires: null });
+  try {
+    data['storageVersion'] = version;
+    await storage.save({ key, data, expires: null });
+  } catch (error) {
+    // TODO error handling
+  }
 };
 
 /**
@@ -20,13 +24,18 @@ export const saveLocal = async (key = '', data = {}, version = defaultVersion) =
  * @return {Object}
  */
 export const getLocal = async (key = '', version = defaultVersion) => {
-  const result = await storage.load({ key, autoSync: false, syncInBackground: false });
-  if (result && result.storageVersion === version) {
-    return result;
-  } else if (result) {
-    await removeLocal(key);
+  try {
+    const result = await storage.load({ key, autoSync: false, syncInBackground: false });
+    if (result && result.storageVersion === version) {
+      return result;
+    } else if (result) {
+      await removeLocal(key);
+      return null;
+    }
+  } catch(error) {
+    // TODO error handling
+    return null;
   }
-  return null;
 };
 
 /**
@@ -34,7 +43,14 @@ export const getLocal = async (key = '', version = defaultVersion) => {
  * @param  {String}  [key='']
  * @return {Object}
  */
-export const removeLocal = async (key = '') => { await storage.removeItem({ key }); }
+export const removeLocal = async (key = '') => { 
+  try {
+    await storage.removeItem({ key });
+  } catch(error) {
+    // TODO error handling
+    console.log('error removing local with key: ', key);
+    console.log('error removing local with error: ', error);
+  }
 
 /**
  * @desc get account local

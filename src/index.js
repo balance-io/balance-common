@@ -1,3 +1,4 @@
 import { account, accountUpdateAccountAddress } from './reducers';
 import * as commonStorage from './handlers/commonStorage';
-export { commonStorage, account, accountUpdateAccountAddress };
+import * as bignumber from './helpers/bignumber';
+export { commonStorage, bignumber, account, accountUpdateAccountAddress };

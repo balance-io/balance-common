@@ -14,8 +14,7 @@ export const saveLocal = async (key = '', data = {}, version = defaultVersion) =
     data['storageVersion'] = version;
     await storage.save({ key, data, expires: null });
   } catch (error) {
-    console.log('error saving to local for key: ', key);
-    // TODO error handling
+    console.log('Storage: error saving to local for key', key);
   }
 };
 
@@ -34,7 +33,7 @@ export const getLocal = async (key = '', version = defaultVersion) => {
       return null;
     }
   } catch(error) {
-    // TODO error handling
+    console.log('Storage: error getting from local for key', key);
     return null;
   }
 };
@@ -48,9 +47,7 @@ export const removeLocal = async (key = '') => {
   try {
     await storage.removeItem({ key });
   } catch (error) {
-    // TODO error handling
-    console.log('error removing local with key: ', key);
-    console.log('error removing local with error: ', error);
+    console.log('error removing local with key', key);
   }
 }
 

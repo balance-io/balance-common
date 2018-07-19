@@ -2,10 +2,10 @@ import BigNumber from 'bignumber.js';
 import ethUnits from '../references/ethereum-units.json';
 import nativeCurrencies from '../references/native-currencies.json';
 
-export const fromWeiToEther(number) {
+export const fromWeiToEther = number => {
   const etherUnits = new BigNumber(ethUnits.ether, 10);
   return new BigNumber(number.toString(10), 10).dividedBy(etherUnits).toString(10);
-}
+};
 
 /**
  * @desc count value's number of decimals places

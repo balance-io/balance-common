@@ -52,21 +52,26 @@ let getPricesInterval = null;
 
 export const initializeAccountPrices = () => (dispatch, getState) => {
   dispatch({ type: ACCOUNT_INITIALIZE_PRICES_REQUEST });
-  getNativeCurrency().then(nativeCurrency => {
-    getNativePrices().then(nativePrices => {
-      dispatch({ type: ACCOUNT_INITIALIZE_PRICES_SUCCESS, payload: { nativeCurrency, nativePrices }});
+  getNativeCurrency()
+    .then(nativeCurrency => {
+      getNativePrices()
+        .then(nativePrices => {
+          dispatch({
+            type: ACCOUNT_INITIALIZE_PRICES_SUCCESS,
+            payload: { nativeCurrency, nativePrices },
+          });
+        })
+        .catch(error => {
+          const message = parseError(error);
+          dispatch(notificationShow(message, true));
+          dispatch({ type: ACCOUNT_INITIALIZE_PRICES_FAILURE });
+        });
     })
     .catch(error => {
       const message = parseError(error);
       dispatch(notificationShow(message, true));
       dispatch({ type: ACCOUNT_INITIALIZE_PRICES_FAILURE });
     });
-  })
-  .catch(error => {
-    const message = parseError(error);
-    dispatch(notificationShow(message, true));
-    dispatch({ type: ACCOUNT_INITIALIZE_PRICES_FAILURE });
-  });
 };
 
 export const accountGetAccountBalances = () => (dispatch, getState) => {
@@ -78,19 +83,20 @@ export const accountGetAccountBalances = () => (dispatch, getState) => {
   } = getState().account;
   let cachedAccount = { ...accountInfo };
   //let cachedTransactions = [];
-  getAccountLocal(accountAddress).then(accountLocal => {
-    if (accountLocal && accountLocal[network]) {
-      if (accountLocal[network].balances) {
-        cachedAccount = {
-          ...cachedAccount,
-          assets: accountLocal[network].balances.assets,
-          total: accountLocal[network].balances.total,
-        };
-      }
-      if (accountLocal[network].type && !cachedAccount.type) {
-        cachedAccount.type = accountLocal[network].type;
-      }
-      /*
+  getAccountLocal(accountAddress)
+    .then(accountLocal => {
+      if (accountLocal && accountLocal[network]) {
+        if (accountLocal[network].balances) {
+          cachedAccount = {
+            ...cachedAccount,
+            assets: accountLocal[network].balances.assets,
+            total: accountLocal[network].balances.total,
+          };
+        }
+        if (accountLocal[network].type && !cachedAccount.type) {
+          cachedAccount.type = accountLocal[network].type;
+        }
+        /*
       if (accountLocal[network].pending) {
         cachedTransactions = [...accountLocal[network].pending];
       }
@@ -103,33 +109,33 @@ export const accountGetAccountBalances = () => (dispatch, getState) => {
         updateLocalTransactions(accountAddress, cachedTransactions, network);
       }
       */
-    }
-    dispatch({
-      type: ACCOUNT_GET_ACCOUNT_BALANCES_REQUEST,
-      payload: {
-        accountType: cachedAccount.type || accountType,
-        accountInfo: cachedAccount,
-        //transactions: cachedTransactions,
-        fetching: (accountLocal && !accountLocal[network]) || !accountLocal,
-      },
-    });
-    apiGetAccountBalances(accountAddress, network)
-      .then(({ data }) => {
-        let accountInfo = { ...data, type: accountType };
-        updateLocalBalances(accountAddress, accountInfo, network);
-        dispatch({ type: ACCOUNT_GET_ACCOUNT_BALANCES_SUCCESS });
-        dispatch(accountGetNativePrices(accountInfo));
-      })
-      .catch(error => {
-        const message = parseError(error);
-        dispatch(notificationShow(message, true));
-        dispatch({ type: ACCOUNT_GET_ACCOUNT_BALANCES_FAILURE });
+      }
+      dispatch({
+        type: ACCOUNT_GET_ACCOUNT_BALANCES_REQUEST,
+        payload: {
+          accountType: cachedAccount.type || accountType,
+          accountInfo: cachedAccount,
+          //transactions: cachedTransactions,
+          fetching: (accountLocal && !accountLocal[network]) || !accountLocal,
+        },
       });
-  })
-  .catch(error => {
-     const message = parseError(error);
-     dispatch(notificationShow(message, true));
-  });
+      apiGetAccountBalances(accountAddress, network)
+        .then(({ data }) => {
+          let accountInfo = { ...data, type: accountType };
+          updateLocalBalances(accountAddress, accountInfo, network);
+          dispatch({ type: ACCOUNT_GET_ACCOUNT_BALANCES_SUCCESS });
+          dispatch(accountGetNativePrices(accountInfo));
+        })
+        .catch(error => {
+          const message = parseError(error);
+          dispatch(notificationShow(message, true));
+          dispatch({ type: ACCOUNT_GET_ACCOUNT_BALANCES_FAILURE });
+        });
+    })
+    .catch(error => {
+      const message = parseError(error);
+      dispatch(notificationShow(message, true));
+    });
 };
 
 export const accountGetUniqueTokens = () => (dispatch, getState) => {

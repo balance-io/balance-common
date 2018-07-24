@@ -21,9 +21,7 @@
     "redux": "^4.0.0"
   },
   "scripts": {
-    "precommit": "lint-staged",
-    "format": "prettier --write \"src/**/*.js\"",
-    "lint": "eslint src --ext .js"
+    "format": "prettier --write \"src/**/*.js\""
   },
   "lint-staged": {
     "src/**/*.js": [

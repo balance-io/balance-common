@@ -2,8 +2,10 @@ import BigNumber from 'bignumber.js';
 import ethUnits from '../references/ethereum-units.json';
 import nativeCurrencies from '../references/native-currencies.json';
 
-export const fromWei = (number, decimals=18) => {
-  return new BigNumber(number.toString(10), 10).dividedBy(BigNumber(10).pow(decimals)).toString(10);
+export const fromWei = (number, decimals = 18) => {
+  return new BigNumber(number.toString(10), 10)
+    .dividedBy(BigNumber(10).pow(decimals))
+    .toString(10);
 };
 
 /**
@@ -239,6 +241,29 @@ export const convertAmountToDisplaySpecific = (
 ) => {
   if (!nativePrices) return null;
   value = convertAmountFromBigNumber(value);
+  const nativeSelected = nativeCurrencies[selected];
+  const decimals = nativeSelected.decimals;
+  const display = handleSignificantDecimals(value, decimals, buffer);
+  if (nativeSelected.alignment === 'left') {
+    return `${nativeSelected.symbol}${display}`;
+  }
+  return `${display} ${nativeSelected.currency}`;
+};
+
+/**
+ * @desc convert from asset amount value to display formatted string for specific currency
+ * @param  {BigNumber}  value
+ * @param  {Object}     nativePrices
+ * @param  {Object}     asset
+ * @return {String}
+ */
+export const convertAssetAmountToDisplaySpecific = (
+  value,
+  nativePrices,
+  selected,
+  buffer,
+) => {
+  if (!nativePrices) return null;
   const nativeSelected = nativeCurrencies[selected];
   const decimals = nativeSelected.decimals;
   const display = handleSignificantDecimals(value, decimals, buffer);

@@ -18,10 +18,6 @@ import { notificationShow } from './_notification';
 // -- Constants ------------------------------------------------------------- //
 const ACCOUNT_GET_ACCOUNT_BALANCES_REQUEST =
   'account/ACCOUNT_GET_ACCOUNT_BALANCES_REQUEST';
-const ACCOUNT_GET_ACCOUNT_BALANCES_SUCCESS =
-  'account/ACCOUNT_GET_ACCOUNT_BALANCES_SUCCESS';
-const ACCOUNT_GET_ACCOUNT_BALANCES_FAILURE =
-  'account/ACCOUNT_GET_ACCOUNT_BALANCES_FAILURE';
 
 const ACCOUNT_GET_NATIVE_PRICES_REQUEST =
   'account/ACCOUNT_GET_NATIVE_PRICES_REQUEST';
@@ -37,6 +33,13 @@ const ACCOUNT_GET_ACCOUNT_UNIQUE_TOKENS_SUCCESS =
 const ACCOUNT_GET_ACCOUNT_UNIQUE_TOKENS_FAILURE =
   'account/ACCOUNT_GET_ACCOUNT_UNIQUE_TOKENS_FAILURE';
 
+const ACCOUNT_UPDATE_BALANCES_REQUEST =
+  'account/ACCOUNT_UPDATE_BALANCES_REQUEST';
+const ACCOUNT_UPDATE_BALANCES_SUCCESS =
+  'account/ACCOUNT_UPDATE_BALANCES_SUCCESS';
+const ACCOUNT_UPDATE_BALANCES_FAILURE =
+  'account/ACCOUNT_UPDATE_BALANCES_FAILURE';
+
 const ACCOUNT_INITIALIZE_PRICES_REQUEST =
   'account/ACCOUNT_INITIALIZE_PRICES_REQUEST';
 const ACCOUNT_INITIALIZE_PRICES_SUCCESS =
@@ -49,6 +52,7 @@ const ACCOUNT_UPDATE_ACCOUNT_ADDRESS = 'account/ACCOUNT_UPDATE_ACCOUNT_ADDRESS';
 
 // -- Actions --------------------------------------------------------------- //
 let getPricesInterval = null;
+let getAccountBalancesInterval = null;
 
 export const initializeAccountPrices = () => (dispatch, getState) => {
   dispatch({ type: ACCOUNT_INITIALIZE_PRICES_REQUEST });
@@ -119,23 +123,44 @@ export const accountGetAccountBalances = () => (dispatch, getState) => {
           fetching: (accountLocal && !accountLocal[network]) || !accountLocal,
         },
       });
-      apiGetAccountBalances(accountAddress, network)
-        .then(({ data }) => {
-          let accountInfo = { ...data, type: accountType };
-          updateLocalBalances(accountAddress, accountInfo, network);
-          dispatch({ type: ACCOUNT_GET_ACCOUNT_BALANCES_SUCCESS });
-          dispatch(accountGetNativePrices(accountInfo));
-        })
-        .catch(error => {
-          const message = parseError(error);
-          dispatch(notificationShow(message, true));
-          dispatch({ type: ACCOUNT_GET_ACCOUNT_BALANCES_FAILURE });
-        });
+      dispatch(accountUpdateBalances());
     })
     .catch(error => {
       const message = parseError(error);
       dispatch(notificationShow(message, true));
     });
+};
+
+export const accountUpdateBalances = () => (dispatch, getState) => {
+  const { network, accountAddress, accountType } = getState().account;
+  const getAccountBalances = () => {
+    dispatch({ type: ACCOUNT_UPDATE_BALANCES_REQUEST });
+    apiGetAccountBalances(accountAddress, network)
+      .then(({ data }) => {
+        let accountInfo = { ...data, type: accountType };
+        const prices = getState().account.prices;
+        if (prices && prices.selected) {
+          const parsedAccountInfo = parseAccountBalancesPrices(
+            accountInfo,
+            prices,
+            network,
+          );
+          dispatch({
+            type: ACCOUNT_UPDATE_BALANCES_SUCCESS,
+            payload: parsedAccountInfo,
+          });
+        }
+        dispatch(accountGetNativePrices(accountInfo));
+      })
+      .catch(error => {
+        const message = parseError(error);
+        dispatch(notificationShow(message, true));
+        dispatch({ type: ACCOUNT_UPDATE_BALANCES_FAILURE });
+      });
+  };
+  getAccountBalances();
+  clearInterval(getAccountBalancesInterval);
+  getAccountBalancesInterval = setInterval(getAccountBalances, 15000); // 15secs
 };
 
 export const accountGetUniqueTokens = () => (dispatch, getState) => {
@@ -217,6 +242,7 @@ export const accountGetNativePrices = accountInfo => (dispatch, getState) => {
 
 export const accountClearState = () => dispatch => {
   clearInterval(getPricesInterval);
+  clearInterval(getAccountBalancesInterval);
   dispatch({ type: ACCOUNT_CLEAR_STATE });
 };
 
@@ -281,8 +307,18 @@ export default (state = INITIAL_STATE, action) => {
         accountInfo: action.payload.accountInfo,
         //transactions: action.payload.transactions,
       };
-    case ACCOUNT_GET_ACCOUNT_BALANCES_SUCCESS:
-    case ACCOUNT_GET_ACCOUNT_BALANCES_FAILURE:
+    case ACCOUNT_UPDATE_BALANCES_REQUEST:
+      return {
+        ...state,
+        fetching: true,
+      };
+    case ACCOUNT_UPDATE_BALANCES_SUCCESS:
+      return {
+        ...state,
+        accountInfo: action.payload,
+        fetching: false,
+      };
+    case ACCOUNT_UPDATE_BALANCES_FAILURE:
       return { ...state, fetching: false };
     case ACCOUNT_GET_NATIVE_PRICES_REQUEST:
       return {

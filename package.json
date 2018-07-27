@@ -1,10 +1,10 @@
 {
   "name": "balance-common",
   "description": "Common library for web and mobile",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "author": "Jin Chung <jin@balance.io>",
   "license": "GPL-3",
-  "main": "src/index.js",
+  "main": "lib/index.js",
   "repository": {
     "type": "git",
     "url": "https://github.com/balance-io/balance-common.git"

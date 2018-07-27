@@ -57,6 +57,10 @@ const ACCOUNT_UPDATE_TRANSACTIONS_FAILURE =
 
 const ACCOUNT_GET_ACCOUNT_BALANCES_REQUEST =
   'account/ACCOUNT_GET_ACCOUNT_BALANCES_REQUEST';
+const ACCOUNT_GET_ACCOUNT_BALANCES_SUCCESS =
+  'account/ACCOUNT_GET_ACCOUNT_BALANCES_SUCCESS';
+const ACCOUNT_GET_ACCOUNT_BALANCES_FAILURE =
+  'account/ACCOUNT_GET_ACCOUNT_BALANCES_FAILURE';
 
 const ACCOUNT_UPDATE_BALANCES_REQUEST =
   'account/ACCOUNT_UPDATE_BALANCES_REQUEST';
@@ -642,6 +646,16 @@ export default (state = INITIAL_STATE, action) => {
         accountType: action.payload.accountType,
         accountInfo: action.payload.accountInfo,
         transactions: action.payload.transactions,
+      };
+    case ACCOUNT_GET_ACCOUNT_BALANCES_SUCCESS:
+      return {
+        ...state,
+        fetching: false,
+      };
+    case ACCOUNT_GET_ACCOUNT_BALANCES_FAILURE:
+      return {
+        ...state,
+        fetching: false,
       };
     case ACCOUNT_UPDATE_BALANCES_REQUEST:
       return {

@@ -323,8 +323,20 @@ const accountGetAccountBalances = () => (dispatch, getState) => {
           fetching: (accountLocal && !accountLocal[network]) || !accountLocal,
         },
       });
-      dispatch(accountUpdateBalances());
-    })
+      //dispatch(accountUpdateBalances());
+      apiGetAccountBalances(accountAddress, network)
+				.then(({ data }) => {
+					let accountInfo = { ...data, type: accountType };
+					updateLocalBalances(accountAddress, accountInfo, network);
+					dispatch({ type: ACCOUNT_GET_ACCOUNT_BALANCES_SUCCESS });
+					dispatch(accountGetNativePrices(accountInfo));
+				})
+				.catch(error => {
+					const message = parseError(error);
+					dispatch(notificationShow(message, true));
+					dispatch({ type: ACCOUNT_GET_ACCOUNT_BALANCES_FAILURE });
+				}); 
+			})
     .catch(error => {
       const message = parseError(error);
       dispatch(notificationShow(message, true));

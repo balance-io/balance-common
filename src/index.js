@@ -2,9 +2,12 @@ import {
   account,
   accountChangeLanguage,
   accountChangeNativeCurrency,
+  accountUpdateNetwork,
   accountClearState,
   accountUpdateAccountAddress,
+  accountUpdateExchange,
   accountUpdateHasPendingTransaction,
+  accountUpdateTransactions,
   send,
 } from './reducers';
 import * as commonStorage from './handlers/commonStorage';

@@ -152,7 +152,7 @@ export const getNativeGasPrice = (prices, feeAmount) => {
   return {
     selected: prices.selected,
     value: {
-      amount
+      amount,
       display: convertAmountToDisplay(
         amount,
         prices,

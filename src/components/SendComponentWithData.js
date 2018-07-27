@@ -240,7 +240,9 @@ export const withSendComponentWithData = (SendComponent) => {
       );
     };
 
-    render = () => (<SendComponent {...this.props} />);
+    render = () => { 
+      return <SendComponent {...this.props} />;
+    };
   }
 
   return connect(

@@ -11,4 +11,15 @@ import {
   accountUpdateTransactions,
 } from './_account';
 
-export { account, accountUpdateAccountAddress, send };
+export {
+  account,
+  accountChangeLanguage,
+  accountChangeNativeCurrency,
+  accountUpdateNetwork,
+  accountClearState,
+  accountUpdateAccountAddress,
+  accountUpdateExchange,
+  accountUpdateHasPendingTransaction,
+  accountUpdateTransactions,
+  send
+};

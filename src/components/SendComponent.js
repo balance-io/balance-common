@@ -1,0 +1,262 @@
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
+import lang from '../../languages';
+import {
+  sendModalInit,
+  sendUpdateGasPrice,
+  sendTransaction,
+  sendClearFields,
+  sendUpdateRecipient,
+  sendUpdateNativeAmount,
+  sendUpdateAssetAmount,
+  sendUpdateSelected,
+  sendMaxBalance,
+  sendToggleConfirmationView,
+} from '../../reducers/_send';
+import { notificationShow } from '../../reducers/_notification';
+
+import { isValidAddress } from '../../helpers/validators';
+import {
+  convertAmountFromBigNumber,
+  greaterThan,
+} from '../../helpers/bignumber';
+
+import {
+  transactionData,
+} from '../../helpers/utilities';
+
+const reduxProps = ({ send, account }) => ({
+  fetching: send.fetching,
+  recipient: send.recipient,
+  nativeAmount: send.nativeAmount,
+  assetAmount: send.assetAmount,
+  txHash: send.txHash,
+  address: send.address,
+  selected: send.selected,
+  gasPrices: send.gasPrices,
+  gasPrice: send.gasPrice,
+  gasLimit: send.gasLimit,
+  gasPriceOption: send.gasPriceOption,
+  confirm: send.confirm,
+  accountInfo: account.accountInfo,
+  accountType: account.accountType,
+  network: account.network,
+  nativeCurrency: account.nativeCurrency,
+  prices: account.prices,
+});
+
+export const withSendComponentWithData = (SendComponent) => {
+  class SendComponentWithData extends Component {
+    static propTypes = {
+      sendModalInit: PropTypes.func.isRequired,
+      sendUpdateGasPrice: PropTypes.func.isRequired,
+      sendTransaction: PropTypes.func.isRequired,
+      sendClearFields: PropTypes.func.isRequired,
+      sendUpdateRecipient: PropTypes.func.isRequired,
+      sendUpdateNativeAmount: PropTypes.func.isRequired,
+      sendUpdateAssetAmount: PropTypes.func.isRequired,
+      sendUpdateSelected: PropTypes.func.isRequired,
+      sendMaxBalance: PropTypes.func.isRequired,
+      sendToggleConfirmationView: PropTypes.func.isRequired,
+      notificationShow: PropTypes.func.isRequired,
+      fetching: PropTypes.bool.isRequired,
+      recipient: PropTypes.string.isRequired,
+      nativeAmount: PropTypes.string.isRequired,
+      assetAmount: PropTypes.string.isRequired,
+      txHash: PropTypes.string.isRequired,
+      // address: PropTypes.string.isRequired,
+      selected: PropTypes.object.isRequired,
+      gasPrice: PropTypes.object.isRequired,
+      gasPrices: PropTypes.object.isRequired,
+      gasLimit: PropTypes.number.isRequired,
+      gasPriceOption: PropTypes.string.isRequired,
+      confirm: PropTypes.bool.isRequired,
+      accountInfo: PropTypes.object.isRequired,
+      accountType: PropTypes.string.isRequired,
+      network: PropTypes.string.isRequired,
+      nativeCurrency: PropTypes.string.isRequired,
+      prices: PropTypes.object.isRequired,
+    };
+
+    state = {
+      isValidAddress: true,
+      showQRCodeReader: false,
+    };
+
+    componentDidMount() {
+      this.props.sendModalInit();
+    }
+
+    componentDidUpdate(prevProps) {
+      if (this.props.recipient.length >= 42) {
+        if (this.props.selected.symbol !== prevProps.selected.symbol) {
+          this.props.sendUpdateGasPrice();
+        } else if (this.props.recipient !== prevProps.recipient) {
+          this.props.sendUpdateGasPrice();
+        } else if (this.props.assetAmount !== prevProps.assetAmount) {
+          this.props.sendUpdateGasPrice();
+        }
+      }
+    }
+
+    onAddressInputFocus = () => this.setState({ isValidAddress: true });
+
+    onAddressInputBlur = () =>
+      this.setState({ isValidAddress: isValidAddress(this.props.recipient) });
+
+    onGoBack = () => this.props.sendToggleConfirmationView(false);
+
+    onSendMaxBalance = () => this.props.sendMaxBalance();
+
+    onSendAnother = () => {
+      this.props.sendToggleConfirmationView(false);
+      this.props.sendClearFields();
+      this.props.sendModalInit();
+    };
+
+    onSubmit = e => {
+      e.preventDefault();
+
+      if (!this.props.gasPrice.txFee) {
+        this.props.notificationShow(
+          lang.t('notification.error.generic_error'),
+          true,
+        );
+
+        return;
+      }
+
+      if (!this.props.confirm) {
+        if (!isValidAddress(this.props.recipient)) {
+          this.props.notificationShow(
+            lang.t('notification.error.invalid_address'),
+            true,
+          );
+
+          return;
+        } else if (this.props.selected.symbol === 'ETH') {
+          const { requestedAmount, balance, amountWithFees } = transactionData(
+            this.props.accountInfo,
+            this.props.assetAmount,
+            this.props.gasPrice,
+          );
+
+          if (greaterThan(requestedAmount, balance)) {
+            this.props.notificationShow(
+              lang.t('notification.error.insufficient_balance'),
+              true,
+            );
+
+            return;
+          } else if (greaterThan(amountWithFees, balance)) {
+            this.props.notificationShow(
+              lang.t('notification.error.insufficient_for_fees'),
+              true,
+            );
+
+            return;
+          }
+        } else {
+          const { requestedAmount, balance, txFee } = transactionData(
+            this.props.accountInfo,
+            this.props.assetAmount,
+            this.props.gasPrice,
+          );
+
+          const tokenBalanceAmount = this.props.selected.balance.amount;
+          const tokenBalance = convertAmountFromBigNumber(tokenBalanceAmount);
+
+          if (greaterThan(requestedAmount, tokenBalance)) {
+            this.props.notificationShow(
+              lang.t('notification.error.insufficient_balance'),
+              true,
+            );
+
+            return;
+          } else if (greaterThan(txFee, balance)) {
+            this.props.notificationShow(
+              lang.t('notification.error.insufficient_for_fees'),
+              true,
+            );
+
+            return;
+          }
+        }
+
+        this.props.sendTransaction({
+          address: this.props.accountInfo.address,
+          recipient: this.props.recipient,
+          amount: this.props.assetAmount,
+          asset: this.props.selected,
+          gasPrice: this.props.gasPrice,
+          gasLimit: this.props.gasLimit,
+        });
+      }
+
+      this.props.sendToggleConfirmationView(true);
+    };
+
+    updateGasPrice = gasPrice => {
+      this.props.sendUpdateGasPrice(gasPrice);
+    };
+
+    onClose = () => {
+      this.props.sendClearFields();
+      // TODO: close function ?? (previously was to hit modal reducer)
+    };
+
+    updateGasPrice = gasPrice => {
+      this.props.sendUpdateGasPrice(gasPrice);
+    };
+
+    // QR Code Reader Handlers
+    toggleQRCodeReader = () =>
+      this.setState({ showQRCodeReader: !this.state.showQRCodeReader });
+
+    onQRCodeValidate = rawData => {
+      const data = rawData.match(/0x\w{40}/g)
+        ? rawData.match(/0x\w{40}/g)[0]
+        : null;
+      const result = data ? isValidAddress(data) : false;
+      const onError = () =>
+        this.props.notificationShow(
+          lang.t('notification.error.invalid_address_scanned'),
+          true,
+        );
+
+      return { data, result, onError };
+    };
+
+    onQRCodeScan = data => {
+      this.props.sendUpdateRecipient(data);
+      this.setState({ showQRCodeReader: false });
+    };
+
+    onQRCodeError = () => {
+      this.props.notificationShow(
+        lang.t('notification.error.failed_scanning_qr_code'),
+        true,
+      );
+    };
+
+    render = () => (<SendComponent {...this.props} />);
+  }
+
+  return connect(
+    reduxProps,
+    {
+      sendModalInit,
+      sendUpdateGasPrice,
+      sendTransaction,
+      sendClearFields,
+      sendUpdateRecipient,
+      sendUpdateNativeAmount,
+      sendUpdateAssetAmount,
+      sendUpdateSelected,
+      sendMaxBalance,
+      sendToggleConfirmationView,
+      notificationShow,
+    },
+  )(SendComponentWithData);
+};

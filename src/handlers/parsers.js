@@ -54,8 +54,38 @@ export const parseError = error => {
   }
   return lang.t('notification.error.generic_error');
 };
+export const getTxFee = (gasPrice, gasLimit) => {
+  const amount = multiply(gasPrice, gasLimit);
+  return {
+    value: {
+      amount,
+      display: convertAmountToDisplay(
+        amount,
+        null,
+        {
+          symbol: 'ETH',
+          decimals: 18,
+        },
+      ),
+    },
+    native: null,
+  };
+};
 
-// TODO parseGasPrices + parseGasPricesTxFee dedupe
+export const defaultGasPriceFormat = (option, timeAmount, valueAmount, valueDisplay) => {
+  return {
+    option,
+    estimatedTime: {
+      amount: timeAmount,
+      display: getTimeString(timeAmount, 'ms'),
+    },
+    value: {
+      amount: valueAmount,
+      display: valueDisplay,
+    },
+  };
+};
+
 /**
  * @desc parse ether gas prices
  * @param {Object} data
@@ -63,239 +93,74 @@ export const parseError = error => {
  * @param {Number} gasLimit
  */
 export const parseGasPrices = (data, prices, gasLimit) => {
-  let gasPrices = {
+  const gasPrices = {
     slow: null,
     average: null,
     fast: null,
   };
   if (!data) {
-    gasPrices.fast = {
-      option: 'fast',
-      estimatedTime: {
-        amount: '30000',
-        display: getTimeString('30000', 'ms'),
-      },
-      value: {
-        amount: '5000000000',
-        display: '5 Gwei',
-      },
-    };
-    gasPrices.fast.txFee = {
-      value: {
-        amount: multiply(gasPrices.fast.value.amount, gasLimit),
-        display: convertAmountToDisplay(
-          multiply(gasPrices.fast.value.amount, gasLimit),
-          null,
-          {
-            symbol: 'ETH',
-            decimals: 18,
-          },
-        ),
-      },
-      native: null,
-    };
-
-    gasPrices.average = {
-      option: 'average',
-      estimatedTime: {
-        amount: '360000',
-        display: getTimeString('360000', 'ms'),
-      },
-      value: {
-        amount: '2000000000',
-        display: '2 Gwei',
-      },
-    };
-    gasPrices.average.txFee = {
-      value: {
-        amount: multiply(gasPrices.average.value.amount, gasLimit),
-        display: convertAmountToDisplay(
-          multiply(gasPrices.average.value.amount, gasLimit),
-          null,
-          {
-            symbol: 'ETH',
-            decimals: 18,
-          },
-        ),
-      },
-      native: null,
-    };
-
-    gasPrices.slow = {
-      option: 'slow',
-      estimatedTime: {
-        amount: '1800000',
-        display: getTimeString('1800000', 'ms'),
-      },
-      value: {
-        amount: '1000000000',
-        display: '1 Gwei',
-      },
-    };
-    gasPrices.slow.txFee = {
-      value: {
-        amount: multiply(gasPrices.slow.value.amount, gasLimit),
-        display: convertAmountToDisplay(
-          multiply(gasPrices.slow.value.amount, gasLimit),
-          null,
-          {
-            symbol: 'ETH',
-            decimals: 18,
-          },
-        ),
-      },
-      native: null,
-    };
+    gasPrices.fast = defaultGasPriceFormat('fast', '30000','5000000000', '5 Gwei');
+    gasPrices.average = defaultGasPriceFormat('average', '360000', '2000000000', '2 Gwei');
+    gasPrices.slow = defaultGasPriceFormat('slow', '1800000','1000000000', '1 Gwei');
   } else {
-    gasPrices.fast = {
-      option: 'fast',
-      estimatedTime: {
-        amount: multiply(data.fastWait, timeUnits.ms.minute),
-        display: getTimeString(
-          multiply(data.fastWait, timeUnits.ms.minute),
-          'ms',
-        ),
-      },
-      value: {
-        amount: multiply(divide(data.fast, 10), ethUnits.gwei),
-        display: `${divide(data.fast, 10)} Gwei`,
-      },
-    };
-    gasPrices.fast.txFee = {
-      value: {
-        amount: multiply(gasPrices.fast.value.amount, gasLimit),
-        display: convertAmountToDisplay(
-          multiply(gasPrices.fast.value.amount, gasLimit),
-          null,
-          {
-            symbol: 'ETH',
-            decimals: 18,
-          },
-        ),
-      },
-      native: null,
-    };
-    gasPrices.average = {
-      option: 'average',
-      estimatedTime: {
-        amount: multiply(data.avgWait, timeUnits.ms.minute),
-        display: getTimeString(
-          multiply(data.avgWait, timeUnits.ms.minute),
-          'ms',
-        ),
-      },
-      value: {
-        amount: multiply(divide(data.average, 10), ethUnits.gwei),
-        display: `${divide(data.average, 10)} Gwei`,
-      },
-    };
-    gasPrices.average.txFee = {
-      value: {
-        amount: multiply(gasPrices.average.value.amount, gasLimit),
-        display: convertAmountToDisplay(
-          multiply(gasPrices.average.value.amount, gasLimit),
-          null,
-          {
-            symbol: 'ETH',
-            decimals: 18,
-          },
-        ),
-      },
-      native: null,
-    };
+    const fastTimeAmount = multiply(data.fastWait, timeUnits.ms.minute);
+    const fastValueAmount = divide(data.fast, 10);
+    gasPrices.fast = defaultGasPriceFormat(
+      'fast',
+      fastTimeAmount,
+      multiply(fastValueAmount, ethUnits.gwei),
+      `${fastValueAmount} Gwei`
+    );
 
-    gasPrices.slow = {
-      option: 'slow',
-      estimatedTime: {
-        amount: multiply(data.safeLowWait, timeUnits.ms.minute),
-        display: getTimeString(
-          multiply(data.safeLowWait, timeUnits.ms.minute),
-          'ms',
-        ),
-      },
-      value: {
-        amount: multiply(divide(data.safeLow, 10), ethUnits.gwei),
-        display: `${divide(data.safeLow, 10)} Gwei`,
-      },
-    };
-    gasPrices.slow.txFee = {
-      value: {
-        amount: multiply(gasPrices.slow.value.amount, gasLimit),
-        display: convertAmountToDisplay(
-          multiply(gasPrices.slow.value.amount, gasLimit),
-          null,
-          {
-            symbol: 'ETH',
-            decimals: 18,
-          },
-        ),
-      },
-      native: null,
-    };
+    const avgTimeAmount = multiply(data.avgWait, timeUnits.ms.minute);
+    const avgValueAmount = divide(data.avg, 10);
+    gasPrices.average = defaultGasPriceFormat(
+      'average',
+      avgTimeAmount,
+      multiply(avgValueAmount, ethUnits.gwei),
+      `${avgValueAmount} Gwei`
+    );
+
+    const slowTimeAmount = multiply(data.safeLowWait, timeUnits.ms.minute);
+    const slowValueAmount = divide(data.safeLow, 10);
+    gasPrices.slow = defaultGasPriceFormat(
+      'slow',
+      slowTimeAmount,
+      multiply(slowValueAmount, ethUnits.gwei),
+      `${slowValueAmount} Gwei`
+    );
   }
+  return parseGasPricesTxFee(gasPrices, prices, gasLimit); 
+};
+
+export const convertGasPricesToNative = (prices, gasPrices) => {
+  const nativeGases = { ...gasPrices };
   if (prices && prices.selected) {
-    gasPrices.fast.txFee.native = {
-      selected: prices.selected,
-      value: {
-        amount: convertAssetAmountToNativeAmount(
-          gasPrices.fast.txFee.value.amount,
-          { symbol: 'ETH' },
-          prices,
-        ),
-        display: convertAmountToDisplay(
-          convertAssetAmountToNativeAmount(
-            gasPrices.fast.txFee.value.amount,
-            { symbol: 'ETH' },
-            prices,
-          ),
-          prices,
-          null,
-          2,
-        ),
-      },
-    };
-    gasPrices.average.txFee.native = {
-      selected: prices.selected,
-      value: {
-        amount: convertAssetAmountToNativeAmount(
-          gasPrices.average.txFee.value.amount,
-          { symbol: 'ETH' },
-          prices,
-        ),
-        display: convertAmountToDisplay(
-          convertAssetAmountToNativeAmount(
-            gasPrices.average.txFee.value.amount,
-            { symbol: 'ETH' },
-            prices,
-          ),
-          prices,
-          null,
-          2,
-        ),
-      },
-    };
-    gasPrices.slow.txFee.native = {
-      selected: prices.selected,
-      value: {
-        amount: convertAssetAmountToNativeAmount(
-          gasPrices.slow.txFee.value.amount,
-          { symbol: 'ETH' },
-          prices,
-        ),
-        display: convertAmountToDisplay(
-          convertAssetAmountToNativeAmount(
-            gasPrices.slow.txFee.value.amount,
-            { symbol: 'ETH' },
-            prices,
-          ),
-          prices,
-          null,
-          2,
-        ),
-      },
-    };
+    gasPrices.fast.txFee.native = getNativeGasPrice(prices, gasPrices.fast.txFee.value.amount);
+    gasPrices.average.txFee.native = getNativeGasPrice(prices, gasPrices.average.txFee.value.amount);
+    gasPrices.slow.txFee.native = getNativeGasPrice(prices, gasPrices.slow.txFee.value.amount);
   }
-  return gasPrices;
+  return nativeGases;
+};
+
+export const getNativeGasPrice = (prices, feeAmount) => {
+  const amount = convertAssetAmountToNativeAmount(
+    feeAmount,
+    { symbol: 'ETH' },
+    prices,
+  );
+  return {
+    selected: prices.selected,
+    value: {
+      amount
+      display: convertAmountToDisplay(
+        amount,
+        prices,
+        null,
+        2,
+      ),
+    },
+  };
 };
 
 /**
@@ -305,112 +170,10 @@ export const parseGasPrices = (data, prices, gasLimit) => {
  * @param {Number} gasLimit
  */
 export const parseGasPricesTxFee = (gasPrices, prices, gasLimit) => {
-  gasPrices.fast.txFee = {
-    value: {
-      amount: multiply(gasPrices.fast.value.amount, gasLimit),
-      display: convertAmountToDisplay(
-        multiply(gasPrices.fast.value.amount, gasLimit),
-        null,
-        {
-          symbol: 'ETH',
-          decimals: 18,
-        },
-      ),
-    },
-    native: null,
-  };
-  gasPrices.average.txFee = {
-    value: {
-      amount: multiply(gasPrices.average.value.amount, gasLimit),
-      display: convertAmountToDisplay(
-        multiply(gasPrices.average.value.amount, gasLimit),
-        null,
-        {
-          symbol: 'ETH',
-          decimals: 18,
-        },
-      ),
-    },
-    native: null,
-  };
-
-  gasPrices.slow.txFee = {
-    value: {
-      amount: multiply(gasPrices.slow.value.amount, gasLimit),
-      display: convertAmountToDisplay(
-        multiply(gasPrices.slow.value.amount, gasLimit),
-        null,
-        {
-          symbol: 'ETH',
-          decimals: 18,
-        },
-      ),
-    },
-    native: null,
-  };
-  if (prices) {
-    gasPrices.fast.txFee.native = {
-      selected: prices.selected,
-      value: {
-        amount: convertAssetAmountToNativeAmount(
-          gasPrices.fast.txFee.value.amount,
-          { symbol: 'ETH' },
-          prices,
-        ),
-        display: convertAmountToDisplay(
-          convertAssetAmountToNativeAmount(
-            gasPrices.fast.txFee.value.amount,
-            { symbol: 'ETH' },
-            prices,
-          ),
-          prices,
-          null,
-          2,
-        ),
-      },
-    };
-    gasPrices.average.txFee.native = {
-      selected: prices.selected,
-      value: {
-        amount: convertAssetAmountToNativeAmount(
-          gasPrices.average.txFee.value.amount,
-          { symbol: 'ETH' },
-          prices,
-        ),
-        display: convertAmountToDisplay(
-          convertAssetAmountToNativeAmount(
-            gasPrices.average.txFee.value.amount,
-            { symbol: 'ETH' },
-            prices,
-          ),
-          prices,
-          null,
-          2,
-        ),
-      },
-    };
-    gasPrices.slow.txFee.native = {
-      selected: prices.selected,
-      value: {
-        amount: convertAssetAmountToNativeAmount(
-          gasPrices.slow.txFee.value.amount,
-          { symbol: 'ETH' },
-          prices,
-        ),
-        display: convertAmountToDisplay(
-          convertAssetAmountToNativeAmount(
-            gasPrices.slow.txFee.value.amount,
-            { symbol: 'ETH' },
-            prices,
-          ),
-          prices,
-          null,
-          2,
-        ),
-      },
-    };
-  }
-  return gasPrices;
+  gasPrices.fast.txFee = getTxFee(gasPrices.fast.value.amount, gasLimit);
+  gasPrices.average.txFee = getTxFee(gasPrices.average.value.amount, gasLimit);
+  gasPrices.slow.txFee = getTxFee(gasPrices.slow.value.amount, gasLimit);
+  return convertGasPricesToNative(prices, gasPrices);
 };
 
 /**

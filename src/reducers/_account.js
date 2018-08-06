@@ -219,6 +219,7 @@ export const accountChangeNativeCurrency = nativeCurrency => (
   const newAccountInfo = parseAccountBalancesPrices(oldAccountInfo, newPrices);
   const accountInfo = { ...oldAccountInfo, ...newAccountInfo };
   updateLocalBalances(accountAddress, accountInfo, network);
+  console.log('account info change native currency', accountInfo);
   dispatch({
     type: ACCOUNT_CHANGE_NATIVE_CURRENCY,
     payload: { nativeCurrency, prices: newPrices, accountInfo },
@@ -256,6 +257,7 @@ const accountGetNativePrices = accountInfo => (dispatch, getState) => {
             network,
           );
           saveNativePrices(prices);
+          console.log('accountInfo get native prices', parsedAccountInfo);
           dispatch({
             type: ACCOUNT_GET_NATIVE_PRICES_SUCCESS,
             payload: { accountInfo: parsedAccountInfo, prices },
@@ -318,6 +320,7 @@ const accountGetAccountBalances = () => (dispatch, getState) => {
         updateLocalTransactions(accountAddress, cachedTransactions, network);
       }
       }
+      console.log('account info get account balances', cachedAccount);
       dispatch({
         type: ACCOUNT_GET_ACCOUNT_BALANCES_REQUEST,
         payload: {
@@ -361,6 +364,7 @@ const accountUpdateBalances = () => (dispatch, getState) => {
             prices,
             network,
           );
+          console.log('parsedAccountInfo update balances', parsedAccountInfo);
           dispatch({
             type: ACCOUNT_UPDATE_BALANCES_SUCCESS,
             payload: parsedAccountInfo,
@@ -581,7 +585,7 @@ const INITIAL_STATE = {
         native: null,
       },
     ],
-    total: '———',
+    total: null,
   },
   fetching: false,
   fetchingShapeshift: false,

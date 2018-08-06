@@ -9,7 +9,8 @@ module.exports = {
     libraryTarget: 'commonjs2'
   },
   module: {
-    loaders: [
+    rules: [
+      { test: /\.(js)$/, use: 'babel-loader' },
       {
         test: /\.js?$/,
         include: [
@@ -22,9 +23,6 @@ module.exports = {
           plugins: ['transform-runtime']
         }
       }
-    ],
-    rules: [
-      { test: /\.(js)$/, use: 'babel-loader' },
     ]
   }
 }

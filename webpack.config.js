@@ -16,11 +16,11 @@ module.exports = {
         include: [
           path.join(__dirname, 'node_modules/react-native-storage')
         ],
-        loader: 'babel',
-        query: {
+        loader: 'babel-loader',
+        options: {
           cacheDirectory: true,
-          presets: ['es2015', 'stage-1', 'react'],
-          plugins: ['transform-runtime']
+          presets: ['@babel/preset-env', '@babel/preset-react'],
+          plugins: ['@babel/plugin-transform-runtime']
         }
       }
     ]

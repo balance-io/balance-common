@@ -11,18 +11,6 @@ module.exports = {
   module: {
     rules: [
       { test: /\.(js)$/, use: 'babel-loader' },
-      {
-        test: /\.js?$/,
-        include: [
-          path.join(__dirname, 'node_modules/react-native-storage')
-        ],
-        loader: 'babel-loader',
-        options: {
-          cacheDirectory: true,
-          presets: ['@babel/preset-env', '@babel/preset-react'],
-          plugins: ['@babel/plugin-transform-runtime']
-        }
-      }
     ]
   }
 }

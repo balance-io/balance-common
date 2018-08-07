@@ -17,7 +17,6 @@ export const saveLocal = async (
   try {
     data['storageVersion'] = version;
     await storage.save({ key, data, expires: null });
-    console.log('Storage: saved for key', key);
   } catch (error) {
     console.log('Storage: error saving to local for key', key);
   }
@@ -56,7 +55,7 @@ export const removeLocal = async (key = '') => {
   try {
     await storage.removeItem({ key });
   } catch (error) {
-    console.log('error removing local with key', key);
+    console.log('Storage: error removing local with key', key);
   }
 };
 
@@ -66,7 +65,7 @@ export const removeLocal = async (key = '') => {
  * @return {Object}
  */
 export const getAccountLocal = async accountAddress => {
-  return await getLocal(accountAddress, accountLocalVersion);
+  return await getLocal(accountAddress.toLowerCase(), accountLocalVersion);
 };
 
 /**

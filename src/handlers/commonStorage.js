@@ -119,7 +119,10 @@ export const saveNativeCurrency = async nativeCurrency => {
  */
 export const updateLocalBalances = async (address, account, network) => {
   if (!address) return;
-  let accountLocal = (await getLocal(address)) || {};
+  let accountLocal = await getAccountLocal(address);
+  if (accountLocal) {
+    accountLocal = {};
+  }
   if (!accountLocal[network]) {
     accountLocal[network] = {};
   }
@@ -144,7 +147,11 @@ export const updateLocalTransactions = async (
   network,
 ) => {
   if (!address) return;
-  let accountLocal = (await getLocal(address)) || {};
+  let accountLocal = await getAccountLocal(address);
+  if (accountLocal) {
+    accountLocal = {};
+  }
+  console.log('*** acount local updating txns', accountLocal);
   const pending = [];
   const _transactions = [];
   transactions.forEach(tx => {

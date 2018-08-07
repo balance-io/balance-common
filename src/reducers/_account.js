@@ -154,6 +154,7 @@ export const accountUpdateTransactions = txDetails => (dispatch, getState) => {
       let _transactions = [...currentTransactions];
       _transactions = [parsedTransaction, ..._transactions];
       updateLocalTransactions(address, _transactions, network);
+      console.log('parsed transactions update txns', parsedTransaction);
       dispatch({
         type: ACCOUNT_UPDATE_TRANSACTIONS_SUCCESS,
         payload: _transactions,
@@ -289,12 +290,8 @@ const accountGetNativePrices = accountInfo => (dispatch, getState) => {
         const nativePriceRequest = getState().account.nativePriceRequest;
         const nativeCurrency = getState().account.nativeCurrency;
         const network = getState().account.network;
-        console.log('***account get native prices data', data);
-        console.log('***account get native prices assetsymbols', assetSymbols);
-        console.log('***account get native prices native currency', nativeCurrency);
         if (nativeCurrency === nativePriceRequest) {
           const prices = parsePricesObject(data, assetSymbols, nativeCurrency);
-          console.log('****account get native prices parsed', prices);
           const parsedAccountInfo = parseAccountBalancesPrices(
             accountInfo,
             prices,
@@ -306,7 +303,6 @@ const accountGetNativePrices = accountInfo => (dispatch, getState) => {
             network,
           );
           saveNativePrices(prices);
-          console.log('accountInfo get native prices', parsedAccountInfo);
           dispatch({
             type: ACCOUNT_GET_NATIVE_PRICES_SUCCESS,
             payload: { accountInfo: parsedAccountInfo, prices },
@@ -406,7 +402,6 @@ const accountUpdateBalances = () => (dispatch, getState) => {
     .then(({ data }) => {
       const prices = getState().account.prices;
       let accountInfo = { ...data, type: accountType };
-      console.log('***account update balances', prices);
       const parsedAccountInfo = parseAccountBalancesPrices(
         accountInfo,
         prices,

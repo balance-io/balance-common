@@ -147,6 +147,7 @@ export const updateLocalTransactions = async (
 ) => {
   if (!address) return;
   let accountLocal = await getAccountLocal(address);
+  console.log('*** get account local in txns', JSON.stringify(accountLocal));
   if (accountLocal) {
     accountLocal = {};
   }

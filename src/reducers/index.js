@@ -10,7 +10,18 @@ import {
   accountUpdateHasPendingTransaction,
   accountUpdateTransactions,
 } from './_account';
-
+import {
+  sendClearFields,
+  sendMaxBalance,
+  sendModalInit,
+  sendToggleConfirmationView,
+  sendTransaction,
+  sendUpdateAssetAmount,
+  sendUpdateGasPrice,
+  sendUpdateNativeAmount,
+  sendUpdateRecipient,
+  sendUpdateSelected,
+} from './_send';
 export {
   account,
   accountChangeLanguage,
@@ -21,5 +32,15 @@ export {
   accountUpdateExchange,
   accountUpdateHasPendingTransaction,
   accountUpdateTransactions,
-  send
+  send,
+  sendClearFields,
+  sendMaxBalance,
+  sendModalInit,
+  sendToggleConfirmationView,
+  sendTransaction,
+  sendUpdateAssetAmount,
+  sendUpdateGasPrice,
+  sendUpdateNativeAmount,
+  sendUpdateRecipient,
+  sendUpdateSelected,
 };

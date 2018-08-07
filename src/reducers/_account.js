@@ -350,34 +350,32 @@ const accountGetAccountBalances = () => (dispatch, getState) => {
 
 const accountUpdateBalances = () => (dispatch, getState) => {
   const { network, accountAddress, accountType } = getState().account;
-  const getAccountBalances = () => {
-    dispatch({ type: ACCOUNT_UPDATE_BALANCES_REQUEST });
-    apiGetAccountBalances(accountAddress, network)
-      .then(({ data }) => {
-        let accountInfo = { ...data, type: accountType };
-        const prices = getState().account.prices;
-        if (prices && prices.selected) {
-          const parsedAccountInfo = parseAccountBalancesPrices(
-            accountInfo,
-            prices,
-            network,
-          );
-          dispatch({
-            type: ACCOUNT_UPDATE_BALANCES_SUCCESS,
-            payload: parsedAccountInfo,
-          });
-        }
-        dispatch(accountGetNativePrices(accountInfo));
-      })
-      .catch(error => {
-        const message = parseError(error);
-        dispatch(notificationShow(message, true));
-        dispatch({ type: ACCOUNT_UPDATE_BALANCES_FAILURE });
+  dispatch({ type: ACCOUNT_UPDATE_BALANCES_REQUEST });
+  //const getAccountBalances = () => {
+  apiGetAccountBalances(accountAddress, network)
+    .then(({ data }) => {
+      const prices = getState().account.prices;
+      let accountInfo = { ...data, type: accountType };
+      const parsedAccountInfo = parseAccountBalancesPrices(
+        accountInfo,
+        prices,
+        network,
+      );
+      dispatch({
+        type: ACCOUNT_UPDATE_BALANCES_SUCCESS,
+        payload: parsedAccountInfo,
       });
-  };
-  getAccountBalances();
-  clearInterval(getAccountBalancesInterval);
-  getAccountBalancesInterval = setInterval(getAccountBalances, 15000); // 15secs
+      dispatch(accountGetNativePrices(accountInfo));
+    })
+    .catch(error => {
+      const message = parseError(error);
+      dispatch(notificationShow(message, true));
+      dispatch({ type: ACCOUNT_UPDATE_BALANCES_FAILURE });
+    });
+  //};
+  //getAccountBalances();
+  //clearInterval(getAccountBalancesInterval);
+  //getAccountBalancesInterval = setInterval(getAccountBalances, 15000); // 15secs
 };
 
 const accountGetAccountTransactions = () => (dispatch, getState) => {

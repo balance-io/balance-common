@@ -243,8 +243,12 @@ const accountGetNativePrices = accountInfo => (dispatch, getState) => {
         const nativePriceRequest = getState().account.nativePriceRequest;
         const nativeCurrency = getState().account.nativeCurrency;
         const network = getState().account.network;
+        console.log('***account get native prices data', data);
+        console.log('***account get native prices assetsymbols', assetSymbols);
+        console.log('***account get native prices native currency', nativeCurrency);
         if (nativeCurrency === nativePriceRequest) {
           const prices = parsePricesObject(data, assetSymbols, nativeCurrency);
+          console.log('****account get native prices parsed', prices);
           const parsedAccountInfo = parseAccountBalancesPrices(
             accountInfo,
             prices,
@@ -356,6 +360,7 @@ const accountUpdateBalances = () => (dispatch, getState) => {
     .then(({ data }) => {
       const prices = getState().account.prices;
       let accountInfo = { ...data, type: accountType };
+      console.log('***account update balances', prices);
       const parsedAccountInfo = parseAccountBalancesPrices(
         accountInfo,
         prices,

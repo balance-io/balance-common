@@ -17,6 +17,7 @@ export const saveLocal = async (
   try {
     data['storageVersion'] = version;
     await storage.save({ key, data, expires: null });
+    console.log('Storage: saved for key', key);
   } catch (error) {
     console.log('Storage: error saving to local for key', key);
   }

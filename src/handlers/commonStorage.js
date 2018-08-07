@@ -130,7 +130,7 @@ export const updateLocalBalances = async (address, account, network) => {
     assets: account.assets,
     total: account.total || '———',
   };
-  await saveLocal(address, accountLocal, accountLocalVersion);
+  await saveLocal(address.toLowerCase(), accountLocal, accountLocalVersion);
 };
 
 /**
@@ -165,7 +165,7 @@ export const updateLocalTransactions = async (
   }
   accountLocal[network].transactions = _transactions;
   accountLocal[network].pending = pending;
-  await saveLocal(address, accountLocal, accountLocalVersion);
+  await saveLocal(address.toLowerCase(), accountLocal, accountLocalVersion);
 };
 
 /**

@@ -147,11 +147,9 @@ export const updateLocalTransactions = async (
 ) => {
   if (!address) return;
   let accountLocal = await getAccountLocal(address);
-  console.log('*** get account local in txns', JSON.stringify(accountLocal));
   if (!accountLocal) {
     accountLocal = {};
   }
-  console.log('*** acount local updating txns', accountLocal);
   const pending = [];
   const _transactions = [];
   transactions.forEach(tx => {

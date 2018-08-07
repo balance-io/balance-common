@@ -113,11 +113,12 @@ let getAccountBalancesInterval = null;
 
 export const accountUpdateHasPendingTransaction = (
   hasPending = true,
-) => dispatch =>
+) => dispatch => {
   dispatch({
     type: ACCOUNT_UPDATE_HAS_PENDING_TRANSACTION,
     payload: hasPending,
   });
+};
 
 export const accountInitializeState = () => {
   getLanguage().then(language => {
@@ -154,7 +155,6 @@ export const accountUpdateTransactions = txDetails => (dispatch, getState) => {
       let _transactions = [...currentTransactions];
       _transactions = [parsedTransaction, ..._transactions];
       updateLocalTransactions(address, _transactions, network);
-      console.log('parsed transactions update txns', parsedTransaction);
       dispatch({
         type: ACCOUNT_UPDATE_TRANSACTIONS_SUCCESS,
         payload: _transactions,
@@ -670,6 +670,11 @@ export default (state = INITIAL_STATE, action) => {
     case ACCOUNT_GET_ACCOUNT_TRANSACTIONS_FAILURE:
       return { ...state, fetchingTransactions: false };
     case ACCOUNT_CHECK_TRANSACTION_STATUS_SUCCESS:
+      return {
+        ...state,
+        transactions: action.payload,
+      };
+    case ACCOUNT_UPDATE_TRANSACTIONS_SUCCESS:
       return {
         ...state,
         transactions: action.payload,

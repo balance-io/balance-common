@@ -90,8 +90,6 @@ const ACCOUNT_SHAPESHIFT_VERIFY_SUCCESS =
 const ACCOUNT_SHAPESHIFT_VERIFY_FAILURE =
   'account/ACCOUNT_SHAPESHIFT_VERIFY_FAILURE';
 
-const ACCOUNT_INITIALIZE_PRICES_REQUEST =
-  'account/ACCOUNT_INITIALIZE_PRICES_REQUEST';
 const ACCOUNT_INITIALIZE_PRICES_SUCCESS =
   'account/ACCOUNT_INITIALIZE_PRICES_SUCCESS';
 const ACCOUNT_INITIALIZE_PRICES_FAILURE =
@@ -101,9 +99,13 @@ const ACCOUNT_UPDATE_NETWORK = 'account/ACCOUNT_UPDATE_NETWORK';
 const ACCOUNT_UPDATE_ACCOUNT_ADDRESS = 'account/ACCOUNT_UPDATE_ACCOUNT_ADDRESS';
 const ACCOUNT_UPDATE_HAS_PENDING_TRANSACTION =
   'account/ACCOUNT_UPDATE_HAS_PENDING_TRANSACTION';
-const ACCOUNT_CHANGE_NATIVE_CURRENCY = 'account/ACCOUNT_CHANGE_NATIVE_CURRENCY';
 const ACCOUNT_CLEAR_STATE = 'account/ACCOUNT_CLEAR_STATE';
-const ACCOUNT_CHANGE_LANGUAGE = 'account/ACCOUNT_CHANGE_LANGUAGE';
+
+const ACCOUNT_CHANGE_NATIVE_CURRENCY_SUCCESS = 'account/ACCOUNT_CHANGE_NATIVE_CURRENCY_SUCCESS';
+const ACCOUNT_CHANGE_NATIVE_CURRENCY_FAILURE = 'account/ACCOUNT_CHANGE_NATIVE_CURRENCY_FAILURE';
+
+const ACCOUNT_CHANGE_LANGUAGE_SUCCESS = 'account/ACCOUNT_CHANGE_LANGUAGE_SUCCESS';
+const ACCOUNT_CHANGE_LANGUAGE_FAILURE = 'account/ACCOUNT_CHANGE_LANGUAGE_FAILURE';
 
 // -- Actions --------------------------------------------------------------- //
 let getPricesInterval = null;
@@ -116,6 +118,30 @@ export const accountUpdateHasPendingTransaction = (
     type: ACCOUNT_UPDATE_HAS_PENDING_TRANSACTION,
     payload: hasPending,
   });
+
+export const accountInitializeState = () => {
+  getLanguage().then(language => {
+    dispatch({ 
+      type: ACCOUNT_CHANGE_LANGUAGE_SUCCESS,
+      payload: { language }
+    });
+  }).catch(error => {
+    dispatch({ 
+      type: ACCOUNT_CHANGE_LANGUAGE_FAILURE
+    });
+  });
+  getNativeCurrency().then(nativeCurrency => {
+    dispatch({ 
+      type: ACCOUNT_INITIALIZE_PRICES_SUCCESS,
+      payload: { nativeCurrency }
+    });
+  }).catch(error => {
+    dispatch({ 
+      type: ACCOUNT_INITIALIZE_PRICES_FAILURE
+    });
+  
+  });
+};
 
 export const accountUpdateTransactions = txDetails => (dispatch, getState) => {
   dispatch({ type: ACCOUNT_UPDATE_TRANSACTIONS_REQUEST });
@@ -198,10 +224,15 @@ export const accountUpdateNetwork = network => dispatch => {
 export const accountChangeLanguage = language => dispatch => {
   //TODO: needs to trigger render after change
   updateLanguage(language);
-  saveLanguage(language);
-  dispatch({
-    type: ACCOUNT_CHANGE_LANGUAGE,
-    payload: { language },
+  saveLanguage(language).then( () => {
+    dispatch({
+      type: ACCOUNT_CHANGE_LANGUAGE_SUCCESS,
+      payload: { language },
+    });
+  }).catch(error => {
+    dispatch({
+      type: ACCOUNT_CHANGE_LANGUAGE_FAILURE,
+    });
   });
 };
 
@@ -209,18 +240,33 @@ export const accountChangeNativeCurrency = nativeCurrency => (
   dispatch,
   getState,
 ) => {
+  const prices = getState().account.prices;
+  if (prices) {
+    dispatch(accountUpdatePrices(prices)); 
+  } else {
+    getNativePrices().then(nativePrices => {
+      dispatch(accountUpdatePrices(nativePrices)); 
+    }).catch( error => {
+      dispatch({
+        type: ACCOUNT_CHANGE_NATIVE_CURRENCY_FAILURE,
+      });
+    });
+  };
+
+};
+
+const accountUpdatePrices = prices => (dispatch, getState) => {
   saveNativeCurrency(nativeCurrency);
-  let prices = getState().account.prices || getNativePrices();
   const accountAddress = getState().account.accountAddress;
   const network = getState().account.network;
   const selected = nativeCurrencies[nativeCurrency];
-  let newPrices = { ...prices, selected };
   let oldAccountInfo = getState().account.accountInfo;
+  let newPrices = { ...prices, selected };
   const newAccountInfo = parseAccountBalancesPrices(oldAccountInfo, newPrices);
   const accountInfo = { ...oldAccountInfo, ...newAccountInfo };
   updateLocalBalances(accountAddress, accountInfo, network);
   dispatch({
-    type: ACCOUNT_CHANGE_NATIVE_CURRENCY,
+    type: ACCOUNT_CHANGE_NATIVE_CURRENCY_SUCCESS,
     payload: { nativeCurrency, prices: newPrices, accountInfo },
   });
 };
@@ -387,59 +433,62 @@ const accountGetAccountTransactions = () => (dispatch, getState) => {
   const { accountAddress, network } = getState().account;
   let cachedTransactions = [];
   let confirmedTransactions = [];
-  const accountLocal = getAccountLocal(accountAddress) || null;
-  if (accountLocal && accountLocal[network]) {
-    if (accountLocal[network].pending) {
-      cachedTransactions = [...accountLocal[network].pending];
-      accountLocal[network].pending.forEach(pendingTx =>
-        dispatch(accountCheckTransactionStatus(pendingTx.hash)),
-      );
+  getAccountLocal(accountAddress).then(accountLocal => {
+    if (accountLocal && accountLocal[network]) {
+      if (accountLocal[network].pending) {
+        cachedTransactions = [...accountLocal[network].pending];
+        accountLocal[network].pending.forEach(pendingTx =>
+          dispatch(accountCheckTransactionStatus(pendingTx.hash)),
+        );
+      }
+      if (accountLocal[network].transactions) {
+        confirmedTransactions = accountLocal[network].transactions;
+        cachedTransactions = _.unionBy(
+          cachedTransactions,
+          accountLocal[network].transactions,
+          'hash',
+        );
+        updateLocalTransactions(accountAddress, cachedTransactions, network);
+      }
     }
-    if (accountLocal[network].transactions) {
-      confirmedTransactions = accountLocal[network].transactions;
-      cachedTransactions = _.unionBy(
-        cachedTransactions,
-        accountLocal[network].transactions,
-        'hash',
-      );
-      updateLocalTransactions(accountAddress, cachedTransactions, network);
-    }
-  }
-  dispatch({
-    type: ACCOUNT_GET_ACCOUNT_TRANSACTIONS_REQUEST,
-    payload: {
-      transactions: cachedTransactions,
-      fetchingTransactions:
-        (accountLocal && !accountLocal[network]) ||
-        !accountLocal ||
-        !accountLocal[network].transactions ||
-        !accountLocal[network].transactions.length,
-    },
-  });
-  const lastTxHash = confirmedTransactions.length
-    ? confirmedTransactions[0].hash
-    : '';
-  apiGetAccountTransactions(accountAddress, network, lastTxHash)
-    .then(({ data }) => {
-      const transactions = data;
-      const address = getState().account.accountAddress;
-      const currentTransactions = getState().account.transactions;
-      let _transactions = _.unionBy(transactions, currentTransactions, 'hash');
-      updateLocalTransactions(address, _transactions, network);
-      dispatch({
-        type: ACCOUNT_GET_ACCOUNT_TRANSACTIONS_SUCCESS,
-        payload: _transactions,
-      });
-    })
-    .catch(error => {
-      dispatch(
-        notificationShow(
-          lang.t('notification.error.failed_get_account_tx'),
-          true,
-        ),
-      );
-      dispatch({ type: ACCOUNT_GET_ACCOUNT_TRANSACTIONS_FAILURE });
+    dispatch({
+      type: ACCOUNT_GET_ACCOUNT_TRANSACTIONS_REQUEST,
+      payload: {
+        transactions: cachedTransactions,
+        fetchingTransactions:
+          (accountLocal && !accountLocal[network]) ||
+          !accountLocal ||
+          !accountLocal[network].transactions ||
+          !accountLocal[network].transactions.length,
+      },
     });
+    const lastTxHash = confirmedTransactions.length
+      ? confirmedTransactions[0].hash
+      : '';
+    apiGetAccountTransactions(accountAddress, network, lastTxHash)
+      .then(({ data }) => {
+        const transactions = data;
+        const address = getState().account.accountAddress;
+        const currentTransactions = getState().account.transactions;
+        let _transactions = _.unionBy(transactions, currentTransactions, 'hash');
+        updateLocalTransactions(address, _transactions, network);
+        dispatch({
+          type: ACCOUNT_GET_ACCOUNT_TRANSACTIONS_SUCCESS,
+          payload: _transactions,
+        });
+      })
+      .catch(error => {
+        dispatch(
+          notificationShow(
+            lang.t('notification.error.failed_get_account_tx'),
+            true,
+          ),
+        );
+        dispatch({ type: ACCOUNT_GET_ACCOUNT_TRANSACTIONS_FAILURE });
+      });
+  }).catch(error => {
+    dispatch({ type: ACCOUNT_GET_ACCOUNT_TRANSACTIONS_FAILURE });
+  });
 };
 
 const accountCheckTransactionStatus = txHash => (dispatch, getState) => {
@@ -592,9 +641,9 @@ const INITIAL_STATE = {
   fetchingTransactions: false,
   fetchingUniqueTokens: false,
   hasPendingTransaction: false,
-  language: getLanguage() || 'en',
-  nativePriceRequest: getNativeCurrency() || 'USD',
-  nativeCurrency: getNativeCurrency() || 'USD',
+  language: 'en',
+  nativePriceRequest: 'USD',
+  nativeCurrency: 'USD',
   network: 'mainnet',
   prices: {},
   shapeshiftAvailable: true,
@@ -694,26 +743,15 @@ export default (state = INITIAL_STATE, action) => {
         fetchingNativePrices: false,
         nativePriceRequest: 'USD',
       };
-    case ACCOUNT_INITIALIZE_PRICES_REQUEST:
-      return {
-        ...state,
-        nativePriceRequest: 'USD',
-        nativeCurrency: 'USD',
-        prices: {},
-      };
     case ACCOUNT_INITIALIZE_PRICES_SUCCESS:
       return {
         ...state,
         nativePriceRequest: action.payload.nativeCurrency,
         nativeCurrency: action.payload.nativeCurrency,
-        prices: action.payload.prices,
       };
     case ACCOUNT_INITIALIZE_PRICES_FAILURE:
       return {
         ...state,
-        nativePriceRequest: 'USD',
-        nativeCurrency: 'USD',
-        prices: {},
       };
     case ACCOUNT_UPDATE_HAS_PENDING_TRANSACTION:
       return { ...state, hasPendingTransaction: action.payload };
@@ -734,17 +772,25 @@ export default (state = INITIAL_STATE, action) => {
         fetchingShapeshift: false,
         shapeshiftAvailable: false,
       };
-    case ACCOUNT_CHANGE_NATIVE_CURRENCY:
+    case ACCOUNT_CHANGE_NATIVE_CURRENCY_SUCCESS:
       return {
         ...state,
         nativeCurrency: action.payload.nativeCurrency,
         prices: action.payload.prices,
         accountInfo: action.payload.accountInfo,
       };
-    case ACCOUNT_CHANGE_LANGUAGE:
+    case ACCOUNT_CHANGE_NATIVE_CURRENCY_FAILURE:
+      return {
+        ...state,
+      };
+    case ACCOUNT_CHANGE_LANGUAGE_SUCCESS:
       return {
         ...state,
         language: action.payload.language,
+      };
+    case ACCOUNT_CHANGE_LANGUAGE_FAILURE:
+      return {
+        ...state,
       };
     case ACCOUNT_CLEAR_STATE:
       return {

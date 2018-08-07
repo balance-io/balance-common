@@ -296,8 +296,9 @@ export const parseAccountBalancesPrices = (
   let newAccount = {
     ...account,
   };
-  if (account && nativePrices && nativePrices.selected) {
-    let nativeSelected = nativePrices.selected.currency;
+  let nativeSelected = nativePrices.selected.currency;
+  //if (account && nativePrices && nativePrices.selected) {
+  if (account) {
     const newAssets = account.assets.map(asset => {
       if (
         !nativePrices ||

@@ -219,7 +219,6 @@ export const accountChangeNativeCurrency = nativeCurrency => (
   const newAccountInfo = parseAccountBalancesPrices(oldAccountInfo, newPrices);
   const accountInfo = { ...oldAccountInfo, ...newAccountInfo };
   updateLocalBalances(accountAddress, accountInfo, network);
-  console.log('account info change native currency', accountInfo);
   dispatch({
     type: ACCOUNT_CHANGE_NATIVE_CURRENCY,
     payload: { nativeCurrency, prices: newPrices, accountInfo },
@@ -305,31 +304,30 @@ const accountGetAccountBalances = () => (dispatch, getState) => {
             total: accountLocal[network].balances.total,
           };
         }
-      if (accountLocal[network].type && !cachedAccount.type) {
-          cachedAccount.type = accountLocal[network].type;
+        if (accountLocal[network].type && !cachedAccount.type) {
+            cachedAccount.type = accountLocal[network].type;
+          }
+        if (accountLocal[network].pending) {
+          cachedTransactions = [...accountLocal[network].pending];
         }
-      if (accountLocal[network].pending) {
-        cachedTransactions = [...accountLocal[network].pending];
+        if (accountLocal[network].transactions) {
+          cachedTransactions = _.unionBy(
+            cachedTransactions,
+            accountLocal[network].transactions,
+            'hash',
+          );
+          updateLocalTransactions(accountAddress, cachedTransactions, network);
+        }
+        dispatch({
+          type: ACCOUNT_GET_ACCOUNT_BALANCES_REQUEST,
+          payload: {
+            accountType: cachedAccount.type || accountType,
+            accountInfo: cachedAccount,
+            transactions: cachedTransactions,
+            fetching: (accountLocal && !accountLocal[network]) || !accountLocal,
+          },
+        });
       }
-      if (accountLocal[network].transactions) {
-        cachedTransactions = _.unionBy(
-          cachedTransactions,
-          accountLocal[network].transactions,
-          'hash',
-        );
-        updateLocalTransactions(accountAddress, cachedTransactions, network);
-      }
-      }
-      console.log('account info get account balances', cachedAccount);
-      dispatch({
-        type: ACCOUNT_GET_ACCOUNT_BALANCES_REQUEST,
-        payload: {
-          accountType: cachedAccount.type || accountType,
-          accountInfo: cachedAccount,
-          transactions: cachedTransactions,
-          fetching: (accountLocal && !accountLocal[network]) || !accountLocal,
-        },
-      });
       //dispatch(accountUpdateBalances());
       apiGetAccountBalances(accountAddress, network)
 				.then(({ data }) => {
@@ -364,7 +362,6 @@ const accountUpdateBalances = () => (dispatch, getState) => {
             prices,
             network,
           );
-          console.log('parsedAccountInfo update balances', parsedAccountInfo);
           dispatch({
             type: ACCOUNT_UPDATE_BALANCES_SUCCESS,
             payload: parsedAccountInfo,

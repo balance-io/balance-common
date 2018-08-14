@@ -20,6 +20,10 @@ import {
   sendUpdateRecipient,
   sendUpdateSelected,
 } from './reducers';
+import {
+  parseError,
+  parseGasPrices,
+} from './handlers';
 import * as commonStorage from './handlers/commonStorage';
 import * as bignumber from './helpers/bignumber';
 export {
@@ -34,6 +38,8 @@ export {
   accountUpdateTransactions,
   bignumber,
   commonStorage,
+  parseError,
+  parseGasPrices,
   send,
   sendClearFields,
   sendMaxBalance,

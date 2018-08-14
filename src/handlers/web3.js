@@ -191,20 +191,6 @@ export const getTransferTokenTransaction = transaction => {
 };
 
 /**
- * @desc send signed transaction
- * @param  {String}  signedTx
- * @return {Promise}
- */
-export const web3SendSignedTransaction = signedTx =>
-  new Promise((resolve, reject) => {
-    const serializedTx = typeof signedTx === 'string' ? signedTx : signedTx.raw;
-    web3Instance.eth
-      .sendSignedTransaction(serializedTx)
-      .once('transactionHash', txHash => resolve(txHash))
-      .catch(error => reject(error));
-  });
-
-/**
  * @desc transform into signable transaction
  * @param {Object} transaction { asset, from, to, amount, gasPrice }
  * @return {Promise}

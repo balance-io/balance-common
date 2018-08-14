@@ -164,6 +164,7 @@ export const sendTransaction = (transactionDetails, signAndSendTransactionCb) =>
     gasPrice,
     gasLimit,
   } = transactionDetails;
+  const { accountType } = getState().account;
   const txDetails = {
     asset: asset,
     from: address,
@@ -175,7 +176,7 @@ export const sendTransaction = (transactionDetails, signAndSendTransactionCb) =>
   };
   createSignableTransaction(txDetails)
     .then(signableTransactionDetails => {
-      signAndSendTransactionCb(signableTransactionDetails)
+      signAndSendTransactionCb(signableTransactionDetails, accountType)
       .then(txHash => {
         // has pending transactions set to true for redirect to Transactions route
         dispatch(accountUpdateHasPendingTransaction());

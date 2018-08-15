@@ -10,6 +10,18 @@ import nativeCurrencies from '../references/native-currencies.json';
 const cryptocompareApiKey = process.env.REACT_APP_CRYPTOCOMPARE_API_KEY || '';
 
 /**
+ * @desc get single asset price
+ * @param  {String}   [asset='']
+ * @param  {String}   [native='USD']
+ * @return {Promise}
+ */
+export const apiGetSinglePrice = (asset = '', native = 'USD') => {
+  return cryptocompare.get(
+    `/price?fsym=${asset}&tsyms=${native}&apiKey=${cryptocompareApiKey}`,
+  );
+};
+
+/**
  * Configuration for cryptocompare api
  * @type axios instance
  */

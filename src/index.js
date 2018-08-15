@@ -22,6 +22,12 @@ import {
   sendUpdateSelected,
 } from './reducers';
 import {
+  apiGetGasPrices,
+  apiGetSinglePrice,
+  apiShapeshiftGetMarketInfo,
+  apiShapeshiftGetCurrencies,
+  apiShapeshiftSendAmount,
+  apiShapeshiftGetExchangeDetails,
   parseError,
   parseGasPrices,
 } from './handlers';
@@ -37,6 +43,12 @@ export {
   accountUpdateExchange,
   accountUpdateHasPendingTransaction,
   accountUpdateTransactions,
+  apiGetGasPrices,
+  apiGetSinglePrice,
+  apiShapeshiftGetMarketInfo,
+  apiShapeshiftGetCurrencies,
+  apiShapeshiftSendAmount,
+  apiShapeshiftGetExchangeDetails,
   bignumber,
   commonStorage,
   parseError,

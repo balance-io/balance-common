@@ -17,4 +17,5 @@ export {
   apiShapeshiftGetExchangeDetails,
   parseError,
   parseGasPrices,
+  toChecksumAddress,
 };

@@ -65,4 +65,5 @@ export {
   sendUpdateNativeAmount,
   sendUpdateRecipient,
   sendUpdateSelected,
+  toChecksumAddress,
 };

@@ -195,31 +195,32 @@ export const getTransferTokenTransaction = transaction => {
  * @param {Object} transaction { asset, from, to, amount, gasPrice }
  * @return {Promise}
  */
-export const createSignableTransaction = (transaction) => {
-  transaction.value = transaction.amount;
-  if (transaction.asset.symbol !== 'ETH') {
-    transaction = getTransferTokenTransaction(transaction);
-  }
-  const from =
-    transaction.from.substr(0, 2) === '0x'
-      ? transaction.from
-      : `0x${transaction.from}`;
-  const to =
-    transaction.to.substr(0, 2) === '0x'
-      ? transaction.to
-      : `0x${transaction.to}`;
-  const value = transaction.value ? toWei(transaction.value) : '0x00';
-  const data = transaction.data ? transaction.data : '0x';
-
-  return  getTxDetails({
-    from,
-    to,
-    data,
-    value,
-    gasPrice: transaction.gasPrice,
-    gasLimit: transaction.gasLimit,
+export const createSignableTransaction = (transaction) =>
+  new Promise((resolve, reject) => {
+    transaction.value = transaction.amount;
+    if (transaction.asset.symbol !== 'ETH') {
+      transaction = getTransferTokenTransaction(transaction);
+    }
+    const from =
+      transaction.from.substr(0, 2) === '0x'
+        ? transaction.from
+        : `0x${transaction.from}`;
+    const to =
+      transaction.to.substr(0, 2) === '0x'
+        ? transaction.to
+        : `0x${transaction.to}`;
+    const value = transaction.value ? toWei(transaction.value) : '0x00';
+    const data = transaction.data ? transaction.data : '0x';
+    getTxDetails({
+      from,
+      to,
+      data,
+      value,
+      gasPrice: transaction.gasPrice,
+      gasLimit: transaction.gasLimit,
+    }).then(txDetails => resolve(txDetails))
+    .catch(error => reject(error));
   });
-};
 
 /**
  * @desc estimate gas limit

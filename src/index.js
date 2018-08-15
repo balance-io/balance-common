@@ -30,6 +30,7 @@ import {
   apiShapeshiftGetExchangeDetails,
   parseError,
   parseGasPrices,
+  toChecksumAddress,
 } from './handlers';
 import * as commonStorage from './handlers/commonStorage';
 import * as bignumber from './helpers/bignumber';

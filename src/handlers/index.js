@@ -1,3 +1,4 @@
+import { toChecksumAddress } from './web3';
 import { parseError, parseGasPrices } from './parsers';
 import {
   apiGetGasPrices,

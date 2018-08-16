@@ -23,6 +23,25 @@ import {
   sendUpdateRecipient,
   sendUpdateSelected,
 } from './reducers';
+import {
+  add,
+  convertAmountFromBigNumber,
+  convertAmountToBigNumber,
+  convertAmountToDisplay,
+  convertAssetAmountFromBigNumber,
+  convertNumberToString,
+  convertStringToNumber,
+  convertStringToHex,
+  divide,
+  greaterThan,
+  greaterThanOrEqual,
+  handleSignificantDecimals,
+  hasHighMarketValue,
+  hasLowMarketValue,
+  multiply,
+  smallerThan,
+  subtract,
+} from './helpers/bignumber';
 import { getCountdown, getLocalTimeDate } from './helpers';
 import {
   apiGetGasPrices,
@@ -39,6 +58,7 @@ import {
 import * as commonStorage from './handlers/commonStorage';
 import * as bignumber from './helpers/bignumber';
 export {
+  add,
   account,
   accountChangeLanguage,
   accountChangeNativeCurrency,
@@ -56,10 +76,24 @@ export {
   apiShapeshiftGetExchangeDetails,
   bignumber,
   commonStorage,
+  convertAmountFromBigNumber,
+  convertAmountToBigNumber,
+  convertAmountToDisplay,
+  convertAssetAmountFromBigNumber,
+  convertNumberToString,
+  convertStringToNumber,
+  convertStringToHex,
+  divide,
   estimateGasLimit,
   getCountdown,
   getLocalTimeDate,
+  greaterThan,
+  greaterThanOrEqual,
+  handleSignificantDecimals,
+  hasHighMarketValue,
+  hasLowMarketValue,
   lang,
+  multiply,
   parseError,
   parseGasPrices,
   resources,
@@ -74,5 +108,7 @@ export {
   sendUpdateNativeAmount,
   sendUpdateRecipient,
   sendUpdateSelected,
+  smallerThan,
+  subtract,
   toChecksumAddress,
 };

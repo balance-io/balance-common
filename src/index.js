@@ -56,7 +56,6 @@ import {
   toChecksumAddress,
 } from './handlers';
 import * as commonStorage from './handlers/commonStorage';
-import * as bignumber from './helpers/bignumber';
 export {
   add,
   account,
@@ -74,7 +73,6 @@ export {
   apiShapeshiftGetCurrencies,
   apiShapeshiftSendAmount,
   apiShapeshiftGetExchangeDetails,
-  bignumber,
   commonStorage,
   convertAmountFromBigNumber,
   convertAmountToBigNumber,

@@ -1,14 +1,5 @@
 import "@babel/polyfill";
 import lang, { resources } from './languages';
-import { getLanguage } from './handlers/commonStorage';
-
-// Languages (i18n)
-lang.init({
-  lng: getLanguage() || 'en',
-  fallbackLng: 'en',
-  debug: process.env.NODE_ENV === 'development',
-  resources,
-});
 
 import {
   account,

@@ -32,6 +32,7 @@ import {
   sendUpdateRecipient,
   sendUpdateSelected,
 } from './reducers';
+import { getCountdown, getLocalTimeDate } from './helpers';
 import {
   apiGetGasPrices,
   apiGetSinglePrice,
@@ -65,6 +66,8 @@ export {
   bignumber,
   commonStorage,
   estimateGasLimit,
+  getCountdown,
+  getLocalTimeDate,
   parseError,
   parseGasPrices,
   send,

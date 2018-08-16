@@ -1,4 +1,14 @@
 import "@babel/polyfill";
+import lang, { resources } from './languages';
+
+// Languages (i18n)
+lang.init({
+  lng: getLanguage() || 'en',
+  fallbackLng: 'en',
+  debug: process.env.NODE_ENV === 'development',
+  resources,
+});
+
 import {
   account,
   accountChangeLanguage,

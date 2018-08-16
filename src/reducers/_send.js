@@ -71,9 +71,7 @@ export const sendModalInit = () => (dispatch, getState) => {
   });
   apiGetGasPrices()
     .then(({ data }) => {
-      console.log('api get gas prices', data);
       const gasPrices = parseGasPrices(data, prices, gasLimit);
-      console.log('parse gas prices', gasPrices);
       dispatch({
         type: SEND_GET_GAS_PRICES_SUCCESS,
         payload: gasPrices,

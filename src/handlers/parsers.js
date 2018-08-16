@@ -104,10 +104,7 @@ export const parseGasPrices = (data, prices, gasLimit) => {
     gasPrices.slow = defaultGasPriceFormat('slow', '1800000','1000000000', '1 Gwei');
   } else {
     const fastTimeAmount = multiply(data.fastWait, timeUnits.ms.minute);
-    console.log('data fast', data.fast);
     const fastValueAmount = divide(data.fast, 10);
-    console.log('fast value amount', fastValueAmount);
-    console.log('eth units gwei', ethUnits.gwei);
     gasPrices.fast = defaultGasPriceFormat(
       'fast',
       fastTimeAmount,
@@ -116,7 +113,7 @@ export const parseGasPrices = (data, prices, gasLimit) => {
     );
 
     const avgTimeAmount = multiply(data.avgWait, timeUnits.ms.minute);
-    const avgValueAmount = divide(data.avg, 10);
+    const avgValueAmount = divide(data.average, 10);
     gasPrices.average = defaultGasPriceFormat(
       'average',
       avgTimeAmount,

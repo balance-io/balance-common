@@ -1,4 +1,4 @@
-import { toChecksumAddress } from './web3';
+import { estimateGasLimit, toChecksumAddress } from './web3';
 import { parseError, parseGasPrices } from './parsers';
 import {
   apiGetGasPrices,
@@ -15,6 +15,7 @@ export {
   apiShapeshiftGetCurrencies,
   apiShapeshiftSendAmount,
   apiShapeshiftGetExchangeDetails,
+  estimateGasLimit,
   parseError,
   parseGasPrices,
   toChecksumAddress,

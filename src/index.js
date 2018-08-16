@@ -1,5 +1,6 @@
 import "@babel/polyfill";
 import lang, { resources } from './languages';
+import { getLanguage } from './handlers/commonStorage';
 
 // Languages (i18n)
 lang.init({

@@ -24,6 +24,16 @@ import {
   sendUpdateSelected,
 } from './reducers';
 import {
+  calcTxFee,
+  capitalize,
+  ellipseText,
+  getEth,
+  getDataString,
+  getDerivationPathComponents,
+  removeHexPrefix,
+  transactionData,
+} from './helpers/utilities';
+import {
   add,
   convertAmountFromBigNumber,
   convertAmountToBigNumber,
@@ -73,6 +83,8 @@ export {
   apiShapeshiftGetCurrencies,
   apiShapeshiftSendAmount,
   apiShapeshiftGetExchangeDetails,
+  calcTxFee,
+  capitalize,
   commonStorage,
   convertAmountFromBigNumber,
   convertAmountToBigNumber,
@@ -82,8 +94,12 @@ export {
   convertStringToNumber,
   convertStringToHex,
   divide,
+  ellipseText,
   estimateGasLimit,
   getCountdown,
+  getDataString,
+  getDerivationPathComponents,
+  getEth,
   getLocalTimeDate,
   greaterThan,
   greaterThanOrEqual,
@@ -94,6 +110,7 @@ export {
   multiply,
   parseError,
   parseGasPrices,
+  removeHexPrefix,
   resources,
   send,
   sendClearFields,
@@ -109,4 +126,5 @@ export {
   smallerThan,
   subtract,
   toChecksumAddress,
+  transactionData,
 };

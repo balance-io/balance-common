@@ -96,10 +96,13 @@ export const multiply = (numberOne, numberTwo) =>
  * @param  {Number}   numberTwo
  * @return {String}
  */
-export const divide = (numberOne, numberTwo) =>
-  BigNumber(`${numberOne}`)
+export const divide = (numberOne, numberTwo) => {
+  const firstNumber = BigNumber(`${numberOne}`);
+  console.log('first number in divide', firstNumber);
+  return firstNumber
     .dividedBy(BigNumber(`${numberTwo}`))
     .toString();
+};
 
 /**
  * @desc real floor divides two numbers

@@ -43,18 +43,22 @@ export const getTimeString = (value = '', unit = 'ms', short = false) => {
         if (_value === 1) {
           _unit = lang.t('time.second');
           _unitShort = lang.t('time.sec');
+          console.log('unit', _unit);
         } else {
           _unit = lang.t('time.seconds');
           _unitShort = lang.t('time.secs');
+          console.log('unit', _unit);
         }
       } else if (_value >= timeUnits.ms.minute && _value < timeUnits.ms.hour) {
         _value = formatFixedDecimals(divide(_value, timeUnits.ms.minute), 2);
         if (_value === 1) {
           _unit = lang.t('time.minute');
           _unitShort = lang.t('time.min');
+          console.log('unit', _unit);
         } else {
           _unit = lang.t('time.minutes');
           _unitShort = lang.t('time.mins');
+          console.log('unit', _unit);
         }
       } else if (_value >= timeUnits.ms.hour && _value < timeUnits.ms.day) {
         _value = formatFixedDecimals(divide(_value, timeUnits.ms.hour), 2);

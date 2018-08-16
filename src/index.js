@@ -24,6 +24,10 @@ import {
   sendUpdateSelected,
 } from './reducers';
 import {
+  isValidAddress,
+  isValidEmail,
+} from './helpers/validators';
+import {
   calcTxFee,
   capitalize,
   ellipseText,
@@ -106,6 +110,8 @@ export {
   handleSignificantDecimals,
   hasHighMarketValue,
   hasLowMarketValue,
+  isValidAddress,
+  isValidEmail,
   lang,
   multiply,
   parseError,

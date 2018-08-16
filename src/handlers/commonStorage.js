@@ -4,6 +4,7 @@ const globalSettingsVersion = '0.1.0';
 const walletConnectVersion = '0.1.0';
 
 const expiryBufferInSeconds = 10 * 60;
+const defaultExpiryInSeconds = 24 * 60 * 60;
 
 /**
  * @desc save to storage
@@ -202,7 +203,7 @@ export const getWalletConnectSession = async () => {
  * @desc save wallet connect session
  * @param  {String}   [address]
  */
-export const saveWalletConnectSession = async (webConnectorOptions, ttlInSeconds) => {
+export const saveWalletConnectSession = async (webConnectorOptions, ttlInSeconds = defaultExpiryInSeconds) => {
   let expiration = new Date();
   expiration.setSeconds(
     expiration.getSeconds() + ttlInSeconds - expiryBufferInSeconds);

@@ -65,6 +65,7 @@ export const removeLocal = async (key = '') => {
  * @return {Object}
  */
 export const getAccountLocal = async accountAddress => {
+  console.log('get account local', accountAddress);
   return await getLocal(accountAddress.toLowerCase(), accountLocalVersion);
 };
 

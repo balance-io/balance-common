@@ -71,6 +71,7 @@ export {
   lang,
   parseError,
   parseGasPrices,
+  resources,
   send,
   sendClearFields,
   sendMaxBalance,

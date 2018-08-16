@@ -68,6 +68,7 @@ export {
   estimateGasLimit,
   getCountdown,
   getLocalTimeDate,
+  lang,
   parseError,
   parseGasPrices,
   send,

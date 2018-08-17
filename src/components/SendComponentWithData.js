@@ -46,7 +46,7 @@ const reduxProps = ({ send, account }) => ({
   prices: account.prices,
 });
 
-export const withSendComponentWithData = (SendComponent) => {
+export const withSendComponentWithData = (SendComponent, sendTransactionCb) => {
   class SendComponentWithData extends Component {
     static propTypes = {
       sendModalInit: PropTypes.func.isRequired,
@@ -191,7 +191,7 @@ export const withSendComponentWithData = (SendComponent) => {
           asset: this.props.selected,
           gasPrice: this.props.gasPrice,
           gasLimit: this.props.gasLimit,
-        });
+        }, sendTransactionCb);
       }
 
       this.props.sendToggleConfirmationView(true);
@@ -241,7 +241,20 @@ export const withSendComponentWithData = (SendComponent) => {
     };
 
     render = () => { 
-      return <SendComponent {...this.props} />;
+      return <SendComponent
+               isValidAddress={this.state.isValidAddress}
+               onSendMaxBalance={this.onSendMaxBalance}
+               onAddressInputFocus={this.onAddressInputFocus}
+               onAddressInputBlur={this.onAddressInputBlur}
+               onClose={this.onClose}
+               onQRCodeValidate={this.onQRCodeValidate}
+               onQRCodeScan={this.onQRCodeScan}
+               onQRCodeError={this.onQRCodeError}
+               onSubmit={this.onSubmit}
+               showQRCodeReader={this.state.showQRCodeReader}
+               toggleQRCodeReader={this.toggleQRCodeReader}
+               updateGasPrice={this.updateGasPrice}
+               {...this.props} />;
     };
   }
 

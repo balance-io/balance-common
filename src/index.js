@@ -2,6 +2,9 @@ import "@babel/polyfill";
 import lang, { resources } from './languages';
 
 import {
+  withSendComponentWithData
+} from './components/SendComponentWithData';
+import {
   account,
   accountChangeLanguage,
   accountChangeNativeCurrency,
@@ -133,4 +136,5 @@ export {
   subtract,
   toChecksumAddress,
   transactionData,
+  withSendComponentWithData,
 };

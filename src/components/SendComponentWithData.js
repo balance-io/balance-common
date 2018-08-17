@@ -46,7 +46,7 @@ const reduxProps = ({ send, account }) => ({
   prices: account.prices,
 });
 
-export const withSendComponentWithData = (SendComponent) => {
+export const withSendComponentWithData = (SendComponent, sendTransactionCb) => {
   class SendComponentWithData extends Component {
     static propTypes = {
       sendModalInit: PropTypes.func.isRequired,
@@ -116,9 +116,7 @@ export const withSendComponentWithData = (SendComponent) => {
     };
 
     onSubmit = e => {
-      console.log('e on submit', e);
       e.preventDefault();
-      console.log('prevent default');
 
       if (!this.props.gasPrice.txFee) {
         this.props.notificationShow(
@@ -193,7 +191,7 @@ export const withSendComponentWithData = (SendComponent) => {
           asset: this.props.selected,
           gasPrice: this.props.gasPrice,
           gasLimit: this.props.gasLimit,
-        });
+        }, sendTransactionCb);
       }
 
       this.props.sendToggleConfirmationView(true);

@@ -209,6 +209,7 @@ export const sendToggleConfirmationView = boolean => (dispatch, getState) => {
 };
 
 export const sendUpdateRecipient = recipient => dispatch => {
+  console.log('send received recipient', recipient);
   const input = recipient.replace(/[^\w.]/g, '');
   if (input.length <= 42) {
     dispatch({

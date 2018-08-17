@@ -116,7 +116,9 @@ export const withSendComponentWithData = (SendComponent) => {
     };
 
     onSubmit = e => {
+      console.log('e on submit', e);
       e.preventDefault();
+      console.log('prevent default');
 
       if (!this.props.gasPrice.txFee) {
         this.props.notificationShow(
@@ -241,7 +243,20 @@ export const withSendComponentWithData = (SendComponent) => {
     };
 
     render = () => { 
-      return <SendComponent {...this.props} />;
+      return <SendComponent
+               isValidAddress={this.state.isValidAddress}
+               onSendMaxBalance={this.onSendMaxBalance}
+               onAddressInputFocus={this.onAddressInputFocus}
+               onAddressInputBlur={this.onAddressInputBlur}
+               onClose={this.onClose}
+               onQRCodeValidate={this.onQRCodeValidate}
+               onQRCodeScan={this.onQRCodeScan}
+               onQRCodeError={this.onQRCodeError}
+               onSubmit={this.onSubmit}
+               showQRCodeReader={this.state.showQRCodeReader}
+               toggleQRCodeReader={this.toggleQRCodeReader}
+               updateGasPrice={this.updateGasPrice}
+               {...this.props} />;
     };
   }
 

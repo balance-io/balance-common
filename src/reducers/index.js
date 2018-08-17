@@ -1,4 +1,46 @@
 import account from './_account';
-import { accountUpdateAccountAddress } from './_account';
-
-export { account, accountUpdateAccountAddress };
+import send from './_send';
+import {
+  accountChangeLanguage,
+  accountChangeNativeCurrency,
+  accountUpdateNetwork,
+  accountClearState,
+  accountUpdateAccountAddress,
+  accountUpdateExchange,
+  accountUpdateHasPendingTransaction,
+  accountUpdateTransactions,
+} from './_account';
+import {
+  sendClearFields,
+  sendMaxBalance,
+  sendModalInit,
+  sendToggleConfirmationView,
+  sendTransaction,
+  sendUpdateAssetAmount,
+  sendUpdateGasPrice,
+  sendUpdateNativeAmount,
+  sendUpdateRecipient,
+  sendUpdateSelected,
+} from './_send';
+export {
+  account,
+  accountChangeLanguage,
+  accountChangeNativeCurrency,
+  accountUpdateNetwork,
+  accountClearState,
+  accountUpdateAccountAddress,
+  accountUpdateExchange,
+  accountUpdateHasPendingTransaction,
+  accountUpdateTransactions,
+  send,
+  sendClearFields,
+  sendMaxBalance,
+  sendModalInit,
+  sendToggleConfirmationView,
+  sendTransaction,
+  sendUpdateAssetAmount,
+  sendUpdateGasPrice,
+  sendUpdateNativeAmount,
+  sendUpdateRecipient,
+  sendUpdateSelected,
+};

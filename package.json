@@ -1,10 +1,10 @@
 {
   "name": "balance-common",
   "description": "Common library for web and mobile",
-  "version": "0.1.4",
+  "version": "0.2.0",
   "author": "Jin Chung <jin@balance.io>",
   "license": "GPL-3",
-  "main": "src/index.js",
+  "main": "dist/index.js",
   "repository": {
     "type": "git",
     "url": "https://github.com/balance-io/balance-common.git"
@@ -18,9 +18,12 @@
     "i18next": "^11.3.2",
     "jsonp": "^0.2.1",
     "lodash": "^4.17.5",
-    "redux": "^4.0.0"
+    "react": "^16.2.0",
+    "redux": "^4.0.0",
+    "web3": "^1.0.0-beta.34"
   },
   "scripts": {
+    "build": "webpack",
     "format": "prettier --write \"src/**/*.js\""
   },
   "lint-staged": {
@@ -31,7 +34,16 @@
     ]
   },
   "devDependencies": {
+    "@babel/cli": "^7.0.0-beta.54",
+    "@babel/core": "^7.0.0-beta.54",
+    "@babel/plugin-proposal-class-properties": "^7.0.0-beta.54",
+    "@babel/plugin-transform-runtime": "^7.0.0-beta.56",
+    "@babel/polyfill": "^7.0.0-rc.1",
+    "@babel/preset-env": "^7.0.0-beta.54",
+    "@babel/preset-react": "^7.0.0-beta.54",
     "babel-eslint": "^8.2.2",
+    "babel-loader": "^8.0.0-beta",
+    "babel-plugin-transform-class-properties": "^6.24.1",
     "cross-env": "^5.2.0",
     "eslint-config-prettier": "^2.9.0",
     "eslint-config-react-app": "^2.1.0",
@@ -42,6 +54,8 @@
     "eslint-plugin-react": "^7.7.0",
     "husky": "^0.14.3",
     "lint-staged": "^7.1.0",
-    "prettier": "^1.13.5"
+    "prettier": "^1.13.5",
+    "webpack": "^4.16.3",
+    "webpack-cli": "^3.1.0"
   }
 }

@@ -3,6 +3,9 @@ const accountLocalVersion = '0.1.0';
 const globalSettingsVersion = '0.1.0';
 const walletConnectVersion = '0.1.0';
 
+const expiryBufferInSeconds = 10 * 60;
+const defaultExpiryInSeconds = 24 * 60 * 60;
+
 /**
  * @desc save to storage
  * @param  {String}  [key='']
@@ -55,8 +58,18 @@ export const removeLocal = async (key = '') => {
   try {
     await storage.removeItem({ key });
   } catch (error) {
-    console.log('error removing local with key', key);
+    console.log('Storage: error removing local with key', key);
   }
+};
+
+/**
+ * @desc reset account local
+ * @param  {String}   [address]
+ */
+export const resetAccount = async (accountAddress) => {
+  accountAddress = accountAddress.toLowerCase();
+  await removeLocal(accountAddress);
+  await removeLocal('nativePrices');
 };
 
 /**
@@ -65,7 +78,8 @@ export const removeLocal = async (key = '') => {
  * @return {Object}
  */
 export const getAccountLocal = async accountAddress => {
-  return await getLocal(accountAddress, accountLocalVersion);
+  console.log('get account local', accountAddress);
+  return await getLocal(accountAddress.toLowerCase(), accountLocalVersion);
 };
 
 /**
@@ -118,7 +132,10 @@ export const saveNativeCurrency = async nativeCurrency => {
  */
 export const updateLocalBalances = async (address, account, network) => {
   if (!address) return;
-  let accountLocal = (await getLocal(address)) || {};
+  let accountLocal = await getAccountLocal(address);
+  if (!accountLocal) {
+    accountLocal = {};
+  }
   if (!accountLocal[network]) {
     accountLocal[network] = {};
   }
@@ -127,7 +144,7 @@ export const updateLocalBalances = async (address, account, network) => {
     assets: account.assets,
     total: account.total || '———',
   };
-  await saveLocal(address, accountLocal, accountLocalVersion);
+  await saveLocal(address.toLowerCase(), accountLocal, accountLocalVersion);
 };
 
 /**
@@ -143,7 +160,10 @@ export const updateLocalTransactions = async (
   network,
 ) => {
   if (!address) return;
-  let accountLocal = (await getLocal(address)) || {};
+  let accountLocal = await getAccountLocal(address);
+  if (!accountLocal) {
+    accountLocal = {};
+  }
   const pending = [];
   const _transactions = [];
   transactions.forEach(tx => {
@@ -158,27 +178,46 @@ export const updateLocalTransactions = async (
   }
   accountLocal[network].transactions = _transactions;
   accountLocal[network].pending = pending;
-  await saveLocal(address, accountLocal, accountLocalVersion);
+  await saveLocal(address.toLowerCase(), accountLocal, accountLocalVersion);
 };
 
 /**
- * @desc get wallet connect account
+ * @desc get wallet connect session
  * @return {Object}
  */
-export const getWalletConnectAccount = async () => {
-  const walletConnectAccount = await getLocal(
+export const getWalletConnectSession = async () => {
+  const webConnectorOptions = await getLocal(
     'walletconnect',
     walletConnectVersion,
   );
-  return walletConnectAccount ? walletConnectAccount.data : null;
+  const details = webConnectorOptions ? webConnectorOptions.data : null;
+  if (details) {
+    const expiration = Date.parse(webConnectorOptions.expiration);
+    return new Date() < expiration ? details : null;
+  } else {
+    return null;
+  }
 };
 
 /**
- * @desc save wallet connect account
+ * @desc save wallet connect session
  * @param  {String}   [address]
  */
-export const saveWalletConnectAccount = async account => {
-  await saveLocal('walletconnect', { data: account }, walletConnectVersion);
+export const saveWalletConnectSession = async (webConnectorOptions, ttlInSeconds = defaultExpiryInSeconds) => {
+  let expiration = new Date();
+  expiration.setSeconds(
+    expiration.getSeconds() + ttlInSeconds - expiryBufferInSeconds);
+  await saveLocal('walletconnect',
+    { data: webConnectorOptions, expiration },
+    walletConnectVersion);
+};
+
+/**
+ * @desc reset wallet connect session
+ * @param {String} [address]
+ */
+export const resetWalletConnect = () => {
+  removeLocal('walletconnect');
 };
 
 /**

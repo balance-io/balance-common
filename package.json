@@ -1,7 +1,7 @@
 {
   "name": "balance-common",
   "description": "Common library for web and mobile",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "author": "Jin Chung <jin@balance.io>",
   "license": "GPL-3",
   "main": "dist/index.js",
@@ -19,6 +19,7 @@
     "jsonp": "^0.2.1",
     "lodash": "^4.17.5",
     "react": "^16.2.0",
+    "react-redux": "^5.0.7",
     "redux": "^4.0.0",
     "web3": "^1.0.0-beta.34"
   },

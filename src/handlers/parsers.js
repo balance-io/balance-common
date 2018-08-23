@@ -1,4 +1,5 @@
 import lang from '../languages';
+import { get } from 'lodash';
 import {
   add,
   convertAmountFromBigNumber,
@@ -354,20 +355,21 @@ export const parseAccountBalancesPrices = (
  * @param  {Object}
  * @return {Array}
  */
-export const parseAccountUniqueTokens = data => {
-  if (!data.data.assets.length) return [];
-  const uniqueTokens = data.data.assets.map(el => ({
-    background: `#${el.background_color}`,
-    name: el.name,
-    imageUrl: el.image_url,
-    id: el.token_id,
+export const parseAccountUniqueTokens = data =>
+  get(data, 'data.assets', []).map(asset => ({
+    background: `#${asset.background_color}`,
+    contractAddress: asset.asset_contract.address,
+    contractName: asset.asset_contract.name,
+    id: asset.token_id,
+    imageOriginalUrl: asset.image_original_url,
+    imagePreviewUrl: asset.image_preview_url,
+    imageThumbnailUrl: asset.image_thumbnail_url,
+    imageUrl: asset.image_url,
     lastPrice:
-      el.last_sale &&
-      Number(convertAmountFromBigNumber(el.last_sale.total_price)),
-    contractAddress: el.asset_contract.address,
+      asset.last_sale &&
+      Number(convertAmountFromBigNumber(asset.last_sale.total_price)),
+    name: asset.name,
   }));
-  return uniqueTokens;
-};
 
 const ethFeeAsset = {
   name: 'Ethereum',

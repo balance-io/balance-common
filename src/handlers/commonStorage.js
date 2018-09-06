@@ -3,8 +3,7 @@ const accountLocalVersion = '0.1.0';
 const globalSettingsVersion = '0.1.0';
 const walletConnectVersion = '0.1.0';
 
-const expiryBufferInSeconds = 10 * 60;
-const defaultExpiryInSeconds = 24 * 60 * 60;
+const defaultExpirationInMs = 24 * 60 * 60 * 1000;
 
 /**
  * @desc save to storage
@@ -185,35 +184,48 @@ export const updateLocalTransactions = async (
  * @desc get wallet connect session
  * @return {Object}
  */
-export const getWalletConnectSession = async () => {
-  const webConnectorOptions = await getLocal(
-    'walletconnect',
-    walletConnectVersion,
-  );
-  const details = webConnectorOptions ? webConnectorOptions.data : null;
-  if (details) {
-    const expiration = Date.parse(webConnectorOptions.expiration);
-    return new Date() < expiration ? details : null;
+export const getWalletConnectSession = async (sessionId) => {
+  const allSessions = await getAllWalletConnectSessions();
+  const sessionDetails = allSessions ? allSessions[sessionId] : null;
+  if (sessionDetails) {
+    const expiration = Date.parse(sessionDetails.expiration);
+    return (new Date() < expiration) ? sessionDetails : null;
   } else {
     return null;
   }
 };
 
 /**
- * @desc save wallet connect session
- * @param  {String}   [address]
+ * @desc get all wallet connect sessions
+ * @return {Object}
  */
-export const saveWalletConnectSession = async (webConnectorOptions, ttlInSeconds = defaultExpiryInSeconds) => {
+export const getAllWalletConnectSessions = async () => {
+  const allSessions = await getLocal(
+    'walletconnect',
+    walletConnectVersion,
+  );
+  return allSessions;
+};
+
+/**
+ * @desc save wallet connect session
+ * @param  {String}   [sessionId]
+ * @param  {String}   [uriString]
+ * @param  {Number}   [expirationInMs]
+ */
+export const saveWalletConnectSession = async (sessionId, uriString, expirationInMs = defaultExpirationInMs) => {
+  let allSessions = await getAllWalletConnectSessions();
   let expiration = new Date();
-  expiration.setSeconds(
-    expiration.getSeconds() + ttlInSeconds - expiryBufferInSeconds);
+  expiration.setMilliseconds(
+    expiration.getMilliseconds() + expirationInMs);
+  allSessions[sessionId] = { uriString, expiration };
   await saveLocal('walletconnect',
-    { data: webConnectorOptions, expiration },
+    allSessions,
     walletConnectVersion);
 };
 
 /**
- * @desc reset wallet connect session
+ * @desc reset all wallet connect sessions
  * @param {String} [address]
  */
 export const resetWalletConnect = () => {

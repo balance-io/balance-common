@@ -225,14 +225,6 @@ export const saveWalletConnectSession = async (sessionId, uriString, expirationI
 };
 
 /**
- * @desc reset all wallet connect sessions
- * @param {String} [address]
- */
-export const resetWalletConnect = () => {
-  removeLocal('walletconnect');
-};
-
-/**
  * @desc get language
  * @return {Object}
  */

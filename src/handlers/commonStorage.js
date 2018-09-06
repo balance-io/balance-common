@@ -1,3 +1,5 @@
+import { pickBy } from 'lodash';
+
 const defaultVersion = '0.1.0';
 const accountLocalVersion = '0.1.0';
 const globalSettingsVersion = '0.1.0';
@@ -199,6 +201,19 @@ export const getWalletConnectSession = async (sessionId) => {
  * @desc get all wallet connect sessions
  * @return {Object}
  */
+export const getAllValidWalletConnectSessions = async () => {
+  const allSessions = await getAllWalletConnectSessions();
+  const validSessions = pickBy(allSessions, (value, key) => {
+    const expiration = Date.parse(value.expiration);
+    return (new Date() < expiration);
+  });
+  return validSessions;
+};
+
+/**
+ * @desc get all wallet connect sessions
+ * @return {Object}
+ */
 export const getAllWalletConnectSessions = async () => {
   const allSessions = await getLocal(
     'walletconnect',
@@ -214,7 +229,7 @@ export const getAllWalletConnectSessions = async () => {
  * @param  {Number}   [expirationInMs]
  */
 export const saveWalletConnectSession = async (sessionId, uriString, expirationInMs = defaultExpirationInMs) => {
-  let allSessions = await getAllWalletConnectSessions();
+  let allSessions = await getAllValidWalletConnectSessions();
   let expiration = new Date();
   expiration.setMilliseconds(
     expiration.getMilliseconds() + expirationInMs);

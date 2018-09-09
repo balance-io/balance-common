@@ -29,7 +29,7 @@
         "link_title_browser": "Discover Trust DApp Browser",
         "button": "Connect to Trust Wallet"
       },
-		  "connect_walletconnect": {
+	    "connect_walletconnect": {
         "description": "Scan a QR code to link your mobile wallet ",
         "description_mobile": "Connect to any wallet that supports ",
         "link_text": "using WalletConnect",
@@ -226,6 +226,14 @@
       "day": "day",
       "days": "days",
       "now": "Now"
+    },
+    "wallet": {
+      "settings": {
+        "copy_address": "Copy Address",
+        "copy_seed_phrase": "Copy Seed Phrase",
+        "hide_seed_phrase": "Hide Seed Phrase",
+        "show_seed_phrase": "Show Seed Phrase"
+      }
     }
   }
 }

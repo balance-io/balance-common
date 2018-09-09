@@ -23,7 +23,7 @@
         "description": "Connectez-vous et signez vos transactions avec votre ",
         "link_text": "portefeuille mobile WalletConnect",
         "link_title": "portefeuille mobile WalletConnect",
-        "button": "Utilisez WalletConnect" 
+        "button": "Utilisez WalletConnect"
       },
       "coming_soon": "À venir."
     },
@@ -198,6 +198,14 @@
       "day": "jour",
       "days": "jours",
       "now": "Maintenant"
+      },
+    "wallet": {
+      "settings": {
+        "copy_address": "Copier adresse",
+        "copy_seed_phrase": "Copier clé mnémonique",
+        "hide_seed_phrase": "Cacher clé mnémonique",
+        "show_seed_phrase": "Afficher clé mnémonique"
+      }
     }
   }
 }

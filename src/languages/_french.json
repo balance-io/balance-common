@@ -200,6 +200,14 @@
       "now": "Maintenant"
       },
     "wallet": {
+      "feedback": {
+        "cancel": "Non merci",
+        "choice": "Souhaitez-vous copier manuellement l'adresse email de feedback dans votre presse papier ?",
+        "copy_email_address": "Copier adresse email",
+        "email_subject": "📱 Feedback pour l'alpha du wallet Balance",
+        "error": "Erreur lors du chargement de votre client mail",
+        "send": "Envoyer feedback"
+      },
       "settings": {
         "copy_address": "Copier adresse",
         "copy_seed_phrase": "Copier clé mnémonique",

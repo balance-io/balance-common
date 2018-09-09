@@ -228,6 +228,14 @@
       "now": "Now"
     },
     "wallet": {
+      "feedback": {
+        "cancel": "No thanks",
+        "choice": "Would you like to manually copy our feedback email address to your clipboard?",
+        "copy_email_address": "Copy email address",
+        "email_subject": "📱 Balance Wallet Alpha Feedback",
+        "error": "Error launching email client",
+        "send": "Send Feedback"
+      },
       "settings": {
         "copy_address": "Copy Address",
         "copy_seed_phrase": "Copy Seed Phrase",

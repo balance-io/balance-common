@@ -200,6 +200,12 @@
       "now": "Maintenant"
       },
     "wallet": {
+      "intro": {
+        "create_wallet": "Créez un portefeuille",
+        "instructions": "Veuillez ne pas stocker dans votre portefeuille plus que vous n'êtes prêt à perdre.",
+        "warning": "Ceci est une version alpha de l'application.",
+        "welcome": "Bienvenue sur Balance"
+      },
       "feedback": {
         "cancel": "Non merci",
         "choice": "Souhaitez-vous copier manuellement l'adresse email de feedback dans votre presse papier ?",

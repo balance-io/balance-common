@@ -214,6 +214,10 @@
         "error": "Erreur lors du chargement de votre client mail",
         "send": "Envoyer feedback"
       },
+      "loading": {
+        "error": "Une erreur est survenue lors du chargement du portefeuille. Veuillez redémarrer l'application.",
+        "message": "Chargement"
+      },
       "settings": {
         "copy_address": "Copier adresse",
         "copy_seed_phrase": "Copier clé mnémonique",

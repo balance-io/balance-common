@@ -242,6 +242,10 @@
         "error": "Error launching email client",
         "send": "Send Feedback"
       },
+      "loading": {
+        "error": "There has been an error loading the wallet. Please kill the app and retry.",
+        "message": "Loading"
+      },
       "settings": {
         "copy_address": "Copy Address",
         "copy_seed_phrase": "Copy Seed Phrase",

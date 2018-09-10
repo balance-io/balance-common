@@ -1,4 +1,4 @@
-import { pickBy } from 'lodash';
+import { omit, pickBy } from 'lodash';
 
 const defaultVersion = '0.1.0';
 const accountLocalVersion = '0.1.0';
@@ -237,6 +237,20 @@ export const saveWalletConnectSession = async (sessionId, uriString, expirationI
   await saveLocal('walletconnect',
     allSessions,
     walletConnectVersion);
+};
+
+/**
+ * @desc remove wallet connect session
+ * @param  {String}   [sessionId]
+ */
+export const removeWalletConnectSession = async (sessionId) => {
+  const allSessions = await getAllWalletConnectSessions();
+  const session = allSessions ? allSessions[sessionId] : null;
+  const resultingSessions = omit(allSessions, [sessionId]);
+  await saveLocal('walletconnect',
+    resultingSessions,
+    walletConnectVersion);
+  return session;
 };
 
 /**

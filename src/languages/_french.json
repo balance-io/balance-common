@@ -218,6 +218,11 @@
         "error": "Une erreur est survenue lors du chargement du portefeuille. Veuillez redémarrer l'application.",
         "message": "Chargement"
       },
+      "qr": {
+        "scanner_screen": {
+          "error": "Erreur d'initialisation avec WalletConnect"
+        }
+      },
       "settings": {
         "copy_address": "Copier adresse",
         "copy_seed_phrase": "Copier clé mnémonique",

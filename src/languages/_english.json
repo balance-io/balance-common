@@ -246,6 +246,11 @@
         "error": "There has been an error loading the wallet. Please kill the app and retry.",
         "message": "Loading"
       },
+      "qr": {
+        "scanner_screen": {
+          "error": "Error initializing with WalletConnect"
+        }
+      },
       "settings": {
         "copy_address": "Copy Address",
         "copy_seed_phrase": "Copy Seed Phrase",

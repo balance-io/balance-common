@@ -228,6 +228,11 @@
       "now": "Now"
     },
     "wallet": {
+      "action": {
+        "cancel": "Cancel",
+        "paste": "Paste",
+        "send": "Send"
+      },
       "intro": {
         "create_wallet": "Create a Wallet",
         "instructions": "Please do not store more in your wallet than you are willing to lose.",

@@ -200,6 +200,11 @@
       "now": "Maintenant"
       },
     "wallet": {
+      "action": {
+        "cancel": "Annuler",
+        "paste": "Coller",
+        "send": "Envoyer"
+      },
       "intro": {
         "create_wallet": "Créez un portefeuille",
         "instructions": "Veuillez ne pas stocker dans votre portefeuille plus que vous n'êtes prêt à perdre.",

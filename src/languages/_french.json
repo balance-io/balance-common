@@ -29,6 +29,7 @@
     },
     "account": {
       "tab_balances": "Soldes",
+      "tab_collectibles": "Collections",
       "tab_transactions": "Transactions",
       "tab_interactions": "Interactions",
       "tab_uniquetokens": "Tokens uniques",
@@ -204,7 +205,11 @@
         "cancel": "Annuler",
         "paste": "Coller",
         "reject": "Refuser",
-        "send": "Envoyer"
+        "send": "Envoyer",
+        "to": "À"
+      },
+      "assets": {
+        "no_price": "actifs sans données de prix"
       },
       "intro": {
         "create_wallet": "Créez un portefeuille",
@@ -244,8 +249,7 @@
         },
         "confirm": "Confirmer transaction",
         "request": "Demande de transaction",
-        "send": "Envoyer transaction",
-        "to": "À"
+        "send": "Envoyer transaction"
       }
     }
   }

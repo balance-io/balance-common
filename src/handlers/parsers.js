@@ -543,7 +543,7 @@ export const parseAccountTransactions = async (
   address = '',
   network = '',
 ) => {
-  if (!data || !data.docs) return [];
+  if (!data || !data.docs) return { transactions: [], pagesRemaining: 0 };
 
   let transactions = await Promise.all(
     data.docs.map(async tx => {
@@ -558,25 +558,8 @@ export const parseAccountTransactions = async (
     });
   });
 
-  if (data.pages > data.page) {
-    try {
-      const newPageResponse = await apiGetTransactionData(
-        address,
-        network,
-        data.page + 1,
-      );
-      const newPageTransations = await parseAccountTransactions(
-        newPageResponse.data,
-        address,
-        network,
-      );
-      _transactions = [..._transactions, ...newPageTransations];
-    } catch (error) {
-      throw error;
-    }
-  }
-
-  return _transactions;
+  const pagesRemaining = data.pages - data.page;
+  return { transactions: _transactions, pagesRemaining };
 };
 
 /**

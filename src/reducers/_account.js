@@ -460,27 +460,33 @@ const accountGetAccountTransactions = () => (dispatch, getState) => {
     const lastTxHash = confirmedTransactions.length
       ? confirmedTransactions[0].hash
       : '';
-    apiGetAccountTransactions(accountAddress, network, lastTxHash)
-      .then(({ data }) => {
-        const transactions = data;
-        const address = getState().account.accountAddress;
-        const currentTransactions = getState().account.transactions;
-        let _transactions = _.unionBy(transactions, currentTransactions, 'hash');
-        updateLocalTransactions(address, _transactions, network);
-        dispatch({
-          type: ACCOUNT_GET_ACCOUNT_TRANSACTIONS_SUCCESS,
-          payload: _transactions,
+    let _pagesRemaining = 1;
+    let _page = 0;
+    while (_pagesRemaining) {
+      _page = _page + 1;
+      apiGetAccountTransactions(accountAddress, network, lastTxHash, _page)
+        .then(({ data, pagesRemaining }) => {
+          _pagesRemaining = pagesRemaining;
+          const transactions = data;
+          const address = getState().account.accountAddress;
+          const currentTransactions = getState().account.transactions;
+          let _transactions = _.unionBy(transactions, currentTransactions, 'hash');
+          updateLocalTransactions(address, _transactions, network);
+          dispatch({
+            type: ACCOUNT_GET_ACCOUNT_TRANSACTIONS_SUCCESS,
+            payload: _transactions,
+          });
+        })
+        .catch(error => {
+          dispatch(
+            notificationShow(
+              lang.t('notification.error.failed_get_account_tx'),
+              true,
+            ),
+          );
+          dispatch({ type: ACCOUNT_GET_ACCOUNT_TRANSACTIONS_FAILURE });
         });
-      })
-      .catch(error => {
-        dispatch(
-          notificationShow(
-            lang.t('notification.error.failed_get_account_tx'),
-            true,
-          ),
-        );
-        dispatch({ type: ACCOUNT_GET_ACCOUNT_TRANSACTIONS_FAILURE });
-      });
+    }
   }).catch(error => {
     dispatch({ type: ACCOUNT_GET_ACCOUNT_TRANSACTIONS_FAILURE });
   });

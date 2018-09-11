@@ -203,6 +203,7 @@
       "action": {
         "cancel": "Annuler",
         "paste": "Coller",
+        "reject": "Refuser",
         "send": "Envoyer"
       },
       "intro": {
@@ -233,6 +234,18 @@
         "copy_seed_phrase": "Copier clé mnémonique",
         "hide_seed_phrase": "Cacher clé mnémonique",
         "show_seed_phrase": "Afficher clé mnémonique"
+      },
+      "transaction": {
+        "alert": {
+          "authentication": "L'authentication a échouée",
+          "cancelled_transaction": "Échec de l'envoie de la transaction annulée à WalletConnect",
+          "failed_transaction_status": "Échec de l'envoie du status de la transaction échouée",
+          "transaction_status": "Échec de l'envoie du status de la transaction"
+        },
+        "confirm": "Confirmer transaction",
+        "request": "Demande de transaction",
+        "send": "Envoyer transaction",
+        "to": "À"
       }
     }
   }

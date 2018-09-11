@@ -231,6 +231,7 @@
       "action": {
         "cancel": "Cancel",
         "paste": "Paste",
+        "reject": "Reject",
         "send": "Send"
       },
       "intro": {
@@ -261,6 +262,18 @@
         "copy_seed_phrase": "Copy Seed Phrase",
         "hide_seed_phrase": "Hide Seed Phrase",
         "show_seed_phrase": "Show Seed Phrase"
+      },
+      "transaction": {
+        "alert": {
+          "authentication": "Authentication Failed",
+          "cancelled_transaction": "Failed to send cancelled transaction to WalletConnect",
+          "failed_transaction_status": "Failed to send failed transaction status",
+          "transaction_status": "Failed to send transaction status"
+        },
+        "confirm": "Confirm transaction",
+        "request": "Transaction Request",
+        "send": "Send Transaction",
+        "to": "To"
       }
     }
   }

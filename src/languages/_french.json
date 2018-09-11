@@ -208,6 +208,10 @@
         "send": "Envoyer",
         "to": "À"
       },
+      "authenticate": {
+        "please": "Veuillez vous authentifier",
+        "please_seed_phrase": "Veuillez vous authentifier pour afficher votre clé mnémonique"
+      },
       "assets": {
         "no_price": "actifs sans données de prix"
       },

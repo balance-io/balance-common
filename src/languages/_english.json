@@ -236,6 +236,10 @@
         "send": "Send",
         "to": "To"
       },
+      "authenticate": {
+        "please": "Please authenticate",
+        "please_seed_phrase": "Please authenticate to view seed phrase"
+      },
       "assets": {
         "no_price": "assets without price data"
       },

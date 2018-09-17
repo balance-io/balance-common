@@ -29,7 +29,7 @@
         "link_title_browser": "Discover Trust DApp Browser",
         "button": "Connect to Trust Wallet"
       },
-		  "connect_walletconnect": {
+	    "connect_walletconnect": {
         "description": "Scan a QR code to link your mobile wallet ",
         "description_mobile": "Connect to any wallet that supports ",
         "link_text": "using WalletConnect",
@@ -55,6 +55,7 @@
     },
     "account": {
       "tab_balances": "Balances",
+      "tab_collectibles": "Collectibles",
       "tab_transactions": "Transactions",
       "tab_interactions": "Interactions",
       "tab_uniquetokens": "Unique Tokens",
@@ -226,6 +227,60 @@
       "day": "day",
       "days": "days",
       "now": "Now"
+    },
+    "wallet": {
+      "action": {
+        "cancel": "Cancel",
+        "paste": "Paste",
+        "reject": "Reject",
+        "send": "Send",
+        "to": "To"
+      },
+      "authenticate": {
+        "please": "Please authenticate",
+        "please_seed_phrase": "Please authenticate to view seed phrase"
+      },
+      "assets": {
+        "no_price": "assets without price data"
+      },
+      "intro": {
+        "create_wallet": "Create a Wallet",
+        "instructions": "Please do not store more in your wallet than you are willing to lose.",
+        "warning": "This is alpha software.",
+        "welcome": "Welcome to Balance"
+      },
+      "feedback": {
+        "cancel": "No thanks",
+        "choice": "Would you like to manually copy our feedback email address to your clipboard?",
+        "copy_email_address": "Copy email address",
+        "email_subject": "📱 Balance Wallet Alpha Feedback",
+        "error": "Error launching email client",
+        "send": "Send Feedback"
+      },
+      "loading": {
+        "error": "There has been an error loading the wallet. Please kill the app and retry.",
+        "message": "Loading"
+      },
+      "settings": {
+        "copy_address": "Copy Address",
+        "copy_seed_phrase": "Copy Seed Phrase",
+        "hide_seed_phrase": "Hide Seed Phrase",
+        "show_seed_phrase": "Show Seed Phrase"
+      },
+      "transaction": {
+        "alert": {
+          "authentication": "Authentication Failed",
+          "cancelled_transaction": "Failed to send cancelled transaction to WalletConnect",
+          "failed_transaction_status": "Failed to send failed transaction status",
+          "transaction_status": "Failed to send transaction status"
+        },
+        "confirm": "Confirm transaction",
+        "request": "Transaction Request",
+        "send": "Send Transaction"
+      },
+      "wallet_connect": {
+        "error": "Error initializing with WalletConnect"
+      }
     }
   }
 }

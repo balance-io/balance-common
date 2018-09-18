@@ -784,6 +784,7 @@ export default (state = INITIAL_STATE, action) => {
         ...state,
       };
     case ACCOUNT_CHANGE_LANGUAGE_SUCCESS:
+      console.log('account change success', action.payload.language);
       return {
         ...state,
         language: action.payload.language,

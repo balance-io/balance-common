@@ -108,7 +108,7 @@ export const getNativeCurrency = async () => {
     'nativeCurrency',
     globalSettingsVersion,
   );
-  return nativeCurrency ? nativeCurrency.data : null;
+  return nativeCurrency ? nativeCurrency.data : 'USD';
 };
 
 /**
@@ -226,7 +226,8 @@ export const resetWalletConnect = () => {
  */
 export const getLanguage = async () => {
   const language = await getLocal('language', globalSettingsVersion);
-  return language ? language.data : null;
+  console.log('common storage get language', language);
+  return language ? language.data : 'en';
 };
 
 /**

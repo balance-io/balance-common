@@ -78,7 +78,6 @@ export const resetAccount = async (accountAddress) => {
  * @return {Object}
  */
 export const getAccountLocal = async accountAddress => {
-  console.log('get account local', accountAddress);
   return await getLocal(accountAddress.toLowerCase(), accountLocalVersion);
 };
 
@@ -226,7 +225,6 @@ export const resetWalletConnect = () => {
  */
 export const getLanguage = async () => {
   const language = await getLocal('language', globalSettingsVersion);
-  console.log('common storage get language', language);
   return language ? language.data : 'en';
 };
 

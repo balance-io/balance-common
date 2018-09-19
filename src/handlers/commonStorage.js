@@ -217,6 +217,7 @@ export const getAllValidWalletConnectSessions = async () => {
  * @return {Object}
  */
 export const getAllWalletConnectSessions = async () => {
+  console.log('***get all wc sessions');
   const allSessions = await getLocal(
     'walletconnect',
     walletConnectVersion,

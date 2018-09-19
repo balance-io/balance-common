@@ -220,7 +220,8 @@ export const getAllWalletConnectSessions = async () => {
     'walletconnect',
     walletConnectVersion,
   );
-  return allSessions || {};
+  console.log('*** get all sessions', allSessions);
+  return allSessions ? allSessions : {};
 };
 
 /**

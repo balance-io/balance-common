@@ -79,7 +79,6 @@ export const resetAccount = async (accountAddress) => {
  * @return {Object}
  */
 export const getAccountLocal = async accountAddress => {
-  console.log('get account local', accountAddress);
   return await getLocal(accountAddress.toLowerCase(), accountLocalVersion);
 };
 
@@ -109,7 +108,7 @@ export const getNativeCurrency = async () => {
     'nativeCurrency',
     globalSettingsVersion,
   );
-  return nativeCurrency ? nativeCurrency.data : null;
+  return nativeCurrency ? nativeCurrency.data : 'USD';
 };
 
 /**
@@ -219,7 +218,7 @@ export const getAllWalletConnectSessions = async () => {
     'walletconnect',
     walletConnectVersion,
   );
-  return allSessions;
+  return allSessions || {};
 };
 
 /**
@@ -259,7 +258,7 @@ export const removeWalletConnectSession = async (sessionId) => {
  */
 export const getLanguage = async () => {
   const language = await getLocal('language', globalSettingsVersion);
-  return language ? language.data : null;
+  return language ? language.data : 'en';
 };
 
 /**

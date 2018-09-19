@@ -120,7 +120,7 @@ export const accountUpdateHasPendingTransaction = (
   });
 };
 
-export const accountInitializeState = () => {
+export const accountInitializeState = () => dispatch => {
   getLanguage().then(language => {
     dispatch({ 
       type: ACCOUNT_CHANGE_LANGUAGE_SUCCESS,

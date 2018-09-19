@@ -202,10 +202,12 @@ export const getWalletConnectSession = async (sessionId) => {
  */
 export const getAllValidWalletConnectSessions = async () => {
   const allSessions = await getAllWalletConnectSessions();
+  console.log('***all wc sessions', allSessions);
   const validSessions = pickBy(allSessions, (value, key) => {
     const expiration = Date.parse(value.expiration);
     return (new Date() < expiration);
   });
+  console.log('***all valid wc sessions', validSessions);
   return validSessions;
 };
 

@@ -32,14 +32,14 @@ export const saveLocal = async (
  * @return {Object}
  */
 export const getLocal = async (key = '', version = defaultVersion) => {
-  console.log('***get local', storage);
+  console.log('***get local', key);
   try {
     const result = await storage.load({
       key,
       autoSync: false,
       syncInBackground: false,
     });
-    console.log(`***getlocal has result for key ${key}:`, result);
+    console.log('***getlocal has result:', result);
     if (result && result.storageVersion === version) {
       console.log('***getlocal has result with correct version', key);
       return result;

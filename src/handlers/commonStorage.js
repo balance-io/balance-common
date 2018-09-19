@@ -38,10 +38,14 @@ export const getLocal = async (key = '', version = defaultVersion) => {
       autoSync: false,
       syncInBackground: false,
     });
+    console.log(`***getlocal has result for key ${key}:`, result);
     if (result && result.storageVersion === version) {
+      console.log('***getlocal has result with correct version', key);
       return result;
     } else if (result) {
+      console.log('***getlocal has result with incorrect version', key);
       await removeLocal(key);
+      console.log('***getlocal removed key', key);
       return null;
     }
   } catch (error) {

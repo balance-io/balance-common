@@ -32,6 +32,7 @@ export const saveLocal = async (
  * @return {Object}
  */
 export const getLocal = async (key = '', version = defaultVersion) => {
+  console.log('***get local', storage);
   try {
     const result = await storage.load({
       key,

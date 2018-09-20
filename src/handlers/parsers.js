@@ -558,8 +558,7 @@ export const parseAccountTransactions = async (
     });
   });
 
-  const pagesRemaining = data.pages - data.page;
-  return { transactions: _transactions, pagesRemaining };
+  return { transactions: _transactions, pages: data.pages };
 };
 
 /**

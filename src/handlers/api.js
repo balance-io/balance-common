@@ -138,7 +138,7 @@ export const apiGetAccountTransactions = async (
 ) => {
   try {
     let { data } = await apiGetTransactionData(address, network, page);
-    let { transactions, pagesRemaining } = await parseAccountTransactions(data, address, network);
+    let { transactions, pages } = await parseAccountTransactions(data, address, network);
     if (transactions.length && lastTxHash) {
       let newTxs = true;
       // TODO: filter logic fix
@@ -154,7 +154,7 @@ export const apiGetAccountTransactions = async (
       });
     }
     transactions = await parseHistoricalTransactions(transactions);
-    const result = { data: transactions, pagesRemaining };
+    const result = { data: transactions, pages };
     return result;
   } catch (error) {
     throw error;

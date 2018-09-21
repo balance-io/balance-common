@@ -57,7 +57,6 @@ export const getLocal = async (key = '', version = defaultVersion) => {
 export const removeLocal = (key = '') => {
   try {
     storage.remove({ key });
-    console.log('Storage: remove local', key);
   } catch (error) {
     console.log('Storage: error removing local with key', key);
   }
@@ -69,7 +68,6 @@ export const removeLocal = (key = '') => {
  */
 export const resetAccount = (accountAddress) => {
   const accountAddressKey = accountAddress.toLowerCase();
-  console.log('Storage: reset acct', accountAddressKey);
   removeLocal(accountAddressKey);
   removeLocal('nativePrices');
 };

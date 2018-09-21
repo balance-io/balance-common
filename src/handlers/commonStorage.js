@@ -57,6 +57,7 @@ export const getLocal = async (key = '', version = defaultVersion) => {
 export const removeLocal = async (key = '') => {
   try {
     await storage.removeItem({ key });
+    console.log('Storage: remove local', key);
   } catch (error) {
     console.log('Storage: error removing local with key', key);
   }
@@ -67,8 +68,9 @@ export const removeLocal = async (key = '') => {
  * @param  {String}   [address]
  */
 export const resetAccount = async (accountAddress) => {
-  accountAddress = accountAddress.toLowerCase();
-  await removeLocal(accountAddress);
+  const accountAddressKey = accountAddress.toLowerCase();
+  console.log('Storage: reset acct', accountAddressKey);
+  await removeLocal(accountAddressKey);
   await removeLocal('nativePrices');
 };
 
@@ -215,8 +217,8 @@ export const saveWalletConnectSession = async (webConnectorOptions, ttlInSeconds
  * @desc reset wallet connect session
  * @param {String} [address]
  */
-export const resetWalletConnect = () => {
-  removeLocal('walletconnect');
+export const resetWalletConnect = async () => {
+  await removeLocal('walletconnect');
 };
 
 /**

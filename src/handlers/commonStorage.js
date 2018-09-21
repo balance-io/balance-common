@@ -56,7 +56,7 @@ export const getLocal = async (key = '', version = defaultVersion) => {
  */
 export const removeLocal = (key = '') => {
   try {
-    storage.removeItem({ key });
+    storage.remove({ key });
     console.log('Storage: remove local', key);
   } catch (error) {
     console.log('Storage: error removing local with key', key);

@@ -43,7 +43,7 @@ export const getLocal = async (key = '', version = defaultVersion) => {
     if (result && result.storageVersion === version) {
       return result;
     } else if (result) {
-      await removeLocal(key);
+      removeLocal(key);
       return null;
     }
   } catch (error) {
@@ -57,9 +57,9 @@ export const getLocal = async (key = '', version = defaultVersion) => {
  * @param  {String}  [key='']
  * @return {Object}
  */
-export const removeLocal = async (key = '') => {
+export const removeLocal = (key = '') => {
   try {
-    await storage.removeItem({ key });
+    storage.remove({ key });
   } catch (error) {
     console.log('Storage: error removing local with key', key);
   }
@@ -69,10 +69,10 @@ export const removeLocal = async (key = '') => {
  * @desc reset account local
  * @param  {String}   [address]
  */
-export const resetAccount = async (accountAddress) => {
-  accountAddress = accountAddress.toLowerCase();
-  await removeLocal(accountAddress);
-  await removeLocal('nativePrices');
+export const resetAccount = (accountAddress) => {
+  const accountAddressKey = accountAddress.toLowerCase();
+  removeLocal(accountAddressKey);
+  removeLocal('nativePrices');
 };
 
 /**

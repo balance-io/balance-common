@@ -243,10 +243,10 @@ export const accountChangeNativeCurrency = nativeCurrency => (
 ) => {
   const prices = getState().account.prices;
   if (prices) {
-    dispatch(accountUpdatePrices(prices)); 
+    dispatch(accountUpdatePrices(nativeCurrency, prices));
   } else {
     getNativePrices().then(nativePrices => {
-      dispatch(accountUpdatePrices(nativePrices)); 
+      dispatch(accountUpdatePrices(nativeCurrency, nativePrices));
     }).catch( error => {
       dispatch({
         type: ACCOUNT_CHANGE_NATIVE_CURRENCY_FAILURE,
@@ -256,7 +256,7 @@ export const accountChangeNativeCurrency = nativeCurrency => (
 
 };
 
-const accountUpdatePrices = prices => (dispatch, getState) => {
+const accountUpdatePrices = (nativeCurrency, prices) => (dispatch, getState) => {
   saveNativeCurrency(nativeCurrency);
   const accountAddress = getState().account.accountAddress;
   const network = getState().account.network;

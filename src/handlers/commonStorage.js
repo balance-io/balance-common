@@ -32,14 +32,12 @@ export const saveLocal = async (
  * @return {Object}
  */
 export const getLocal = async (key = '', version = defaultVersion) => {
-  console.log('***get local', key);
   try {
     const result = await storage.load({
       key,
       autoSync: false,
       syncInBackground: false,
     });
-    console.log('***getlocal has result:', result);
     if (result && result.storageVersion === version) {
       return result;
     } else if (result) {
@@ -203,14 +201,11 @@ export const getWalletConnectSession = async (sessionId) => {
  * @return {Object}
  */
 export const getAllValidWalletConnectSessions = async () => {
-  console.log('***get all valid wc sessions');
   const allSessions = await getAllWalletConnectSessions();
-  console.log('***all wc sessions', allSessions);
   const validSessions = pickBy(allSessions, (value, key) => {
     const expiration = Date.parse(value.expiration);
     return (new Date() < expiration);
   });
-  console.log('***all valid wc sessions', validSessions);
   return validSessions;
 };
 
@@ -219,12 +214,10 @@ export const getAllValidWalletConnectSessions = async () => {
  * @return {Object}
  */
 export const getAllWalletConnectSessions = async () => {
-  console.log('***get all wc sessions');
   const allSessions = await getLocal(
     'walletconnect',
     walletConnectVersion,
   );
-  console.log('*** get all sessions', allSessions);
   return allSessions ? allSessions : {};
 };
 

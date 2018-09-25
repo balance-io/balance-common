@@ -430,7 +430,7 @@ const accountGetTransactions = (accountAddress, network, lastTxHash, page) => (d
       const transactions = data;
       const address = getState().account.accountAddress;
       const currentTransactions = getState().account.transactions;
-      let _transactions = _.unionBy(transactions, currentTransactions, 'hash');
+      let _transactions = _.unionBy(currentTransactions, transactions, 'hash');
       updateLocalTransactions(address, _transactions, network);
       dispatch({
         type: ACCOUNT_GET_ACCOUNT_TRANSACTIONS_SUCCESS,

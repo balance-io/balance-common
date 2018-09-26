@@ -610,7 +610,7 @@ const accountGetShiftStatus = (txHash, depositAddress) => (
 };
 
 // -- Reducer --------------------------------------------------------------- //
-const INITIAL_STATE = {
+export const INITIAL_ACCOUNT_STATE = {
   accountType: '',
   accountAddress: '',
   accountInfo: {
@@ -646,7 +646,7 @@ const INITIAL_STATE = {
   uniqueTokens: [],
 };
 
-export default (state = INITIAL_STATE, action) => {
+export default (state = INITIAL_ACCOUNT_STATE, action) => {
   switch (action.type) {
     case ACCOUNT_UPDATE_ACCOUNT_ADDRESS:
       return {
@@ -795,7 +795,7 @@ export default (state = INITIAL_STATE, action) => {
     case ACCOUNT_CLEAR_STATE:
       return {
         ...state,
-        ...INITIAL_STATE,
+        ...INITIAL_ACCOUNT_STATE,
       };
     default:
       return state;

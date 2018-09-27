@@ -145,6 +145,7 @@ export const accountInitializeState = () => dispatch => {
 };
 
 export const accountUpdateTransactions = txDetails => (dispatch, getState) => new Promise((resolve, reject) => {
+  console.log('updating account transactions');
   dispatch({ type: ACCOUNT_UPDATE_TRANSACTIONS_REQUEST });
   const currentTransactions = getState().account.transactions;
   const network = getState().account.network;
@@ -152,6 +153,7 @@ export const accountUpdateTransactions = txDetails => (dispatch, getState) => ne
   const nativeCurrency = getState().account.nativeCurrency;
   parseNewTransaction(txDetails, nativeCurrency)
     .then(parsedTransaction => {
+      console.log('parsed txn');
       let _transactions = [...currentTransactions];
       _transactions = [parsedTransaction, ..._transactions];
       updateLocalTransactions(address, _transactions, network);

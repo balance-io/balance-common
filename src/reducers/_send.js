@@ -183,6 +183,7 @@ export const sendTransaction = (transactionDetails, signAndSendTransactionCb) =>
         console.log('send reducer txhash received', txHash);
         // has pending transactions set to true for redirect to Transactions route
         dispatch(accountUpdateHasPendingTransaction());
+        console.log('updated has pending txn');
         txDetails.hash = txHash;
         dispatch(accountUpdateTransactions(txDetails)
         .then(success => {

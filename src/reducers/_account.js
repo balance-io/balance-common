@@ -160,6 +160,7 @@ export const accountUpdateTransactions = txDetails => (dispatch, getState) => ne
         payload: _transactions,
       });
       dispatch(accountCheckTransactionStatus(txDetails.hash));
+      console.log('account updated transactions');
       resolve(true);
     })
     .catch(error => {

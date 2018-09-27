@@ -178,11 +178,13 @@ export const sendTransaction = (transactionDetails, signAndSendTransactionCb) =>
     .then(signableTransactionDetails => {
       signAndSendTransactionCb(signableTransactionDetails, accountType)
       .then(txHash => {
+        console.log('send reducer txhash received', txHash);
         // has pending transactions set to true for redirect to Transactions route
         dispatch(accountUpdateHasPendingTransaction());
         txDetails.hash = txHash;
         dispatch(accountUpdateTransactions(txDetails)
         .then(success => {
+          console.log('success', success);
           dispatch({
             type: SEND_TRANSACTION_SUCCESS,
             payload: txHash,
@@ -191,8 +193,7 @@ export const sendTransaction = (transactionDetails, signAndSendTransactionCb) =>
         }).catch(error => {
           reject(error);
         }));
-      })
-      .catch(error => {
+      }).catch(error => {
         const message = parseError(error);
         dispatch(notificationShow(message, true));
         dispatch({ type: SEND_TRANSACTION_FAILURE });

@@ -185,21 +185,20 @@ export const sendTransaction = (transactionDetails, signAndSendTransactionCb) =>
         dispatch(accountUpdateHasPendingTransaction());
         console.log('updated has pending txn');
         txDetails.hash = txHash;
-        dispatch(accountUpdateTransactions(txDetails));
-        resolve(txHash);
-        /*
+        //dispatch(accountUpdateTransactions(txDetails));
         dispatch(accountUpdateTransactions(txDetails)
         .then(success => {
-          console.log('success', success);
+          console.log('account update success', success);
           dispatch({
             type: SEND_TRANSACTION_SUCCESS,
             payload: txHash,
           });
-          resolve(txHash);
+          //resolve(txHash);
         }).catch(error => {
-          reject(error);
+          //reject(error);
         }));
-      */
+        console.log('resolving txHash');
+        resolve(txHash);
       }).catch(error => {
         const message = parseError(error);
         dispatch(notificationShow(message, true));

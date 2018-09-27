@@ -155,6 +155,7 @@ export const sendUpdateGasPrice = newGasPriceOption => (dispatch, getState) => {
 };
 
 export const sendTransaction = (transactionDetails, signAndSendTransactionCb) => (dispatch, getState) => new Promise((resolve, reject) => {
+  console.log('common send txn');
   dispatch({ type: SEND_TRANSACTION_REQUEST });
   const {
     address,
@@ -176,6 +177,7 @@ export const sendTransaction = (transactionDetails, signAndSendTransactionCb) =>
   };
   createSignableTransaction(txDetails)
     .then(signableTransactionDetails => {
+      console.log('created signable txn details');
       signAndSendTransactionCb(signableTransactionDetails, accountType)
       .then(txHash => {
         console.log('send reducer txhash received', txHash);

@@ -1,7 +1,7 @@
 {
   "name": "balance-common",
   "description": "Common library for web and mobile",
-  "version": "0.4.13",
+  "version": "0.4.14",
   "author": "Jin Chung <jin@balance.io>",
   "license": "GPL-3",
   "main": "dist/index.js",

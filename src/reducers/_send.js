@@ -185,6 +185,9 @@ export const sendTransaction = (transactionDetails, signAndSendTransactionCb) =>
         dispatch(accountUpdateHasPendingTransaction());
         console.log('updated has pending txn');
         txDetails.hash = txHash;
+        dispatch(accountUpdateTransactions(txDetails));
+        resolve(txHash);
+        /*
         dispatch(accountUpdateTransactions(txDetails)
         .then(success => {
           console.log('success', success);
@@ -196,6 +199,7 @@ export const sendTransaction = (transactionDetails, signAndSendTransactionCb) =>
         }).catch(error => {
           reject(error);
         }));
+      */
       }).catch(error => {
         const message = parseError(error);
         dispatch(notificationShow(message, true));

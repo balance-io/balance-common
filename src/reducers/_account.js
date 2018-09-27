@@ -144,7 +144,7 @@ export const accountInitializeState = () => dispatch => {
   });
 };
 
-export const accountUpdateTransactions = txDetails => (dispatch, getState) => {
+export const accountUpdateTransactions = txDetails => (dispatch, getState) => new Promise((resolve, reject) => {
   dispatch({ type: ACCOUNT_UPDATE_TRANSACTIONS_REQUEST });
   const currentTransactions = getState().account.transactions;
   const network = getState().account.network;
@@ -160,43 +160,15 @@ export const accountUpdateTransactions = txDetails => (dispatch, getState) => {
         payload: _transactions,
       });
       dispatch(accountCheckTransactionStatus(txDetails.hash));
+      resolve(true);
     })
     .catch(error => {
       dispatch({ type: ACCOUNT_UPDATE_TRANSACTIONS_FAILURE });
       const message = parseError(error);
       dispatch(notificationShow(message, true));
+      reject(false);
     });
-};
-
-export const accountUpdateExchange = txns => (dispatch, getState) => {
-  dispatch({ type: ACCOUNT_UPDATE_TRANSACTIONS_REQUEST });
-  const currentTransactions = getState().account.transactions;
-  const network = getState().account.network;
-  const address = getState().account.accountInfo.address;
-  const nativeCurrency = getState().account.nativeCurrency;
-  Promise.all(
-    txns.map(txDetails =>
-      parseNewTransaction(txDetails, nativeCurrency, address, network),
-    ),
-  )
-    .then(parsedTransactions => {
-      let _transactions = [
-        ...parsedTransactions.reverse(),
-        ...currentTransactions,
-      ];
-      updateLocalTransactions(address, _transactions, network);
-      dispatch({
-        type: ACCOUNT_UPDATE_TRANSACTIONS_SUCCESS,
-        payload: _transactions,
-      });
-      txns.forEach(txn => dispatch(accountCheckTransactionStatus(txn.hash)));
-    })
-    .catch(error => {
-      dispatch({ type: ACCOUNT_UPDATE_TRANSACTIONS_FAILURE });
-      const message = parseError(error);
-      dispatch(notificationShow(message, true));
-    });
-};
+});
 
 export const accountUpdateAccountAddress = (accountAddress, accountType) => (
   dispatch,

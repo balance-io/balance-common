@@ -155,7 +155,6 @@ export const sendUpdateGasPrice = newGasPriceOption => (dispatch, getState) => {
 };
 
 export const sendTransaction = (transactionDetails, signAndSendTransactionCb) => (dispatch, getState) => new Promise((resolve, reject) => {
-  console.log('common send txn');
   dispatch({ type: SEND_TRANSACTION_REQUEST });
   const {
     address,
@@ -177,17 +176,13 @@ export const sendTransaction = (transactionDetails, signAndSendTransactionCb) =>
   };
   createSignableTransaction(txDetails)
     .then(signableTransactionDetails => {
-      console.log('created signable txn details');
       signAndSendTransactionCb(signableTransactionDetails, accountType)
       .then(txHash => {
-        console.log('send reducer txhash received', txHash);
         // has pending transactions set to true for redirect to Transactions route
         dispatch(accountUpdateHasPendingTransaction());
-        console.log('updated has pending txn');
         txDetails.hash = txHash;
         dispatch(accountUpdateTransactions(txDetails))
         .then(success => {
-          console.log('account update success', success);
           dispatch({
             type: SEND_TRANSACTION_SUCCESS,
             payload: txHash,
@@ -220,7 +215,6 @@ export const sendToggleConfirmationView = boolean => (dispatch, getState) => {
 };
 
 export const sendUpdateRecipient = recipient => dispatch => {
-  console.log('send received recipient', recipient);
   const input = recipient.replace(/[^\w.]/g, '');
   if (input.length <= 42) {
     dispatch({

@@ -197,7 +197,6 @@ export const getTransferTokenTransaction = transaction => {
  */
 export const createSignableTransaction = (transaction) =>
   new Promise((resolve, reject) => {
-    console.log('creating signable txn');
     transaction.value = transaction.amount;
     if (transaction.asset.symbol !== 'ETH') {
       transaction = getTransferTokenTransaction(transaction);

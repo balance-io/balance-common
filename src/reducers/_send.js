@@ -154,7 +154,7 @@ export const sendUpdateGasPrice = newGasPriceOption => (dispatch, getState) => {
     });
 };
 
-export const sendTransaction = (transactionDetails, signAndSendTransactionCb) => (dispatch, getState) => {
+export const sendTransaction = (transactionDetails, signAndSendTransactionCb) => (dispatch, getState) => new Promise((resolve, reject) => {
   dispatch({ type: SEND_TRANSACTION_REQUEST });
   const {
     address,
@@ -181,24 +181,30 @@ export const sendTransaction = (transactionDetails, signAndSendTransactionCb) =>
         // has pending transactions set to true for redirect to Transactions route
         dispatch(accountUpdateHasPendingTransaction());
         txDetails.hash = txHash;
-        dispatch(accountUpdateTransactions(txDetails));
-        dispatch({
-          type: SEND_TRANSACTION_SUCCESS,
-          payload: txHash,
+        dispatch(accountUpdateTransactions(txDetails))
+        .then(success => {
+          dispatch({
+            type: SEND_TRANSACTION_SUCCESS,
+            payload: txHash,
+          });
+          resolve(txHash);
+        }).catch(error => {
+          reject(error);
         });
-      })
-      .catch(error => {
+      }).catch(error => {
         const message = parseError(error);
         dispatch(notificationShow(message, true));
         dispatch({ type: SEND_TRANSACTION_FAILURE });
+        reject(error);
       });
     })
     .catch(error => {
       const message = parseError(error);
       dispatch(notificationShow(message, true));
       dispatch({ type: SEND_TRANSACTION_FAILURE });
+      reject(error);
     });
-};
+});
 
 export const sendToggleConfirmationView = boolean => (dispatch, getState) => {
   let confirm = boolean;
@@ -209,7 +215,6 @@ export const sendToggleConfirmationView = boolean => (dispatch, getState) => {
 };
 
 export const sendUpdateRecipient = recipient => dispatch => {
-  console.log('send received recipient', recipient);
   const input = recipient.replace(/[^\w.]/g, '');
   if (input.length <= 42) {
     dispatch({

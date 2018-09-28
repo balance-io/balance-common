@@ -458,11 +458,15 @@ const accountGetAccountTransactions = () => (dispatch, getState) => {
   });
 };
 
-const accountCheckTransactionStatus = txHash => (dispatch, getState) => {
+export const accountCheckTransactionStatus = txHash => (dispatch, getState) => {
   dispatch({ type: ACCOUNT_CHECK_TRANSACTION_STATUS_REQUEST });
-  const network = getState().account.network;
-  dispatch(accountGetTransactionStatus(txHash, network));
-  // NOTE: removed shapeshift logic here
+  if (txHash.startsWith('shapeshift')) {
+    const depositAddress = txHash.split('_')[1];
+    dispatch(accountGetShiftStatus(txHash, depositAddress));
+  } else {
+    const network = getState().account.network;
+    dispatch(accountGetTransactionStatus(txHash, network));
+  }
 };
 
 const accountGetUniqueTokens = () => (dispatch, getState) => {

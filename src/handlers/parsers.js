@@ -719,7 +719,7 @@ export const parseTransaction = async tx => {
  * @param  {Array} [transactions=null]
  * @return {Array}
  */
-export const parseHistoricalTransactions = async (transactions = null) => {
+export const parseHistoricalTransactions = async (transactions) => {
   if (!transactions.length) return transactions;
   const _transactions = await Promise.all(
     transactions.map(async (tx, idx) => {

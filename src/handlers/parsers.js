@@ -465,6 +465,31 @@ export const parseHistoricalNativePrice = async transaction => {
 
   return tx;
 };
+
+/**
+ * @desc update successful shapeshift deposit
+ * @param  {Object} [transactions=null]
+ * @param  {String} [hash='']
+ * @param  {String} [newHash='']
+ * @return {Array}
+ */
+export const parseConfirmedDeposit = (
+  transactions = null,
+  hash = '',
+  newHash = '',
+) => {
+  let _transactions = [];
+  transactions.forEach(tx => {
+    if (tx.hash.toLowerCase() === hash.toLowerCase()) {
+      tx.pending = true;
+      tx.hash = newHash;
+    }
+    _transactions.push(tx);
+  });
+  return _transactions;
+};
+
+
 /**
  * @desc parse confirmed transactions
  * @param  {Object} [data=null]
@@ -475,6 +500,22 @@ export const parseConfirmedTransactions = async (data = '') => {
   return await Promise.all(
     transactions.map(async tx => await parseHistoricalNativePrice(tx)),
   );
+};
+
+/**
+ * @desc update failed shapeshift deposit
+ * @param  {Object} [transactions=null]
+ * @param  {String} [hash='']
+ * @return {Array}
+ */
+export const parseFailedDeposit = (transactions = null, hash = '') => {
+  let _transactions = [];
+  transactions.forEach(tx => {
+    if (tx.hash.toLowerCase() !== hash.toLowerCase()) {
+      _transactions.push(tx);
+    }
+  });
+  return _transactions;
 };
 
 /**

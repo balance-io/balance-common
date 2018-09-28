@@ -2,6 +2,9 @@ import {
   convertStringToNumber,
   divide,
   formatFixedDecimals,
+  floorDivide,
+  greaterThanOrEqual,
+  mod,
   multiply,
 } from './bignumber';
 import timeUnits from '../references/time-units.json';
@@ -167,4 +170,26 @@ export const getTimeString = (value = '', unit = 'ms', short = false) => {
   } else {
     return `${_value} ${_unit}`;
   }
+};
+
+/**
+ * @desc get countdown (hrs:mins:secs)
+ * @param  {Number} [miliseconds]
+ * @return {String}
+ */
+export const getCountdown = miliseconds => {
+  let remaining = miliseconds;
+  let slots = [timeUnits.ms.hour, timeUnits.ms.minute, timeUnits.ms.second];
+  slots = slots.map(pack => {
+    let result = floorDivide(remaining, pack);
+    remaining = mod(remaining, pack);
+    if (greaterThanOrEqual(result, 1)) {
+      return result.length < 2 ? `0${result}` : result;
+    } else {
+      return null;
+    }
+  });
+  return `${slots[0] ? `${slots[0]}:` : ''}${
+    slots[1] ? `${slots[1]}:` : '00:'
+  }${slots[1] ? slots[2] || '00' : slots[2]}`;
 };

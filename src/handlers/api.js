@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { findIndex, slice } from 'lodash';
 import {
   parseAccountAssets,
   parseAccountTransactions,
@@ -140,27 +141,17 @@ export const apiGetAccountTransactions = async (
     // TODO: hit api directly instead of through indexer
     let { data } = await apiGetTransactionData(address, network, page);
     let { transactions, pages } = await parseAccountTransactions(data, address, network);
-    console.log('lasttxnhash', lastTxHash);
     if (transactions.length && lastTxHash) {
-      console.log('transaction first hash', transactions[0].hash);
-      console.log('transaction second hash', transactions[1].hash);
-      let newTxs = true;
-      // TODO: filter logic fix
-      transactions = transactions.filter(tx => {
-        if (tx.hash === lastTxHash && newTxs) {
-          newTxs = false;
-          return false;
-        } else if (tx.hash !== lastTxHash && newTxs) {
-          return true;
-        } else {
-          return false;
-        }
-      });
+      const lastTxnHashIndex = findIndex(transactions, (txn) => { return txn.hash === lastTxHash });
+      if (lastTxnHashIndex > -1) {
+        transactions = slice(transactions, 0, lastTxnHashIndex); 
+        pages = page;
+      }
+      console.log('filtered transactions length', transactions.length);
+      console.time('parseHistoricalTxns');
+      transactions = await parseHistoricalTransactions(transactions);
+      console.timeEnd('parseHistoricalTxns');
     }
-    console.log('filtered transactions length', transactions.length);
-    console.time('parseHistoricalTxns');
-    transactions = await parseHistoricalTransactions(transactions);
-    console.timeEnd('parseHistoricalTxns');
     const result = { data: transactions, pages };
     return result;
   } catch (error) {

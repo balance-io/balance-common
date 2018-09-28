@@ -413,7 +413,7 @@ const accountGetTransactions = (accountAddress, network, lastTxHash, page) => (d
         type: ACCOUNT_GET_ACCOUNT_TRANSACTIONS_SUCCESS,
         payload: _transactions,
       });
-      if (transactions.length > 0 && page <= pages) {
+      if (page < pages) {
         const nextPage = page + 1;
         dispatch(accountGetTransactions(accountAddress, network, lastTxHash, nextPage));
       }

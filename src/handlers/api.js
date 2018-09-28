@@ -137,9 +137,15 @@ export const apiGetAccountTransactions = async (
   page = 1,
 ) => {
   try {
+    console.time('getTxns');
     let { data } = await apiGetTransactionData(address, network, page);
+    console.timeEnd('getTxns');
+    console.time('parseTxns');
     let { transactions, pages } = await parseAccountTransactions(data, address, network);
+    console.timeEnd('parseTxns');
+    console.log('lasttxnhash', lastTxHash);
     if (transactions.length && lastTxHash) {
+      console.log('transaction first hash', transactions[0].hash);
       let newTxs = true;
       // TODO: filter logic fix
       transactions = transactions.filter(tx => {
@@ -153,7 +159,9 @@ export const apiGetAccountTransactions = async (
         }
       });
     }
+    console.time('parseHistoricalTxns');
     transactions = await parseHistoricalTransactions(transactions);
+    console.timeEnd('parseHistoricalTxns');
     const result = { data: transactions, pages };
     return result;
   } catch (error) {

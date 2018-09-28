@@ -397,13 +397,22 @@ const accountUpdateBalances = () => (dispatch, getState) => {
 };
 
 const accountGetTransactions = (accountAddress, network, lastTxHash, page) => (dispatch, getState) => {
+  console.log('account get txns with page', page);
+  console.time('apiGetAccountTxns');
   apiGetAccountTransactions(accountAddress, network, lastTxHash, page)
     .then(({ data, pages }) => {
+      console.timeEnd('apiGetAccountTxns');
       const transactions = data;
       const address = getState().account.accountAddress;
       const currentTransactions = getState().account.transactions;
+      console.log('union of current transactions and new txns by hash');
+      console.time('mergeTxns');
       let _transactions = _.unionBy(currentTransactions, transactions, 'hash');
+      console.timeEnd('mergeTxns');
+      console.time('updateLocalTxns');
       updateLocalTransactions(address, _transactions, network);
+      console.timeEnd('updateLocalTxns');
+      console.log('updated local txns on local storage');
       dispatch({
         type: ACCOUNT_GET_ACCOUNT_TRANSACTIONS_SUCCESS,
         payload: _transactions,

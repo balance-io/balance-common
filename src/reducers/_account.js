@@ -406,18 +406,14 @@ const accountGetTransactions = (accountAddress, network, lastTxHash, page) => (d
       const address = getState().account.accountAddress;
       const currentTransactions = getState().account.transactions;
       console.log('union of current transactions and new txns by hash');
-      console.time('mergeTxns');
       let _transactions = _.unionBy(currentTransactions, transactions, 'hash');
-      console.timeEnd('mergeTxns');
-      console.time('updateLocalTxns');
       updateLocalTransactions(address, _transactions, network);
-      console.timeEnd('updateLocalTxns');
       console.log('updated local txns on local storage');
       dispatch({
         type: ACCOUNT_GET_ACCOUNT_TRANSACTIONS_SUCCESS,
         payload: _transactions,
       });
-      if (page <= pages) {
+      if (transactions.length > 0 && page <= pages) {
         const nextPage = page + 1;
         dispatch(accountGetTransactions(accountAddress, network, lastTxHash, nextPage));
       }

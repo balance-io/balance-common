@@ -522,14 +522,14 @@ const accountGetTransactionStatus = (txHash, network) => (
       } else {
         setTimeout(
           () => dispatch(accountGetTransactionStatus(txHash, network)),
-          1000,
+          5000,
         );
       }
     })
     .catch(error => {
       setTimeout(
         () => dispatch(accountGetTransactionStatus(txHash, network)),
-        1000,
+        5000,
       );
     });
 };
@@ -568,13 +568,13 @@ const accountGetShiftStatus = (txHash, depositAddress) => (
         } else {
           setTimeout(
             () => dispatch(accountGetShiftStatus(txHash, depositAddress)),
-            1000,
+            5000,
           );
         }
       } else {
         setTimeout(
           () => dispatch(accountGetShiftStatus(txHash, depositAddress)),
-          1000,
+          5000,
         );
       }
     })

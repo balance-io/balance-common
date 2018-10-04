@@ -385,6 +385,7 @@ const ethFeeAsset = {
  */
 export const parseHistoricalNativePrice = async transaction => {
   let tx = { ...transaction };
+  // TODO: error: Date.now() provides ms not secs
   const timestamp = tx.timestamp ? tx.timestamp.secs : Date.now();
   let asset = { ...tx.asset };
   asset.symbol = tx.asset.symbol === 'WETH' ? 'ETH' : tx.asset.symbol;
@@ -442,7 +443,7 @@ export const parseHistoricalNativePrice = async transaction => {
       };
       const feePriceDisplay = convertAmountToDisplay(feePriceAmount, prices);
       prices[nativeCurrency]['ETH'].price.display = feePriceDisplay;
-
+      
       const txFeePriceAmount = convertAssetAmountToNativeValue(
         tx.txFee.amount,
         ethFeeAsset,
@@ -719,15 +720,16 @@ export const parseTransaction = async tx => {
  * @param  {Array} [transactions=null]
  * @return {Array}
  */
-export const parseHistoricalTransactions = async (transactions) => {
+export const parseHistoricalTransactions = async (transactions, page) => {
   if (!transactions.length) return transactions;
   const _transactions = await Promise.all(
     transactions.map(async (tx, idx) => {
       if (!tx.native || (tx.native && Object.keys(tx.native).length < 1)) {
+        const pageOffset = (page - 1) * 2000;
         const parsedTxn = await debounceRequest(
           parseHistoricalNativePrice,
           [tx],
-          50 * idx,
+          (40 * idx) + pageOffset,
         );
         return parsedTxn;
       }

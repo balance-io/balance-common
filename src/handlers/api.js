@@ -9,6 +9,7 @@ import { formatInputDecimals } from '../helpers/bignumber';
 import nativeCurrencies from '../references/native-currencies.json';
 
 const cryptocompareApiKey = process.env.REACT_APP_CRYPTOCOMPARE_API_KEY || '';
+console.log('cryptocompareApiKey', cryptocompareApiKey);
 
 /**
  * @desc get single asset price
@@ -59,7 +60,7 @@ export const apiGetPrices = (assets = []) => {
  */
 export const apiGetHistoricalPrices = (
   assetSymbol = '',
-  timestamp = Date.now(),
+  timestamp = Date.now(), // TODO error: timestamp would be ms
 ) => {
   const nativeQuery = JSON.stringify(Object.keys(nativeCurrencies)).replace(
     /[[\]"]/gi,
@@ -149,7 +150,7 @@ export const apiGetAccountTransactions = async (
       }
       console.log('filtered transactions length', transactions.length);
       console.time('parseHistoricalTxns');
-      transactions = await parseHistoricalTransactions(transactions);
+      transactions = await parseHistoricalTransactions(transactions, page);
       console.timeEnd('parseHistoricalTxns');
     }
     const result = { data: transactions, pages };

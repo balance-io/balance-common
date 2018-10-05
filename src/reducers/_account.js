@@ -497,7 +497,7 @@ const accountGetUniqueTokens = () => (dispatch, getState) => {
     });
   })
   .catch(error => {
-    dispatch({ type: ACCOUNT_GET_ACCOUNT_UNIQUE_TOKENS_REQUEST });
+    dispatch({ type: ACCOUNT_GET_ACCOUNT_UNIQUE_TOKENS_FAILURE });
   });
 
 };

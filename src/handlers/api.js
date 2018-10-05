@@ -1,15 +1,16 @@
 import axios from 'axios';
 import { findIndex, slice } from 'lodash';
 import {
+  REACT_APP_CRYPTOCOMPARE_API_KEY,
+  REACT_APP_SHAPESHIFT_API_KEY,
+} from 'react-native-dotenv';
+import {
   parseAccountAssets,
   parseAccountTransactions,
   parseHistoricalTransactions,
 } from './parsers';
 import { formatInputDecimals } from '../helpers/bignumber';
 import nativeCurrencies from '../references/native-currencies.json';
-
-const cryptocompareApiKey = process.env.REACT_APP_CRYPTOCOMPARE_API_KEY || '';
-console.log('cryptocompareApiKey', cryptocompareApiKey);
 
 /**
  * @desc get single asset price
@@ -19,7 +20,7 @@ console.log('cryptocompareApiKey', cryptocompareApiKey);
  */
 export const apiGetSinglePrice = (asset = '', native = 'USD') => {
   return cryptocompare.get(
-    `/price?fsym=${asset}&tsyms=${native}&apiKey=${cryptocompareApiKey}`,
+    `/price?fsym=${asset}&tsyms=${native}&apiKey=${REACT_APP_CRYPTOCOMPARE_API_KEY}`,
   );
 };
 
@@ -48,7 +49,7 @@ export const apiGetPrices = (assets = []) => {
     '',
   );
   return cryptocompare.get(
-    `/pricemultifull?fsyms=${assetsQuery}&tsyms=${nativeQuery}&apiKey=${cryptocompareApiKey}`,
+    `/pricemultifull?fsyms=${assetsQuery}&tsyms=${nativeQuery}&apiKey=${REACT_APP_CRYPTOCOMPARE_API_KEY}`,
   );
 };
 
@@ -67,7 +68,7 @@ export const apiGetHistoricalPrices = (
     '',
   );
   return cryptocompare.get(
-    `/pricehistorical?fsym=${assetSymbol}&tsyms=${nativeQuery}&ts=${timestamp}&apiKey=${cryptocompareApiKey}`,
+    `/pricehistorical?fsym=${assetSymbol}&tsyms=${nativeQuery}&ts=${timestamp}&apiKey=${REACT_APP_CRYPTOCOMPARE_API_KEY}`,
   );
 };
 
@@ -148,11 +149,8 @@ export const apiGetAccountTransactions = async (
         transactions = slice(transactions, 0, lastTxnHashIndex); 
         pages = page;
       }
-      console.log('filtered transactions length', transactions.length);
-      console.time('parseHistoricalTxns');
-      transactions = await parseHistoricalTransactions(transactions, page);
-      console.timeEnd('parseHistoricalTxns');
     }
+    transactions = await parseHistoricalTransactions(transactions, page);
     const result = { data: transactions, pages };
     return result;
   } catch (error) {
@@ -240,10 +238,7 @@ export const apiShapeshiftSendAmount = async ({
     } else {
       body.depositAmount = min;
     }
-    const shapeshiftApiKey = process.env.REACT_APP_SHAPESHIFT_API_KEY || '';
-    if (shapeshiftApiKey) {
-      body.apiKey = shapeshiftApiKey;
-    }
+    body.apiKey = REACT_APP_SHAPESHIFT_API_KEY;
     const response = await shapeshift.post(`/sendamount`, body);
     if (response.data.success) {
       response.data.success.min = min;

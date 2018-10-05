@@ -28,6 +28,7 @@ import {
   saveNativePrices,
   updateLocalBalances,
   updateLocalTransactions,
+  updateLocalUniqueTokens,
 } from '../handlers/commonStorage';
 import { web3SetHttpProvider } from '../handlers/web3';
 import { notificationShow } from './_notification';
@@ -470,22 +471,35 @@ export const accountCheckTransactionStatus = txHash => (dispatch, getState) => {
 };
 
 const accountGetUniqueTokens = () => (dispatch, getState) => {
-  const { accountAddress } = getState().account;
-  dispatch({
-    type: ACCOUNT_GET_ACCOUNT_UNIQUE_TOKENS_REQUEST,
-  });
-  apiGetAccountUniqueTokens(accountAddress)
-    .then(data => {
+  dispatch({ type: ACCOUNT_GET_ACCOUNT_UNIQUE_TOKENS_REQUEST });
+  const { accountAddress, network } = getState().account;
+  getAccountLocal(accountAddress).then(accountLocal => {
+    const cachedUniqueTokens = _.get(accountLocal, `${network}.uniqueTokens`, null);
+    if (cachedUniqueTokens) {
+      updateLocalUniqueTokens(accountAddress, cachedUniqueTokens, network);
       dispatch({
         type: ACCOUNT_GET_ACCOUNT_UNIQUE_TOKENS_SUCCESS,
-        payload: data,
+        payload: cachedUniqueTokens,
       });
-    })
-    .catch(error => {
-      const message = parseError(error);
-      dispatch(notificationShow(message, true));
-      dispatch({ type: ACCOUNT_GET_ACCOUNT_UNIQUE_TOKENS_FAILURE });
+    }
+    apiGetAccountUniqueTokens(accountAddress)
+      .then(data => {
+        updateLocalUniqueTokens(accountAddress, data, network);
+        dispatch({
+          type: ACCOUNT_GET_ACCOUNT_UNIQUE_TOKENS_SUCCESS,
+          payload: data,
+        });
+      })
+      .catch(error => {
+        const message = parseError(error);
+        dispatch(notificationShow(message, true));
+        dispatch({ type: ACCOUNT_GET_ACCOUNT_UNIQUE_TOKENS_FAILURE });
     });
+  })
+  .catch(error => {
+    dispatch({ type: ACCOUNT_GET_ACCOUNT_UNIQUE_TOKENS_REQUEST });
+  });
+
 };
 
 const accountGetTransactionStatus = (txHash, network) => (

@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
+import get from 'lodash.get';
 import lang from '../languages';
 import {
   sendModalInit,
@@ -65,7 +66,6 @@ export const withSendComponentWithData = (SendComponent, sendTransactionCb) => {
       nativeAmount: PropTypes.string.isRequired,
       assetAmount: PropTypes.string.isRequired,
       txHash: PropTypes.string.isRequired,
-      // address: PropTypes.string.isRequired,
       selected: PropTypes.object.isRequired,
       gasPrice: PropTypes.object.isRequired,
       gasPrices: PropTypes.object.isRequired,
@@ -80,7 +80,7 @@ export const withSendComponentWithData = (SendComponent, sendTransactionCb) => {
     };
 
     state = {
-      isValidAddress: true,
+      isValidAddress: false,
       showQRCodeReader: false,
     };
 
@@ -89,21 +89,34 @@ export const withSendComponentWithData = (SendComponent, sendTransactionCb) => {
     }
 
     componentDidUpdate(prevProps) {
-      if (this.props.recipient.length >= 42) {
-        if (this.props.selected.symbol !== prevProps.selected.symbol) {
-          this.props.sendUpdateGasPrice();
-        } else if (this.props.recipient !== prevProps.recipient) {
-          this.props.sendUpdateGasPrice();
-        } else if (this.props.assetAmount !== prevProps.assetAmount) {
-          this.props.sendUpdateGasPrice();
+      const { assetAmount, recipient, selected, sendUpdateGasPrice } = this.props;
+
+      if (recipient.length >= 42) {
+        if (selected.symbol !== prevProps.selected.symbol) {
+          sendUpdateGasPrice();
+        } else if (recipient !== prevProps.recipient) {
+          sendUpdateGasPrice();
+        } else if (assetAmount !== prevProps.assetAmount) {
+          sendUpdateGasPrice();
         }
+      }
+
+      if (recipient !== prevProps.recipient) {
+        this.setState({ isValidAddress: isValidAddress(recipient) });
       }
     }
 
-    onAddressInputFocus = () => this.setState({ isValidAddress: true });
+    onAddressInputFocus = () => {
+      const { recipient } = this.props;
 
-    onAddressInputBlur = () =>
-      this.setState({ isValidAddress: isValidAddress(this.props.recipient) });
+      this.setState({ isValidAddress: isValidAddress(recipient) });
+    };
+
+    onAddressInputBlur = () => {
+      const { recipient } = this.props;
+
+      this.setState({ isValidAddress: isValidAddress(recipient) });
+    };
 
     onGoBack = () => this.props.sendToggleConfirmationView(false);
 
@@ -115,8 +128,10 @@ export const withSendComponentWithData = (SendComponent, sendTransactionCb) => {
       this.props.sendModalInit();
     };
 
-    onSubmit = e => {
-      e.preventDefault();
+    onSubmit = (event) => {
+      if (event && typeof event.preventDefault === 'function') {
+        event.preventDefault();
+      }
 
       if (!this.props.gasPrice.txFee) {
         this.props.notificationShow(
@@ -164,7 +179,7 @@ export const withSendComponentWithData = (SendComponent, sendTransactionCb) => {
             this.props.gasPrice,
           );
 
-          const tokenBalanceAmount = this.props.selected.balance.amount;
+          const tokenBalanceAmount = get(this.props, 'selected.balance.amount');
           const tokenBalance = convertAmountFromBigNumber(tokenBalanceAmount);
 
           if (greaterThan(requestedAmount, tokenBalance)) {
@@ -240,21 +255,24 @@ export const withSendComponentWithData = (SendComponent, sendTransactionCb) => {
       );
     };
 
-    render = () => { 
-      return <SendComponent
-               isValidAddress={this.state.isValidAddress}
-               onSendMaxBalance={this.onSendMaxBalance}
-               onAddressInputFocus={this.onAddressInputFocus}
-               onAddressInputBlur={this.onAddressInputBlur}
-               onClose={this.onClose}
-               onQRCodeValidate={this.onQRCodeValidate}
-               onQRCodeScan={this.onQRCodeScan}
-               onQRCodeError={this.onQRCodeError}
-               onSubmit={this.onSubmit}
-               showQRCodeReader={this.state.showQRCodeReader}
-               toggleQRCodeReader={this.toggleQRCodeReader}
-               updateGasPrice={this.updateGasPrice}
-               {...this.props} />;
+    render() {
+      return (
+        <SendComponent
+          isValidAddress={this.state.isValidAddress}
+          onSendMaxBalance={this.onSendMaxBalance}
+          onAddressInputFocus={this.onAddressInputFocus}
+          onAddressInputBlur={this.onAddressInputBlur}
+          onClose={this.onClose}
+          onQRCodeValidate={this.onQRCodeValidate}
+          onQRCodeScan={this.onQRCodeScan}
+          onQRCodeError={this.onQRCodeError}
+          onSubmit={this.onSubmit}
+          showQRCodeReader={this.state.showQRCodeReader}
+          toggleQRCodeReader={this.toggleQRCodeReader}
+          updateGasPrice={this.updateGasPrice}
+          {...this.props}
+        />
+      );
     };
   }
 

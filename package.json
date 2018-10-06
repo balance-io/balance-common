@@ -17,11 +17,13 @@
     "bignumber.js": "^7.0.1",
     "i18next": "^11.3.2",
     "jsonp": "^0.2.1",
-    "lodash": "^4.17.5",
+    "lodash": "^4.17.10",
+    "lodash.get": "^4.4.2",
     "react": "^16.2.0",
     "react-redux": "^5.0.7",
     "redux": "^4.0.0",
-    "web3": "^1.0.0-beta.34"
+    "underscore": "^1.9.1",
+    "web3": "1.0.0-beta.34"
   },
   "scripts": {
     "build": "webpack",

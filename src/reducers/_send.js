@@ -1,5 +1,4 @@
-import _ from 'underscore';
-import get from 'lodash.get';
+import { get, isEmpty } from 'lodash';
 import { apiGetGasPrices } from '../handlers/api';
 import lang from '../languages';
 import ethUnits from '../references/ethereum-units.json';
@@ -56,17 +55,20 @@ const SEND_CLEAR_FIELDS = 'send/SEND_CLEAR_FIELDS';
 
 // -- Actions --------------------------------------------------------------- //
 
-export const sendModalInit = () => (dispatch, getState) => {
+export const sendModalInit = (options) => (dispatch, getState) => {
   const { accountAddress, accountInfo, prices } = getState().account;
   const { gasLimit } = getState().send;
+
   const fallbackGasPrices = parseGasPrices(null, prices, gasLimit);
+  const assets = get(accountInfo, 'assets', []);
+  const selected = assets.filter(asset => asset.symbol === options.defaultAsset)[0] || {};
 
   dispatch({
     type: SEND_GET_GAS_PRICES_REQUEST,
     payload: {
       address: accountAddress,
       gasPrices: fallbackGasPrices,
-      selected: {},
+      selected,
     },
   });
 
@@ -99,7 +101,7 @@ export const sendUpdateGasPrice = newGasPriceOption => (dispatch, getState) => {
     fetchingGasPrices,
   } = getState().send;
 
-  if (_.isEmpty(selected)) return;
+  if (isEmpty(selected)) return;
   if (fetchingGasPrices) return;
   let gasPrices = getState().send.gasPrices;
   if (!Object.keys(gasPrices).length) return null;

@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import get from 'lodash.get';
+import { get } from 'lodash';
 import lang from '../languages';
 import {
   sendModalInit,
@@ -47,7 +47,15 @@ const reduxProps = ({ send, account }) => ({
   prices: account.prices,
 });
 
-export const withSendComponentWithData = (SendComponent, sendTransactionCb) => {
+/**
+ * Create SendComponent connected to redux with actions for sending assets.
+ * @param  {Component}  SendComponent                     React component for sending.
+ * @param  {Object}     options
+ *         {Function}   options.sendTransactionCallback   Function to be run after sendTransaction redux action.
+ *         {String}     options.defaultAsset              Symbol for default asset to send.
+ * @return {Component}                                    SendComponent connected to redux.
+ */
+export const withSendComponentWithData = (SendComponent, options) => {
   class SendComponentWithData extends Component {
     static propTypes = {
       sendModalInit: PropTypes.func.isRequired,
@@ -79,13 +87,26 @@ export const withSendComponentWithData = (SendComponent, sendTransactionCb) => {
       prices: PropTypes.object.isRequired,
     };
 
-    state = {
-      isValidAddress: false,
-      showQRCodeReader: false,
-    };
+    constructor(props) {
+      super(props);
+
+      this.state = {
+        isValidAddress: false,
+        showQRCodeReader: false,
+      };
+
+      // Allow sendTransactionCallback to be passed in directly for backwards compatibility.
+      if (typeof options === 'function') {
+        this.defaultAsset = 'ETH';
+        this.sendTransactionCallback = options;
+      } else {
+        this.defaultAsset = options.defaultAsset;
+        this.sendTransactionCallback = options.sendTransactionCallback || function noop() {};
+      }
+    }
 
     componentDidMount() {
-      this.props.sendModalInit();
+      this.props.sendModalInit({ defaultAsset: this.defaultAsset });
     }
 
     componentDidUpdate(prevProps) {
@@ -125,7 +146,7 @@ export const withSendComponentWithData = (SendComponent, sendTransactionCb) => {
     onSendAnother = () => {
       this.props.sendToggleConfirmationView(false);
       this.props.sendClearFields();
-      this.props.sendModalInit();
+      this.props.sendModalInit({ defaultAsset: this.defaultAsset });
     };
 
     onSubmit = (event) => {
@@ -206,7 +227,7 @@ export const withSendComponentWithData = (SendComponent, sendTransactionCb) => {
           asset: this.props.selected,
           gasPrice: this.props.gasPrice,
           gasLimit: this.props.gasLimit,
-        }, sendTransactionCb);
+        }, this.sendTransactionCallback);
       }
 
       this.props.sendToggleConfirmationView(true);

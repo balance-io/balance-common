@@ -25,6 +25,12 @@ export const resources = {
   el: greek,
 };
 
+i18next.init({
+  lng: 'en',
+  debug: true, // TODO: only debug in dev mode
+  resources,
+});
+
 export const updateLanguage = code => i18next.changeLanguage(code);
 
 i18next.on('languageChanged', () => {});

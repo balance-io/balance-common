@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
+import { get } from 'lodash';
 import lang from '../languages';
 import {
   sendModalInit,
@@ -46,7 +47,15 @@ const reduxProps = ({ send, account }) => ({
   prices: account.prices,
 });
 
-export const withSendComponentWithData = (SendComponent, sendTransactionCb) => {
+/**
+ * Create SendComponent connected to redux with actions for sending assets.
+ * @param  {Component}  SendComponent                     React component for sending.
+ * @param  {Object}     options
+ *         {Function}   options.sendTransactionCallback   Function to be run after sendTransaction redux action.
+ *         {String}     options.defaultAsset              Symbol for default asset to send.
+ * @return {Component}                                    SendComponent connected to redux.
+ */
+export const withSendComponentWithData = (SendComponent, options) => {
   class SendComponentWithData extends Component {
     static propTypes = {
       sendModalInit: PropTypes.func.isRequired,
@@ -65,7 +74,6 @@ export const withSendComponentWithData = (SendComponent, sendTransactionCb) => {
       nativeAmount: PropTypes.string.isRequired,
       assetAmount: PropTypes.string.isRequired,
       txHash: PropTypes.string.isRequired,
-      // address: PropTypes.string.isRequired,
       selected: PropTypes.object.isRequired,
       gasPrice: PropTypes.object.isRequired,
       gasPrices: PropTypes.object.isRequired,
@@ -79,31 +87,57 @@ export const withSendComponentWithData = (SendComponent, sendTransactionCb) => {
       prices: PropTypes.object.isRequired,
     };
 
-    state = {
-      isValidAddress: true,
-      showQRCodeReader: false,
-    };
+    constructor(props) {
+      super(props);
 
-    componentDidMount() {
-      this.props.sendModalInit();
-    }
+      this.state = {
+        isValidAddress: false,
+        showQRCodeReader: false,
+      };
 
-    componentDidUpdate(prevProps) {
-      if (this.props.recipient.length >= 42) {
-        if (this.props.selected.symbol !== prevProps.selected.symbol) {
-          this.props.sendUpdateGasPrice();
-        } else if (this.props.recipient !== prevProps.recipient) {
-          this.props.sendUpdateGasPrice();
-        } else if (this.props.assetAmount !== prevProps.assetAmount) {
-          this.props.sendUpdateGasPrice();
-        }
+      // Allow sendTransactionCallback to be passed in directly for backwards compatibility.
+      if (typeof options === 'function') {
+        this.defaultAsset = 'ETH';
+        this.sendTransactionCallback = options;
+      } else {
+        this.defaultAsset = options.defaultAsset;
+        this.sendTransactionCallback = options.sendTransactionCallback || function noop() {};
       }
     }
 
-    onAddressInputFocus = () => this.setState({ isValidAddress: true });
+    componentDidMount() {
+      this.props.sendModalInit({ defaultAsset: this.defaultAsset });
+    }
 
-    onAddressInputBlur = () =>
-      this.setState({ isValidAddress: isValidAddress(this.props.recipient) });
+    componentDidUpdate(prevProps) {
+      const { assetAmount, recipient, selected, sendUpdateGasPrice } = this.props;
+
+      if (recipient.length >= 42) {
+        if (selected.symbol !== prevProps.selected.symbol) {
+          sendUpdateGasPrice();
+        } else if (recipient !== prevProps.recipient) {
+          sendUpdateGasPrice();
+        } else if (assetAmount !== prevProps.assetAmount) {
+          sendUpdateGasPrice();
+        }
+      }
+
+      if (recipient !== prevProps.recipient) {
+        this.setState({ isValidAddress: isValidAddress(recipient) });
+      }
+    }
+
+    onAddressInputFocus = () => {
+      const { recipient } = this.props;
+
+      this.setState({ isValidAddress: isValidAddress(recipient) });
+    };
+
+    onAddressInputBlur = () => {
+      const { recipient } = this.props;
+
+      this.setState({ isValidAddress: isValidAddress(recipient) });
+    };
 
     onGoBack = () => this.props.sendToggleConfirmationView(false);
 
@@ -112,11 +146,13 @@ export const withSendComponentWithData = (SendComponent, sendTransactionCb) => {
     onSendAnother = () => {
       this.props.sendToggleConfirmationView(false);
       this.props.sendClearFields();
-      this.props.sendModalInit();
+      this.props.sendModalInit({ defaultAsset: this.defaultAsset });
     };
 
-    onSubmit = e => {
-      e.preventDefault();
+    onSubmit = (event) => {
+      if (event && typeof event.preventDefault === 'function') {
+        event.preventDefault();
+      }
 
       if (!this.props.gasPrice.txFee) {
         this.props.notificationShow(
@@ -164,7 +200,7 @@ export const withSendComponentWithData = (SendComponent, sendTransactionCb) => {
             this.props.gasPrice,
           );
 
-          const tokenBalanceAmount = this.props.selected.balance.amount;
+          const tokenBalanceAmount = get(this.props, 'selected.balance.amount');
           const tokenBalance = convertAmountFromBigNumber(tokenBalanceAmount);
 
           if (greaterThan(requestedAmount, tokenBalance)) {
@@ -191,7 +227,7 @@ export const withSendComponentWithData = (SendComponent, sendTransactionCb) => {
           asset: this.props.selected,
           gasPrice: this.props.gasPrice,
           gasLimit: this.props.gasLimit,
-        }, sendTransactionCb);
+        }, this.sendTransactionCallback);
       }
 
       this.props.sendToggleConfirmationView(true);
@@ -240,21 +276,24 @@ export const withSendComponentWithData = (SendComponent, sendTransactionCb) => {
       );
     };
 
-    render = () => { 
-      return <SendComponent
-               isValidAddress={this.state.isValidAddress}
-               onSendMaxBalance={this.onSendMaxBalance}
-               onAddressInputFocus={this.onAddressInputFocus}
-               onAddressInputBlur={this.onAddressInputBlur}
-               onClose={this.onClose}
-               onQRCodeValidate={this.onQRCodeValidate}
-               onQRCodeScan={this.onQRCodeScan}
-               onQRCodeError={this.onQRCodeError}
-               onSubmit={this.onSubmit}
-               showQRCodeReader={this.state.showQRCodeReader}
-               toggleQRCodeReader={this.toggleQRCodeReader}
-               updateGasPrice={this.updateGasPrice}
-               {...this.props} />;
+    render() {
+      return (
+        <SendComponent
+          isValidAddress={this.state.isValidAddress}
+          onSendMaxBalance={this.onSendMaxBalance}
+          onAddressInputFocus={this.onAddressInputFocus}
+          onAddressInputBlur={this.onAddressInputBlur}
+          onClose={this.onClose}
+          onQRCodeValidate={this.onQRCodeValidate}
+          onQRCodeScan={this.onQRCodeScan}
+          onQRCodeError={this.onQRCodeError}
+          onSubmit={this.onSubmit}
+          showQRCodeReader={this.state.showQRCodeReader}
+          toggleQRCodeReader={this.toggleQRCodeReader}
+          updateGasPrice={this.updateGasPrice}
+          {...this.props}
+        />
+      );
     };
   }
 

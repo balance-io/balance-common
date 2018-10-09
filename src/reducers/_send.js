@@ -1,3 +1,4 @@
+import { get, isEmpty } from 'lodash';
 import { apiGetGasPrices } from '../handlers/api';
 import lang from '../languages';
 import ethUnits from '../references/ethereum-units.json';
@@ -54,21 +55,23 @@ const SEND_CLEAR_FIELDS = 'send/SEND_CLEAR_FIELDS';
 
 // -- Actions --------------------------------------------------------------- //
 
-export const sendModalInit = () => (dispatch, getState) => {
+export const sendModalInit = (options) => (dispatch, getState) => {
   const { accountAddress, accountInfo, prices } = getState().account;
   const { gasLimit } = getState().send;
-  const selected = accountInfo.assets.filter(
-    asset => asset.symbol === 'ETH',
-  )[0];
+
   const fallbackGasPrices = parseGasPrices(null, prices, gasLimit);
+  const assets = get(accountInfo, 'assets', []);
+  const selected = assets.filter(asset => asset.symbol === options.defaultAsset)[0] || {};
+
   dispatch({
     type: SEND_GET_GAS_PRICES_REQUEST,
     payload: {
       address: accountAddress,
-      selected,
       gasPrices: fallbackGasPrices,
+      selected,
     },
   });
+
   apiGetGasPrices()
     .then(({ data }) => {
       const gasPrices = parseGasPrices(data, prices, gasLimit);
@@ -97,6 +100,8 @@ export const sendUpdateGasPrice = newGasPriceOption => (dispatch, getState) => {
     gasPriceOption,
     fetchingGasPrices,
   } = getState().send;
+
+  if (isEmpty(selected)) return;
   if (fetchingGasPrices) return;
   let gasPrices = getState().send.gasPrices;
   if (!Object.keys(gasPrices).length) return null;
@@ -126,7 +131,7 @@ export const sendUpdateGasPrice = newGasPriceOption => (dispatch, getState) => {
       const message = parseError(error);
       if (assetAmount) {
         const requestedAmount = convertAmountToBigNumber(`${assetAmount}`);
-        const availableBalance = selected.balance.amount;
+        const availableBalance = get(selected, 'balance.amount');
         if (greaterThan(requestedAmount, availableBalance)) {
           dispatch(
             notificationShow(
@@ -177,20 +182,22 @@ export const sendTransaction = (transactionDetails, signAndSendTransactionCb) =>
   createSignableTransaction(txDetails)
     .then(signableTransactionDetails => {
       signAndSendTransactionCb(signableTransactionDetails, accountType)
-      .then(txHash => {
+      .then((txResponse) => {
         // has pending transactions set to true for redirect to Transactions route
         dispatch(accountUpdateHasPendingTransaction());
-        txDetails.hash = txHash;
+
+        txDetails.hash = txResponse.hash;
+
         dispatch(accountUpdateTransactions(txDetails))
-        .then(success => {
-          dispatch({
-            type: SEND_TRANSACTION_SUCCESS,
-            payload: txHash,
+          .then(success => {
+            dispatch({
+              type: SEND_TRANSACTION_SUCCESS,
+              payload: txResponse,
+            });
+            resolve(txResponse);
+          }).catch(error => {
+            reject(error);
           });
-          resolve(txHash);
-        }).catch(error => {
-          reject(error);
-        });
       }).catch(error => {
         const message = parseError(error);
         dispatch(notificationShow(message, true));
@@ -263,14 +270,16 @@ export const sendUpdateNativeAmount = nativeAmount => (dispatch, getState) => {
 };
 
 export const sendUpdateSelected = value => (dispatch, getState) => {
-  const { prices, nativeCurrency, accountInfo } = getState().account;
-  const { assetAmount } = getState().send;
-  let selected = accountInfo.assets.filter(asset => asset.symbol === 'ETH')[0];
-  if (value !== 'ETH') {
-    selected = accountInfo.assets.filter(asset => asset.symbol === value)[0];
-  }
+  const state = getState();
+  const assetAmount = get(state, 'send.assetAmount', 0);
+  const assets = get(state, 'account.accountInfo.assets', []);
+  const nativeCurrency = get(state, 'account.nativeCurrency', '');
+  const prices = get(state, 'account.prices', {});
+  const selected = assets.filter(asset => asset.symbol === value)[0] || {};
+
   dispatch({ type: SEND_UPDATE_SELECTED, payload: selected });
   dispatch(sendUpdateGasPrice());
+
   if (prices[nativeCurrency] && prices[nativeCurrency][selected.symbol]) {
     dispatch(sendUpdateAssetAmount(assetAmount));
   }
@@ -312,7 +321,7 @@ const INITIAL_STATE = {
   assetAmount: '',
   txHash: '',
   confirm: false,
-  selected: { symbol: 'ETH' },
+  selected: {},
 };
 
 export default (state = INITIAL_STATE, action) => {

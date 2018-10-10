@@ -175,7 +175,7 @@
       "opensea_footer": " is a market place for unique (or 'non-fungible') tokens. People trade on the marketspace and that gives them value. You can pawn your tokens to get money. All of this runs on Ethereum. ",
       "opensea_header": "How does this work under the hood?",
       "power_by": "Powered by",
-      "exchange_not_available": "Exchange is not available in your area",
+      "exchange_not_available": "We are no longer supporting Shapeshift due to their new KYC requirements. We are working on support for different exchange providers.",
       "learn_more": "Learn more"
     },
     "notification": {

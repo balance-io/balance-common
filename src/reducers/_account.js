@@ -183,7 +183,7 @@ export const accountUpdateAccountAddress = (accountAddress, accountType) => (
     type: ACCOUNT_UPDATE_ACCOUNT_ADDRESS,
     payload: { accountAddress, accountType },
   });
-  dispatch(accountShapeshiftVerify());
+  //dispatch(accountShapeshiftVerify());
   dispatch(accountUpdateNetwork(network));
   dispatch(accountGetAccountTransactions());
   dispatch(accountGetAccountBalances());
@@ -631,7 +631,7 @@ export const INITIAL_ACCOUNT_STATE = {
   nativeCurrency: 'USD',
   network: 'mainnet',
   prices: {},
-  shapeshiftAvailable: true,
+  shapeshiftAvailable: false,
   transactions: [],
   uniqueTokens: [],
 };

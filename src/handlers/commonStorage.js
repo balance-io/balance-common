@@ -22,6 +22,7 @@ export const saveLocal = async (
   try {
     data['storageVersion'] = version;
     await storage.save({ key, data, expires: null });
+    console.log('$$$ saved local', key, data);
   } catch (error) {
     console.log('Storage: error saving to local for key', key);
   }
@@ -164,6 +165,7 @@ export const updateLocalRequests = async (address, network, requests) => {
     accountLocal[network] = {};
   }
   accountLocal[network].requests = { ...requests };
+  accountLocal[network].requestsTest = true;
   console.log('updating local requests', accountLocal);
   await saveLocal(address.toLowerCase(), accountLocal, accountLocalVersion);
 };
@@ -179,7 +181,8 @@ export const getAccountLocalRequests = async (accountAddress, network) => {
   const requests = accountLocal && accountLocal[network] ? accountLocal[network].requests : {};
   const openRequests = pickBy(requests, (request) => (differenceInMinutes(Date.now(), request.transactionPayload.timestamp) < 60));
   console.log('openRequests', openRequests);
-  await updateLocalRequests(accountAddress, network, openRequests);
+  // TODO uncomment
+  //await updateLocalRequests(accountAddress, network, openRequests);
   return openRequests;
 };
 

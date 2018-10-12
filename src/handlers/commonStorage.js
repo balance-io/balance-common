@@ -179,7 +179,7 @@ export const getAccountLocalRequests = async (accountAddress, network) => {
   const accountLocal = await getAccountLocal(accountAddress);
   console.log('get account local', accountLocal);
   const requests = accountLocal && accountLocal[network] ? accountLocal[network].requests : {};
-  const openRequests = pickBy(requests, (request) => (differenceInMinutes(Date.now(), request.transactionPayload.timestamp) < 60));
+  const openRequests = pickBy(requests, (request) => (differenceInMinutes(Date.now(), request.transactionDisplayDetails.timestampInMs) < 60));
   console.log('openRequests', openRequests);
   // TODO uncomment
   //await updateLocalRequests(accountAddress, network, openRequests);

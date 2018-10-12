@@ -148,6 +148,26 @@ export const updateLocalBalances = async (address, account, network) => {
 };
 
 /**
+ * @desc update local incoming transaction requests
+ * @param  {String}   [address]
+ * @param  {String}   [network]
+ * @return {Void}
+ */
+export const updateLocalRequests = async (address, network, requests) => {
+  if (!address) return;
+  let accountLocal = await getAccountLocal(address);
+  if (!accountLocal) {
+    accountLocal = {};
+  }
+  if (!accountLocal[network]) {
+    accountLocal[network] = {};
+  }
+  accountLocal[network].requests = { ...requests };
+  console.log('updating local requests', accountLocal);
+  await saveLocal(address.toLowerCase(), accountLocal, accountLocalVersion);
+};
+
+/**
  * @desc update local unique tokens
  * @param  {String}   [address]
  * @param  {Array}    [unique tokens]

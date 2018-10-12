@@ -1,3 +1,4 @@
+import { differenceInMinutes } from 'date-fns';
 import { omit, pickBy } from 'lodash';
 
 const defaultVersion = '0.1.0';
@@ -165,6 +166,21 @@ export const updateLocalRequests = async (address, network, requests) => {
   accountLocal[network].requests = { ...requests };
   console.log('updating local requests', accountLocal);
   await saveLocal(address.toLowerCase(), accountLocal, accountLocalVersion);
+};
+
+/**
+ * @desc get account local requests
+ * @param  {String}   [address]
+ * @return {Object}
+ */
+export const getAccountLocalRequests = async (accountAddress, network) => {
+  const accountLocal = await getAccountLocal(accountAddress);
+  console.log('get account local', accountLocal);
+  const requests = accountLocal && accountLocal[network] ? accountLocal[network].requests : {};
+  const openRequests = pickBy(requests, (request) => (differenceInMinutes(Date.now(), request.transactionPayload.timestamp) < 60));
+  console.log('openRequests', openRequests);
+  await updateLocalRequests(accountAddress, network, openRequests);
+  return openRequests;
 };
 
 /**

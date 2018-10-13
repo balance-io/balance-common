@@ -61,7 +61,9 @@ export const sendModalInit = (options) => (dispatch, getState) => {
 
   const fallbackGasPrices = parseGasPrices(null, prices, gasLimit);
   const assets = get(accountInfo, 'assets', []);
+  console.log('send modal init', options);
   const selected = assets.filter(asset => asset.symbol === options.defaultAsset)[0] || {};
+  console.log('send modal init selected', selected);
 
   dispatch({
     type: SEND_GET_GAS_PRICES_REQUEST,

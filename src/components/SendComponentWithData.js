@@ -97,9 +97,11 @@ export const withSendComponentWithData = (SendComponent, options) => {
 
       // Allow sendTransactionCallback to be passed in directly for backwards compatibility.
       if (typeof options === 'function') {
+        console.log('type is function');
         this.defaultAsset = 'ETH';
         this.sendTransactionCallback = options;
       } else {
+        console.log('type is not function');
         this.defaultAsset = options.defaultAsset;
         this.sendTransactionCallback = options.sendTransactionCallback || function noop() {};
       }

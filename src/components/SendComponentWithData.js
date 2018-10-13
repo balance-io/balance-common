@@ -108,6 +108,7 @@ export const withSendComponentWithData = (SendComponent, options) => {
     }
 
     componentDidMount() {
+      console.log('SendComponentMounted');
       this.props.sendModalInit({ defaultAsset: this.defaultAsset });
     }
 

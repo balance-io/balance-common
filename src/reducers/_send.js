@@ -56,12 +56,12 @@ const SEND_CLEAR_FIELDS = 'send/SEND_CLEAR_FIELDS';
 // -- Actions --------------------------------------------------------------- //
 
 export const sendModalInit = (options) => (dispatch, getState) => {
+  console.log('send modal init', options);
   const { accountAddress, accountInfo, prices } = getState().account;
   const { gasLimit } = getState().send;
 
   const fallbackGasPrices = parseGasPrices(null, prices, gasLimit);
   const assets = get(accountInfo, 'assets', []);
-  console.log('send modal init', options);
   const selected = assets.filter(asset => asset.symbol === options.defaultAsset)[0] || {};
   console.log('send modal init selected', selected);
 

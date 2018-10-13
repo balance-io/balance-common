@@ -97,10 +97,7 @@ export const withSendComponentWithData = (SendComponent, options) => {
 
       // Allow sendTransactionCallback to be passed in directly for backwards compatibility.
       if (typeof options === 'function') {
-        const ethDefault = this.props.accountInfo.assets.filter(
-              asset => asset.symbol === 'ETH',
-            )[0];
-        this.defaultAsset = ethDefault;
+        this.defaultAsset = 'ETH';
         this.sendTransactionCallback = options;
       } else {
         this.defaultAsset = options.defaultAsset;

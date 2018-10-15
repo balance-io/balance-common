@@ -56,14 +56,12 @@ const SEND_CLEAR_FIELDS = 'send/SEND_CLEAR_FIELDS';
 // -- Actions --------------------------------------------------------------- //
 
 export const sendModalInit = (options) => (dispatch, getState) => {
-  console.log('send modal init', options);
   const { accountAddress, accountInfo, prices } = getState().account;
   const { gasLimit } = getState().send;
 
   const fallbackGasPrices = parseGasPrices(null, prices, gasLimit);
   const assets = get(accountInfo, 'assets', []);
   const selected = assets.filter(asset => asset.symbol === options.defaultAsset)[0] || {};
-  console.log('send modal init selected', selected);
 
   dispatch({
     type: SEND_GET_GAS_PRICES_REQUEST,
@@ -184,19 +182,19 @@ export const sendTransaction = (transactionDetails, signAndSendTransactionCb) =>
   createSignableTransaction(txDetails)
     .then(signableTransactionDetails => {
       signAndSendTransactionCb(signableTransactionDetails, accountType)
-      .then((txResponse) => {
+      .then((txHash) => {
         // has pending transactions set to true for redirect to Transactions route
         dispatch(accountUpdateHasPendingTransaction());
 
-        txDetails.hash = txResponse.hash;
+        txDetails.hash = txHash;
 
         dispatch(accountUpdateTransactions(txDetails))
           .then(success => {
             dispatch({
               type: SEND_TRANSACTION_SUCCESS,
-              payload: txResponse,
+              payload: txHash,
             });
-            resolve(txResponse);
+            resolve(txHash);
           }).catch(error => {
             reject(error);
           });

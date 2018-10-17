@@ -321,7 +321,7 @@ const INITIAL_STATE = {
   assetAmount: '',
   txHash: '',
   confirm: false,
-  selected: { symbol: 'ETH' },
+  selected: {},
 };
 
 export default (state = INITIAL_STATE, action) => {

@@ -446,7 +446,7 @@ const accountGetAccountTransactions = () => (dispatch, getState) => {
   };
   getAccountTransactions();
   clearInterval(getAccountTransactionsInterval);
-  getAccountTransactionsInterval = setInterval(getAccountTransactions, 30000); // 30 secs
+  getAccountTransactionsInterval = setInterval(getAccountTransactions, 15000); // 15 secs
 };
 
 export const accountCheckTransactionStatus = txHash => (dispatch, getState) => {

@@ -182,19 +182,19 @@ export const sendTransaction = (transactionDetails, signAndSendTransactionCb) =>
   createSignableTransaction(txDetails)
     .then(signableTransactionDetails => {
       signAndSendTransactionCb(signableTransactionDetails, accountType)
-      .then((txResponse) => {
+      .then((txHash) => {
         // has pending transactions set to true for redirect to Transactions route
         dispatch(accountUpdateHasPendingTransaction());
 
-        txDetails.hash = txResponse.hash;
+        txDetails.hash = txHash;
 
         dispatch(accountUpdateTransactions(txDetails))
           .then(success => {
             dispatch({
               type: SEND_TRANSACTION_SUCCESS,
-              payload: txResponse,
+              payload: txHash,
             });
-            resolve(txResponse);
+            resolve(txHash);
           }).catch(error => {
             reject(error);
           });

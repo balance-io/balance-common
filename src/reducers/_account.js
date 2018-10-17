@@ -354,6 +354,7 @@ const accountUpdateBalances = () => (dispatch, getState) => {
   const { network, accountAddress, accountType } = getState().account;
   dispatch({ type: ACCOUNT_UPDATE_BALANCES_REQUEST });
   const getAccountBalances = () => {
+    console.log('got account balances interval');
     apiGetAccountBalances(accountAddress, network)
       .then(({ data }) => {
         let accountInfo = { ...data, type: accountType };
@@ -366,7 +367,6 @@ const accountUpdateBalances = () => (dispatch, getState) => {
       });
   };
   getAccountBalances();
-  console.log('got account balances interval');
   clearInterval(getAccountBalancesInterval);
   getAccountBalancesInterval = setInterval(getAccountBalances, 15000); // 15secs
 };
@@ -403,6 +403,7 @@ const accountGetTransactions = (accountAddress, network, lastTxHash, page) => (d
 
 const accountGetAccountTransactions = () => (dispatch, getState) => {
   const getAccountTransactions = () => {
+    console.log('got account transactions interval');
     const { accountAddress, network } = getState().account;
     let cachedTransactions = [];
     let confirmedTransactions = [];
@@ -444,7 +445,6 @@ const accountGetAccountTransactions = () => (dispatch, getState) => {
     });
   };
   getAccountTransactions();
-  console.log('got account transactions interval');
   clearInterval(getAccountTransactionsInterval);
   getAccountTransactionsInterval = setInterval(getAccountTransactions, 30000); // 30 secs
 };

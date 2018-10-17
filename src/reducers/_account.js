@@ -397,6 +397,36 @@ const accountUpdateBalances = () => (dispatch, getState) => {
   //getAccountBalancesInterval = setInterval(getAccountBalances, 15000); // 15secs
 };
 
+const accountGetTransactions = (accountAddress, network, lastTxHash, page) => (dispatch, getState) => {
+  console.time('apiGetAccountTxns');
+  apiGetAccountTransactions(accountAddress, network, lastTxHash, page)
+    .then(({ data, pages }) => {
+      console.timeEnd('apiGetAccountTxns');
+      const transactions = data;
+      const address = getState().account.accountAddress;
+      const currentTransactions = getState().account.transactions;
+      let _transactions = _.unionBy(currentTransactions, transactions, 'hash');
+      updateLocalTransactions(address, _transactions, network);
+      dispatch({
+        type: ACCOUNT_GET_ACCOUNT_TRANSACTIONS_SUCCESS,
+        payload: _transactions,
+      });
+      if (page < pages) {
+        const nextPage = page + 1;
+        dispatch(accountGetTransactions(accountAddress, network, lastTxHash, nextPage));
+      }
+    })
+    .catch(error => {
+      dispatch(
+        notificationShow(
+          lang.t('notification.error.failed_get_account_tx'),
+          true,
+        ),
+      );
+      dispatch({ type: ACCOUNT_GET_ACCOUNT_TRANSACTIONS_FAILURE });
+    });
+}
+
 const accountGetAccountTransactions = () => (dispatch, getState) => {
   const { accountAddress, network } = getState().account;
   let cachedTransactions = [];
@@ -433,27 +463,7 @@ const accountGetAccountTransactions = () => (dispatch, getState) => {
     const lastTxHash = confirmedTransactions.length
       ? confirmedTransactions[0].hash
       : '';
-    apiGetAccountTransactions(accountAddress, network, lastTxHash)
-      .then(({ data }) => {
-        const transactions = data;
-        const address = getState().account.accountAddress;
-        const currentTransactions = getState().account.transactions;
-        let _transactions = _.unionBy(transactions, currentTransactions, 'hash');
-        updateLocalTransactions(address, _transactions, network);
-        dispatch({
-          type: ACCOUNT_GET_ACCOUNT_TRANSACTIONS_SUCCESS,
-          payload: _transactions,
-        });
-      })
-      .catch(error => {
-        dispatch(
-          notificationShow(
-            lang.t('notification.error.failed_get_account_tx'),
-            true,
-          ),
-        );
-        dispatch({ type: ACCOUNT_GET_ACCOUNT_TRANSACTIONS_FAILURE });
-      });
+    dispatch(accountGetTransactions(accountAddress, network, lastTxHash, 1));
   }).catch(error => {
     dispatch({ type: ACCOUNT_GET_ACCOUNT_TRANSACTIONS_FAILURE });
   });

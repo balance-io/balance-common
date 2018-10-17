@@ -240,6 +240,10 @@
         "please": "Please authenticate",
         "please_seed_phrase": "Please authenticate to view seed phrase"
       },
+      "push_notifications": {
+        "please_enable_title": "Balance would like to send you push notifications",
+        "please_enable_body": "It looks like you are using WalletConnect. Please enable push notifications to be notified of transaction requests from WalletConnect."
+      },
       "assets": {
         "no_price": "assets without price data"
       },

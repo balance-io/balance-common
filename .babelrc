@@ -1,5 +1,9 @@
 {
-  "presets": ["@babel/preset-react", "@babel/preset-env"],
+  "presets": [
+    "@babel/preset-react",
+    "@babel/preset-env",
+    "module:react-native-dotenv",
+  ],
   "plugins": [
     "babel-plugin-transform-class-properties", 
     "@babel/plugin-transform-classes", 

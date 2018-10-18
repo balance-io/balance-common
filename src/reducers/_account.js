@@ -358,7 +358,10 @@ const accountUpdateBalances = () => (dispatch, getState) => {
     apiGetAccountBalances(accountAddress, network)
       .then(({ data }) => {
         let accountInfo = { ...data, type: accountType };
-        dispatch({ type: ACCOUNT_UPDATE_BALANCES_SUCCESS });
+        dispatch({
+          type: ACCOUNT_UPDATE_BALANCES_SUCCESS,
+          payload: accountInfo,
+        });
         dispatch(accountGetNativePrices(accountInfo));
       })
       .catch(error => {

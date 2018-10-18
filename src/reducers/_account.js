@@ -419,7 +419,7 @@ const accountGetAccountTransactions = () => (dispatch, getState) => {
             !accountLocal[network].transactions.length
         },
       });
-      const lastSuccessfulTxn = find(confirmedTransactions, (txn) => txn.hash);
+      const lastSuccessfulTxn = _.find(confirmedTransactions, (txn) => txn.hash);
       const lastTxHash = lastSuccessfulTxn ? lastSuccessfulTxn.hash : '';
       console.log('lastTxHash', lastTxHash);
       dispatch(accountGetTransactions(accountAddress, network, lastTxHash, 1));

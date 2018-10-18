@@ -354,7 +354,6 @@ const accountUpdateBalances = () => (dispatch, getState) => {
   const { network, accountAddress, accountType } = getState().account;
   dispatch({ type: ACCOUNT_UPDATE_BALANCES_REQUEST });
   const getAccountBalances = () => {
-    console.log('got account balances interval');
     apiGetAccountBalances(accountAddress, network)
       .then(({ data }) => {
         let accountInfo = { ...data, type: accountType };
@@ -376,15 +375,11 @@ const accountUpdateBalances = () => (dispatch, getState) => {
 };
 
 const accountGetTransactions = (accountAddress, network, lastTxHash, page) => (dispatch, getState) => {
-  console.log('apiGetAccountTxns page last txhash', page, lastTxHash);
   apiGetAccountTransactions(accountAddress, network, lastTxHash, page)
     .then(({ data, pages }) => {
-      console.timeEnd('apiGetAccountTxns');
       const transactions = data;
       const address = getState().account.accountAddress;
       const currentTransactions = getState().account.transactions;
-      console.log('first index of current transactions', currentTransactions[0]);
-      console.log('newly fetched transactions', transactions);
       let _transactions = _.unionBy(transactions, currentTransactions, 'hash');
       updateLocalTransactions(address, _transactions, network);
       dispatch({
@@ -409,7 +404,6 @@ const accountGetTransactions = (accountAddress, network, lastTxHash, page) => (d
 
 const accountGetAccountTransactions = () => (dispatch, getState) => {
   const getAccountTransactions = () => {
-    console.log('got account transactions interval');
     const { accountAddress, network } = getState().account;
     let cachedTransactions = [];
     let confirmedTransactions = [];
@@ -432,22 +426,19 @@ const accountGetAccountTransactions = () => (dispatch, getState) => {
           updateLocalTransactions(accountAddress, cachedTransactions, network);
         }
       }
-      const fetchingTransactions = (accountLocal && !accountLocal[network]) ||
-            !accountLocal ||
-            !accountLocal[network].transactions ||
-            !accountLocal[network].transactions.length;
-      console.log('fetching txns', fetchingTransactions);
       dispatch({
         type: ACCOUNT_GET_ACCOUNT_TRANSACTIONS_REQUEST,
         payload: {
           transactions: cachedTransactions,
-          fetchingTransactions,
+          fetchingTransactions: (accountLocal && !accountLocal[network]) ||
+            !accountLocal ||
+            !accountLocal[network].transactions ||
+            !accountLocal[network].transactions.length
         },
       });
       const lastTxHash = confirmedTransactions.length
         ? confirmedTransactions[0].hash
         : '';
-      console.log('account get txns');
       dispatch(accountGetTransactions(accountAddress, network, lastTxHash, 1));
     }).catch(error => {
       dispatch({ type: ACCOUNT_GET_ACCOUNT_TRANSACTIONS_FAILURE });

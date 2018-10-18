@@ -183,6 +183,11 @@ export const sendTransaction = (transactionDetails, signAndSendTransactionCb) =>
     .then(signableTransactionDetails => {
       signAndSendTransactionCb(signableTransactionDetails, accountType)
       .then((txHash) => {
+        if (!txHash) {
+          dispatch({ type: SEND_TRANSACTION_FAILURE });
+          reject(null);
+        };
+
         // has pending transactions set to true for redirect to Transactions route
         dispatch(accountUpdateHasPendingTransaction());
 

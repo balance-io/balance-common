@@ -458,6 +458,7 @@ const accountGetAccountTransactions = () => (dispatch, getState) => {
 };
 
 export const accountCheckTransactionStatus = txHash => (dispatch, getState) => {
+  if (!txHash) { return };
   dispatch({ type: ACCOUNT_CHECK_TRANSACTION_STATUS_REQUEST });
   if (txHash.startsWith('shapeshift')) {
     const depositAddress = txHash.split('_')[1];

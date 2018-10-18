@@ -358,6 +358,7 @@ const accountUpdateBalances = () => (dispatch, getState) => {
     apiGetAccountBalances(accountAddress, network)
       .then(({ data }) => {
         let accountInfo = { ...data, type: accountType };
+        dispatch({ type: ACCOUNT_UPDATE_BALANCES_SUCCESS });
         dispatch(accountGetNativePrices(accountInfo));
       })
       .catch(error => {
@@ -372,7 +373,7 @@ const accountUpdateBalances = () => (dispatch, getState) => {
 };
 
 const accountGetTransactions = (accountAddress, network, lastTxHash, page) => (dispatch, getState) => {
-  console.time('apiGetAccountTxns page last txhash', page, lastTxHash);
+  console.log('apiGetAccountTxns page last txhash', page, lastTxHash);
   apiGetAccountTransactions(accountAddress, network, lastTxHash, page)
     .then(({ data, pages }) => {
       console.timeEnd('apiGetAccountTxns');
@@ -428,15 +429,16 @@ const accountGetAccountTransactions = () => (dispatch, getState) => {
           updateLocalTransactions(accountAddress, cachedTransactions, network);
         }
       }
+      const fetchingTransactions = (accountLocal && !accountLocal[network]) ||
+            !accountLocal ||
+            !accountLocal[network].transactions ||
+            !accountLocal[network].transactions.length;
+      console.log('fetching txns', fetchingTransactions);
       dispatch({
         type: ACCOUNT_GET_ACCOUNT_TRANSACTIONS_REQUEST,
         payload: {
           transactions: cachedTransactions,
-          fetchingTransactions:
-            (accountLocal && !accountLocal[network]) ||
-            !accountLocal ||
-            !accountLocal[network].transactions ||
-            !accountLocal[network].transactions.length,
+          fetchingTransactions,
         },
       });
       const lastTxHash = confirmedTransactions.length

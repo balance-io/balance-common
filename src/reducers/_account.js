@@ -175,6 +175,7 @@ export const accountUpdateAccountAddress = (accountAddress, accountType) => (
   dispatch,
   getState,
 ) => {
+  console.log('updating account address', accountAddress, accountType);
   if (!accountAddress || !accountType) return;
   const { network } = getState().account;
   if (getState().account.accountType !== accountType)
@@ -374,7 +375,7 @@ const accountUpdateBalances = () => (dispatch, getState) => {
 };
 
 const accountGetTransactions = (accountAddress, network, lastTxHash, page) => (dispatch, getState) => {
-  console.log('acct get txns', lastTxHash, page);
+  console.log('acctGetTxns', lastTxHash, page);
   apiGetAccountTransactions(accountAddress, network, lastTxHash, page)
     .then(({ data, pages }) => {
       const transactions = data;
@@ -403,6 +404,7 @@ const accountGetTransactions = (accountAddress, network, lastTxHash, page) => (d
 }
 
 const accountGetAccountTransactions = () => (dispatch, getState) => {
+  console.log('accountGetAccountTransactions');
   const getAccountTransactions = () => {
     const { accountAddress, network } = getState().account;
     let cachedTransactions = [];

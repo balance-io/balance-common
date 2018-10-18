@@ -55,11 +55,11 @@ const SEND_CLEAR_FIELDS = 'send/SEND_CLEAR_FIELDS';
 
 // -- Actions --------------------------------------------------------------- //
 
-export const sendModalInit = (options) => (dispatch, getState) => {
+export const sendModalInit = (options = {}) => (dispatch, getState) => {
   const { accountAddress, accountInfo, prices } = getState().account;
   const { gasLimit } = getState().send;
 
-  const fallbackGasPrices = parseGasPrices(null, prices, gasLimit);
+  const fallbackGasPrices = parseGasPrices(null, prices, gasLimit, options.gasFormat === 'short');
   const assets = get(accountInfo, 'assets', []);
   const selected = assets.filter(asset => asset.symbol === options.defaultAsset)[0] || {};
 
@@ -74,7 +74,7 @@ export const sendModalInit = (options) => (dispatch, getState) => {
 
   apiGetGasPrices()
     .then(({ data }) => {
-      const gasPrices = parseGasPrices(data, prices, gasLimit);
+      const gasPrices = parseGasPrices(data, prices, gasLimit, options.gasFormat === 'short');
       dispatch({
         type: SEND_GET_GAS_PRICES_SUCCESS,
         payload: gasPrices,
@@ -179,7 +179,7 @@ export const sendTransaction = (transactionDetails, signAndSendTransactionCb) =>
     gasPrice: gasPrice.value.amount,
     gasLimit: gasLimit,
   };
-  createSignableTransaction(txDetails)
+  return createSignableTransaction(txDetails)
     .then(signableTransactionDetails => {
       signAndSendTransactionCb(signableTransactionDetails, accountType)
       .then((txHash) => {

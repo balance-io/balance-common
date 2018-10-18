@@ -98,15 +98,17 @@ export const withSendComponentWithData = (SendComponent, options) => {
       // Allow sendTransactionCallback to be passed in directly for backwards compatibility.
       if (typeof options === 'function') {
         this.defaultAsset = 'ETH';
+        this.gasFormat = 'long';
         this.sendTransactionCallback = options;
       } else {
         this.defaultAsset = options.defaultAsset;
+        this.gasFormat = options.gasFormat;
         this.sendTransactionCallback = options.sendTransactionCallback || function noop() {};
       }
     }
 
     componentDidMount() {
-      this.props.sendModalInit({ defaultAsset: this.defaultAsset });
+      this.props.sendModalInit({ defaultAsset: this.defaultAsset, gasFormat: this.gasFormat });
     }
 
     componentDidUpdate(prevProps) {
@@ -220,7 +222,7 @@ export const withSendComponentWithData = (SendComponent, options) => {
           }
         }
 
-        this.props.sendTransaction({
+        return this.props.sendTransaction({
           address: this.props.accountInfo.address,
           recipient: this.props.recipient,
           amount: this.props.assetAmount,

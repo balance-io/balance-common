@@ -73,12 +73,12 @@ export const getTxFee = (gasPrice, gasLimit) => {
   };
 };
 
-export const defaultGasPriceFormat = (option, timeAmount, valueAmount, valueDisplay) => {
+export const defaultGasPriceFormat = (option, timeAmount, valueAmount, valueDisplay, short) => {
   return {
     option,
     estimatedTime: {
       amount: timeAmount,
-      display: getTimeString(timeAmount, 'ms'),
+      display: getTimeString(timeAmount, 'ms', short),
     },
     value: {
       amount: valueAmount,
@@ -93,16 +93,16 @@ export const defaultGasPriceFormat = (option, timeAmount, valueAmount, valueDisp
  * @param {Object} prices
  * @param {Number} gasLimit
  */
-export const parseGasPrices = (data, prices, gasLimit) => {
+export const parseGasPrices = (data, prices, gasLimit, short) => {
   const gasPrices = {
     slow: null,
     average: null,
     fast: null,
   };
   if (!data) {
-    gasPrices.fast = defaultGasPriceFormat('fast', '30000','5000000000', '5 Gwei');
-    gasPrices.average = defaultGasPriceFormat('average', '360000', '2000000000', '2 Gwei');
-    gasPrices.slow = defaultGasPriceFormat('slow', '1800000','1000000000', '1 Gwei');
+    gasPrices.fast = defaultGasPriceFormat('fast', '30000','5000000000', '5 Gwei', short);
+    gasPrices.average = defaultGasPriceFormat('average', '360000', '2000000000', '2 Gwei', short);
+    gasPrices.slow = defaultGasPriceFormat('slow', '1800000','1000000000', '1 Gwei', short);
   } else {
     const fastTimeAmount = multiply(data.fastWait, timeUnits.ms.minute);
     const fastValueAmount = divide(data.fast, 10);
@@ -110,7 +110,8 @@ export const parseGasPrices = (data, prices, gasLimit) => {
       'fast',
       fastTimeAmount,
       multiply(fastValueAmount, ethUnits.gwei),
-      `${fastValueAmount} Gwei`
+      `${fastValueAmount} Gwei`,
+      short
     );
 
     const avgTimeAmount = multiply(data.avgWait, timeUnits.ms.minute);
@@ -119,7 +120,8 @@ export const parseGasPrices = (data, prices, gasLimit) => {
       'average',
       avgTimeAmount,
       multiply(avgValueAmount, ethUnits.gwei),
-      `${avgValueAmount} Gwei`
+      `${avgValueAmount} Gwei`,
+      short
     );
 
     const slowTimeAmount = multiply(data.safeLowWait, timeUnits.ms.minute);
@@ -128,10 +130,11 @@ export const parseGasPrices = (data, prices, gasLimit) => {
       'slow',
       slowTimeAmount,
       multiply(slowValueAmount, ethUnits.gwei),
-      `${slowValueAmount} Gwei`
+      `${slowValueAmount} Gwei`,
+      short
     );
   }
-  return parseGasPricesTxFee(gasPrices, prices, gasLimit); 
+  return parseGasPricesTxFee(gasPrices, prices, gasLimit);
 };
 
 export const convertGasPricesToNative = (prices, gasPrices) => {

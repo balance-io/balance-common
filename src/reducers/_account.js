@@ -374,6 +374,7 @@ const accountUpdateBalances = () => (dispatch, getState) => {
 };
 
 const accountGetTransactions = (accountAddress, network, lastTxHash, page) => (dispatch, getState) => {
+  console.log('acct get txns', lastTxHash, page);
   apiGetAccountTransactions(accountAddress, network, lastTxHash, page)
     .then(({ data, pages }) => {
       const transactions = data;
@@ -421,8 +422,9 @@ const accountGetAccountTransactions = () => (dispatch, getState) => {
             accountLocal[network].transactions,
             'hash',
           );
-          // TODO: should only update if pending txns existed
-          updateLocalTransactions(accountAddress, cachedTransactions, network);
+          if (accountLocal[network].pending) {
+            updateLocalTransactions(accountAddress, cachedTransactions, network);
+          }
         }
       }
       dispatch({

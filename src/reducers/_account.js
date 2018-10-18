@@ -372,7 +372,7 @@ const accountUpdateBalances = () => (dispatch, getState) => {
 };
 
 const accountGetTransactions = (accountAddress, network, lastTxHash, page) => (dispatch, getState) => {
-  console.time('apiGetAccountTxns');
+  console.time('apiGetAccountTxns page last txhash', page, lastTxHash);
   apiGetAccountTransactions(accountAddress, network, lastTxHash, page)
     .then(({ data, pages }) => {
       console.timeEnd('apiGetAccountTxns');

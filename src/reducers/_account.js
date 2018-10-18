@@ -407,8 +407,8 @@ const accountGetTransactions = (accountAddress, network, lastTxHash, page) => (d
 const accountGetAccountTransactions = () => (dispatch, getState) => {
   console.log('accountGetAccountTransactions');
   const getAccountTransactions = () => {
-    console.log('getAccountTransactions interval');
     const { accountAddress, network } = getState().account;
+    console.log('getAccountTransactions interval', accountAddress);
     let cachedTransactions = [];
     let confirmedTransactions = [];
     getAccountLocal(accountAddress).then(accountLocal => {
@@ -431,6 +431,7 @@ const accountGetAccountTransactions = () => (dispatch, getState) => {
           }
         }
       }
+      console.log('dispatch from local');
       dispatch({
         type: ACCOUNT_GET_ACCOUNT_TRANSACTIONS_REQUEST,
         payload: {
@@ -447,6 +448,7 @@ const accountGetAccountTransactions = () => (dispatch, getState) => {
       console.log('lastTxHash', lastTxHash);
       dispatch(accountGetTransactions(accountAddress, network, lastTxHash, 1));
     }).catch(error => {
+      console.log('error', error);
       dispatch({ type: ACCOUNT_GET_ACCOUNT_TRANSACTIONS_FAILURE });
     });
   };

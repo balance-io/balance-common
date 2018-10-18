@@ -442,6 +442,7 @@ const accountGetAccountTransactions = () => (dispatch, getState) => {
       const lastTxHash = confirmedTransactions.length
         ? confirmedTransactions[0].hash
         : '';
+      console.log('account get txns');
       dispatch(accountGetTransactions(accountAddress, network, lastTxHash, 1));
     }).catch(error => {
       dispatch({ type: ACCOUNT_GET_ACCOUNT_TRANSACTIONS_FAILURE });

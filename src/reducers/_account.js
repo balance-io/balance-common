@@ -358,7 +358,7 @@ const accountUpdateBalances = () => (dispatch, getState) => {
       .then(({ data }) => {
         let accountInfo = { ...data, type: accountType };
         dispatch({
-          type: ACCOUNT_GET_ACCOUNT_BALANCES_REQUEST
+          type: ACCOUNT_GET_ACCOUNT_BALANCES_SUCCESS
         });
         dispatch(accountGetNativePrices(accountInfo));
       })

@@ -378,6 +378,7 @@ const accountGetTransactions = (accountAddress, network, lastTxHash, page) => (d
   console.log('acctGetTxns', lastTxHash, page);
   apiGetAccountTransactions(accountAddress, network, lastTxHash, page)
     .then(({ data, pages }) => {
+      console.log('apiGetAcctTransactions');
       const transactions = data;
       const address = getState().account.accountAddress;
       const currentTransactions = getState().account.transactions;
@@ -406,6 +407,7 @@ const accountGetTransactions = (accountAddress, network, lastTxHash, page) => (d
 const accountGetAccountTransactions = () => (dispatch, getState) => {
   console.log('accountGetAccountTransactions');
   const getAccountTransactions = () => {
+    console.log('getAccountTransactions interval');
     const { accountAddress, network } = getState().account;
     let cachedTransactions = [];
     let confirmedTransactions = [];
@@ -442,6 +444,7 @@ const accountGetAccountTransactions = () => (dispatch, getState) => {
       const lastTxHash = confirmedTransactions.length
         ? confirmedTransactions[0].hash
         : '';
+      console.log('lastTxHash', lastTxHash);
       dispatch(accountGetTransactions(accountAddress, network, lastTxHash, 1));
     }).catch(error => {
       dispatch({ type: ACCOUNT_GET_ACCOUNT_TRANSACTIONS_FAILURE });

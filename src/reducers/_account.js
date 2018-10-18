@@ -379,7 +379,9 @@ const accountGetTransactions = (accountAddress, network, lastTxHash, page) => (d
       const transactions = data;
       const address = getState().account.accountAddress;
       const currentTransactions = getState().account.transactions;
-      let _transactions = _.unionBy(currentTransactions, transactions, 'hash');
+      console.log('first index of current transactions', currentTransactions[0]);
+      console.log('newly fetched transactions', transactions);
+      let _transactions = _.unionBy(transactions, currentTransactions, 'hash');
       updateLocalTransactions(address, _transactions, network);
       dispatch({
         type: ACCOUNT_GET_ACCOUNT_TRANSACTIONS_SUCCESS,
@@ -422,6 +424,7 @@ const accountGetAccountTransactions = () => (dispatch, getState) => {
             accountLocal[network].transactions,
             'hash',
           );
+          // TODO: should only update if pending txns existed
           updateLocalTransactions(accountAddress, cachedTransactions, network);
         }
       }

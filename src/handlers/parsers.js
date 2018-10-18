@@ -131,7 +131,7 @@ export const parseGasPrices = (data, prices, gasLimit) => {
       `${slowValueAmount} Gwei`
     );
   }
-  return parseGasPricesTxFee(gasPrices, prices, gasLimit); 
+  return parseGasPricesTxFee(gasPrices, prices, gasLimit);
 };
 
 export const convertGasPricesToNative = (prices, gasPrices) => {
@@ -357,7 +357,7 @@ export const parseAccountBalancesPrices = (
  */
 export const parseAccountUniqueTokens = data =>
   get(data, 'data.assets', []).map(asset => ({
-    background: `#${asset.background_color}`,
+    background: asset.background_color ? `#${asset.background_color}` : null,
     contractAddress: asset.asset_contract.address,
     contractName: asset.asset_contract.name,
     id: asset.token_id,

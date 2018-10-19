@@ -37,6 +37,8 @@ const SEND_UPDATE_GAS_PRICE_REQUEST = 'send/SEND_UPDATE_GAS_PRICE_REQUEST';
 const SEND_UPDATE_GAS_PRICE_SUCCESS = 'send/SEND_UPDATE_GAS_PRICE_SUCCESS';
 const SEND_UPDATE_GAS_PRICE_FAILURE = 'send/SEND_UPDATE_GAS_PRICE_FAILURE';
 
+const SEND_UPDATE_CUSTOM_GAS_PRICE_SUCCESS = 'send/SEND_UPDATE_CUSTOM_GAS_PRICE_SUCCESS';
+
 const SEND_TRANSACTION_REQUEST = 'send/SEND_TRANSACTION_REQUEST';
 const SEND_TRANSACTION_SUCCESS = 'send/SEND_TRANSACTION_SUCCESS';
 const SEND_TRANSACTION_FAILURE = 'send/SEND_TRANSACTION_FAILURE';
@@ -90,7 +92,21 @@ export const sendModalInit = (options) => (dispatch, getState) => {
     });
 };
 
+export const sendUpdateCustomGasPrice = (gasPrice, gasLimit) => (dispatch, getState) => {
+  // TODO: make sure gasPrice is in proper format
+  // TODO: make sure not above balance
+  if (isEmpty(selected)) return;
+  dispatch({
+    type: SEND_UPDATE_CUSTOM_GAS_PRICE_SUCCESS,
+    payload: {
+      gasLimit,
+      gasPrice: { value: { amount: gasPrice } },
+    },
+  });
+};
+
 export const sendUpdateGasPrice = newGasPriceOption => (dispatch, getState) => {
+  console.log('newGasPriceOption', newGasPriceOption);
   const {
     selected,
     address,
@@ -114,49 +130,49 @@ export const sendUpdateGasPrice = newGasPriceOption => (dispatch, getState) => {
     recipient,
     amount: assetAmount,
   })
-    .then(gasLimit => {
-      const { prices } = getState().account;
-      gasPrices = parseGasPricesTxFee(gasPrices, prices, gasLimit);
-      dispatch({
-        type: SEND_UPDATE_GAS_PRICE_SUCCESS,
-        payload: {
-          gasLimit,
-          gasPrice: _gasPrice,
-          gasPriceOption: _gasPriceOption,
-          gasPrices,
-        },
-      });
-    })
-    .catch(error => {
-      const message = parseError(error);
-      if (assetAmount) {
-        const requestedAmount = convertAmountToBigNumber(`${assetAmount}`);
-        const availableBalance = get(selected, 'balance.amount');
-        if (greaterThan(requestedAmount, availableBalance)) {
-          dispatch(
-            notificationShow(
-              lang.t('notification.error.insufficient_balance'),
-              true,
-            ),
-          );
-        }
-      } else {
+  .then(gasLimit => {
+    const { prices } = getState().account;
+    gasPrices = parseGasPricesTxFee(gasPrices, prices, gasLimit);
+    dispatch({
+      type: SEND_UPDATE_GAS_PRICE_SUCCESS,
+      payload: {
+        gasLimit,
+        gasPrice: _gasPrice,
+        gasPriceOption: _gasPriceOption,
+        gasPrices,
+      },
+    });
+  })
+  .catch(error => {
+    const message = parseError(error);
+    if (assetAmount) {
+      const requestedAmount = convertAmountToBigNumber(`${assetAmount}`);
+      const availableBalance = get(selected, 'balance.amount');
+      if (greaterThan(requestedAmount, availableBalance)) {
         dispatch(
           notificationShow(
-            message || lang.t('notification.error.failed_get_tx_fee'),
+            lang.t('notification.error.insufficient_balance'),
             true,
           ),
         );
       }
-      dispatch({
-        type: SEND_UPDATE_GAS_PRICE_FAILURE,
-        payload: {
-          gasPrice: _gasPrice,
-          gasPriceOption: _gasPriceOption,
-          gasPrices: gasPrices,
-        },
-      });
+    } else {
+      dispatch(
+        notificationShow(
+          message || lang.t('notification.error.failed_get_tx_fee'),
+          true,
+        ),
+      );
+    }
+    dispatch({
+      type: SEND_UPDATE_GAS_PRICE_FAILURE,
+      payload: {
+        gasPrice: _gasPrice,
+        gasPriceOption: _gasPriceOption,
+        gasPrices: gasPrices,
+      },
     });
+  });
 };
 
 export const sendTransaction = (transactionDetails, signAndSendTransactionCb) => (dispatch, getState) => new Promise((resolve, reject) => {
@@ -354,6 +370,12 @@ export default (state = INITIAL_STATE, action) => {
         gasPrices: action.payload,
         gasPriceOption: action.payload.average.option,
       };
+    case SEND_UPDATE_CUSTOM_GAS_PRICE_SUCCESS:
+      return {
+        ...state,
+        gasLimit: action.payload.gasLimit,
+        gasPrice: action.payload.gasPrice,
+      };
     case SEND_UPDATE_GAS_PRICE_REQUEST:
       return { ...state, fetchingGasPrices: true };
     case SEND_UPDATE_GAS_PRICE_SUCCESS:
@@ -365,7 +387,6 @@ export default (state = INITIAL_STATE, action) => {
         gasPrices: action.payload.gasPrices,
         gasPriceOption: action.payload.gasPriceOption,
       };
-
     case SEND_UPDATE_GAS_PRICE_FAILURE:
       return {
         ...state,

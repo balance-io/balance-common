@@ -164,7 +164,6 @@ export const accountUpdateAccountAddress = (accountAddress, accountType) => (
   dispatch,
   getState,
 ) => {
-  console.log('updating account address', accountAddress, accountType);
   if (!accountAddress || !accountType) return;
   const { network } = getState().account;
   if (getState().account.accountType !== accountType)
@@ -352,10 +351,8 @@ const accountUpdateBalances = () => (dispatch, getState) => {
 };
 
 const accountGetTransactions = (accountAddress, network, lastTxHash, page) => (dispatch, getState) => {
-  console.log('acctGetTxns', lastTxHash, page);
   apiGetAccountTransactions(accountAddress, network, lastTxHash, page)
     .then(({ data, pages }) => {
-      console.log('apiGetAcctTransactions');
       const transactions = data;
       const address = getState().account.accountAddress;
       const currentTransactions = getState().account.transactions;
@@ -382,10 +379,8 @@ const accountGetTransactions = (accountAddress, network, lastTxHash, page) => (d
 }
 
 const accountGetAccountTransactions = () => (dispatch, getState) => {
-  console.log('accountGetAccountTransactions');
   const getAccountTransactions = () => {
     const { accountAddress, network } = getState().account;
-    console.log('getAccountTransactions interval', accountAddress);
     let cachedTransactions = [];
     let confirmedTransactions = [];
     getAccountLocal(accountAddress).then(accountLocal => {
@@ -408,7 +403,6 @@ const accountGetAccountTransactions = () => (dispatch, getState) => {
           }
         }
       }
-      console.log('dispatch from local');
       dispatch({
         type: ACCOUNT_GET_ACCOUNT_TRANSACTIONS_REQUEST,
         payload: {

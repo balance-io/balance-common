@@ -250,14 +250,11 @@ export const getAllWalletConnectSessions = async () => {
  * @desc save wallet connect session
  * @param  {String}   [sessionId]
  * @param  {String}   [uriString]
- * @param  {Number}   [expirationInMs]
+ * @param  {Number}   [expirationDateInMs]
  */
-export const saveWalletConnectSession = async (sessionId, uriString, expirationInMs = defaultExpirationInMs) => {
+export const saveWalletConnectSession = async (sessionId, uriString, expirationDateInMs) => {
   let allSessions = await getAllValidWalletConnectSessions();
-  let expiration = new Date();
-  expiration.setMilliseconds(
-    expiration.getMilliseconds() + expirationInMs);
-  allSessions[sessionId] = { uriString, expiration };
+  allSessions[sessionId] = { uriString, expiration: expirationDataInMs };
   await saveLocal('walletconnect',
     allSessions,
     walletConnectVersion);
@@ -275,6 +272,13 @@ export const removeWalletConnectSession = async (sessionId) => {
     resultingSessions,
     walletConnectVersion);
   return session;
+};
+
+/**
+ * @desc remove all wallet connect sessions
+ */
+export const removeAllWalletConnectSessions = async () => {
+  await saveLocal('walletconnect', {}, walletConnectVersion);
 };
 
 /**

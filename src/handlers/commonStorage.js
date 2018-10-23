@@ -205,26 +205,12 @@ export const updateLocalTransactions = async (
 };
 
 /**
- * @desc get wallet connect session
- * @return {Object}
- */
-export const getWalletConnectSession = async (sessionId) => {
-  const allSessions = await getAllWalletConnectSessions();
-  const sessionDetails = allSessions ? allSessions[sessionId] : null;
-  if (sessionDetails) {
-    const expiration = Date.parse(sessionDetails.expiration);
-    return (new Date() < expiration) ? sessionDetails : null;
-  } else {
-    return null;
-  }
-};
-
-/**
  * @desc get all wallet connect sessions
  * @return {Object}
  */
 export const getAllValidWalletConnectSessions = async () => {
   const allSessions = await getAllWalletConnectSessions();
+  console.log('all sessions before validity check', allSessions);
   const validSessions = pickBy(allSessions, (value, key) => {
     const expiration = Date.parse(value.expiration);
     return (new Date() < expiration);
@@ -270,13 +256,6 @@ export const removeWalletConnectSession = async (sessionId) => {
     resultingSessions,
     walletConnectVersion);
   return session;
-};
-
-/**
- * @desc remove all wallet connect sessions
- */
-export const removeAllWalletConnectSessions = async () => {
-  await saveLocal('walletconnect', {}, walletConnectVersion);
 };
 
 /**

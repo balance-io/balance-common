@@ -143,7 +143,6 @@ export const apiGetAccountTransactions = async (
     let { data } = await apiGetTransactionData(address, network, page);
     let { transactions, pages } = await parseAccountTransactions(data, address, network);
     if (transactions.length && lastTxHash) {
-      console.log('txns have length and last tx hash', transactions.length);
       const lastTxnHashIndex = findIndex(transactions, (txn) => { return txn.hash === lastTxHash });
       if (lastTxnHashIndex > -1) {
         transactions = slice(transactions, 0, lastTxnHashIndex); 

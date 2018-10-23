@@ -210,7 +210,6 @@ export const updateLocalTransactions = async (
  */
 export const getAllValidWalletConnectSessions = async () => {
   const allSessions = await getAllWalletConnectSessions();
-  console.log('all sessions before validity check', allSessions);
   const validSessions = pickBy(allSessions, (value, key) => {
     const expiration = new Date(value.expiration);
     return (new Date() < expiration);

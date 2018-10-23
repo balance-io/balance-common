@@ -6,8 +6,6 @@ const accountLocalVersion = '0.1.0';
 const globalSettingsVersion = '0.1.0';
 const walletConnectVersion = '0.1.0';
 
-const defaultExpirationInMs = 24 * 60 * 60 * 1000;
-
 /**
  * @desc save to storage
  * @param  {String}  [key='']
@@ -254,7 +252,7 @@ export const getAllWalletConnectSessions = async () => {
  */
 export const saveWalletConnectSession = async (sessionId, uriString, expirationDateInMs) => {
   let allSessions = await getAllValidWalletConnectSessions();
-  allSessions[sessionId] = { uriString, expiration: expirationDataInMs };
+  allSessions[sessionId] = { uriString, expiration: expirationDateInMs };
   await saveLocal('walletconnect',
     allSessions,
     walletConnectVersion);

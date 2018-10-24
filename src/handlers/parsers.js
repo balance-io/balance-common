@@ -42,6 +42,7 @@ export const parseError = error => {
         .replace('Error: ', '')
         .replace('MetaMask ', '')
         .replace('Returned error: ', '');
+      console.log('message.slice(1)', message.slice(1));
       message =
         message.slice(0, 1).toUpperCase() + message.slice(1).toLowerCase();
 

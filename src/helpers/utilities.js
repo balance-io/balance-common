@@ -92,7 +92,7 @@ export const sanitizeHex = hex => {
  * @param  {String} hex
  * @return {String}
  */
-export const removeHexPrefix = hex => hex.toLowerCase().replace('0x', '');
+export const removeHexPrefix = hex => console.log('hex prefix', hex) || hex.toLowerCase().replace('0x', '');
 
 /**
  * @desc get ethereum contract call data string

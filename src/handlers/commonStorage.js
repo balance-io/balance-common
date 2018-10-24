@@ -67,6 +67,7 @@ export const removeLocal = (key = '') => {
  * @param  {String}   [address]
  */
 export const resetAccount = (accountAddress) => {
+  console.log('reset acct', accountAddress);
   const accountAddressKey = accountAddress.toLowerCase();
   removeLocal(accountAddressKey);
   removeLocal('nativePrices');
@@ -78,6 +79,7 @@ export const resetAccount = (accountAddress) => {
  * @return {Object}
  */
 export const getAccountLocal = async accountAddress => {
+  console.log('getting acct local', accountAddress);
   return await getLocal(accountAddress.toLowerCase(), accountLocalVersion);
 };
 

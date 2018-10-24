@@ -484,7 +484,8 @@ const accountGetTransactionStatus = (txHash, network) => (
         const address = getState().account.accountInfo.address;
         const transactions = getState().account.transactions;
         let promises = transactions.map(async tx => {
-          if (tx.hash.toLowerCase() === txHash.toLowerCase()) {
+          console.log('tx hash', tx.hash);
+          if (tx.hash && tx.hash.toLowerCase() === txHash.toLowerCase()) {
             return await parseConfirmedTransactions(data);
           } else {
             return tx;

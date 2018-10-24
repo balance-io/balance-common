@@ -431,6 +431,7 @@ export const accountCheckTransactionStatus = txHash => (dispatch, getState) => {
   if (!txHash) { return };
   dispatch({ type: ACCOUNT_CHECK_TRANSACTION_STATUS_REQUEST });
   const network = getState().account.network;
+  console.log('checking txn status for hash', txHash);
   dispatch(accountGetTransactionStatus(txHash, network));
 };
 
@@ -470,6 +471,7 @@ const accountGetTransactionStatus = (txHash, network) => (
   dispatch,
   getState,
 ) => {
+  if (!txHash) { return };
   apiGetTransaction(txHash, network)
     .then(response => {
       const data = response.data;

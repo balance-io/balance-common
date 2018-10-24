@@ -360,7 +360,7 @@ export const parseAccountBalancesPrices = (
  */
 export const parseAccountUniqueTokens = data =>
   get(data, 'data.assets', []).map(asset => ({
-    background: `#${asset.background_color}`,
+    background: asset.background_color ? `#${asset.background_color}` : null,
     contractAddress: asset.asset_contract.address,
     contractName: asset.asset_contract.name,
     id: asset.token_id,
@@ -471,30 +471,6 @@ export const parseHistoricalNativePrice = async transaction => {
 };
 
 /**
- * @desc update successful shapeshift deposit
- * @param  {Object} [transactions=null]
- * @param  {String} [hash='']
- * @param  {String} [newHash='']
- * @return {Array}
- */
-export const parseConfirmedDeposit = (
-  transactions = null,
-  hash = '',
-  newHash = '',
-) => {
-  let _transactions = [];
-  transactions.forEach(tx => {
-    if (tx.hash.toLowerCase() === hash.toLowerCase()) {
-      tx.pending = true;
-      tx.hash = newHash;
-    }
-    _transactions.push(tx);
-  });
-  return _transactions;
-};
-
-
-/**
  * @desc parse confirmed transactions
  * @param  {Object} [data=null]
  * @return {Array}
@@ -504,22 +480,6 @@ export const parseConfirmedTransactions = async (data = '') => {
   return await Promise.all(
     transactions.map(async tx => await parseHistoricalNativePrice(tx)),
   );
-};
-
-/**
- * @desc update failed shapeshift deposit
- * @param  {Object} [transactions=null]
- * @param  {String} [hash='']
- * @return {Array}
- */
-export const parseFailedDeposit = (transactions = null, hash = '') => {
-  let _transactions = [];
-  transactions.forEach(tx => {
-    if (tx.hash.toLowerCase() !== hash.toLowerCase()) {
-      _transactions.push(tx);
-    }
-  });
-  return _transactions;
 };
 
 /**
@@ -569,7 +529,7 @@ export const parseNewTransaction = async (
     value: value,
     txFee: txFee,
     native: { selected: nativeCurrencies[nativeCurrency] },
-    pending: true,
+    pending: txDetails.hash ? true : false,
     asset: txDetails.asset,
   };
 

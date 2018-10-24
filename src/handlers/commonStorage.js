@@ -6,8 +6,6 @@ const accountLocalVersion = '0.1.0';
 const globalSettingsVersion = '0.1.0';
 const walletConnectVersion = '0.1.0';
 
-const defaultExpirationInMs = 24 * 60 * 60 * 1000;
-
 /**
  * @desc save to storage
  * @param  {String}  [key='']
@@ -207,28 +205,13 @@ export const updateLocalTransactions = async (
 };
 
 /**
- * @desc get wallet connect session
- * @return {Object}
- */
-export const getWalletConnectSession = async (sessionId) => {
-  const allSessions = await getAllWalletConnectSessions();
-  const sessionDetails = allSessions ? allSessions[sessionId] : null;
-  if (sessionDetails) {
-    const expiration = Date.parse(sessionDetails.expiration);
-    return (new Date() < expiration) ? sessionDetails : null;
-  } else {
-    return null;
-  }
-};
-
-/**
  * @desc get all wallet connect sessions
  * @return {Object}
  */
 export const getAllValidWalletConnectSessions = async () => {
   const allSessions = await getAllWalletConnectSessions();
   const validSessions = pickBy(allSessions, (value, key) => {
-    const expiration = Date.parse(value.expiration);
+    const expiration = new Date(value.expiration);
     return (new Date() < expiration);
   });
   return validSessions;
@@ -250,14 +233,11 @@ export const getAllWalletConnectSessions = async () => {
  * @desc save wallet connect session
  * @param  {String}   [sessionId]
  * @param  {String}   [uriString]
- * @param  {Number}   [expirationInMs]
+ * @param  {Number}   [expirationDateInMs]
  */
-export const saveWalletConnectSession = async (sessionId, uriString, expirationInMs = defaultExpirationInMs) => {
+export const saveWalletConnectSession = async (sessionId, uriString, expirationDateInMs) => {
   let allSessions = await getAllValidWalletConnectSessions();
-  let expiration = new Date();
-  expiration.setMilliseconds(
-    expiration.getMilliseconds() + expirationInMs);
-  allSessions[sessionId] = { uriString, expiration };
+  allSessions[sessionId] = { uriString, expiration: expirationDateInMs };
   await saveLocal('walletconnect',
     allSessions,
     walletConnectVersion);

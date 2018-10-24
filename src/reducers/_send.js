@@ -184,7 +184,9 @@ export const sendTransaction = (transactionDetails, signAndSendTransactionCb) =>
       signAndSendTransactionCb(signableTransactionDetails, accountType)
       .then((txHash) => {
         // has pending transactions set to true for redirect to Transactions route
-        dispatch(accountUpdateHasPendingTransaction());
+        if (txHash) {
+          dispatch(accountUpdateHasPendingTransaction());
+        }
 
         txDetails.hash = txHash;
 

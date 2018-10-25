@@ -352,8 +352,8 @@ const accountUpdateBalances = () => (dispatch, getState) => {
 
 const accountGetTransactions = (accountAddress, network, lastTxHash, page) => (dispatch, getState) => {
   const existingTransactions = getState().account.transactions;
-  accountGetTransactionsPages([], existingTransactions, accountAddress,
-                               network, lastTxHash, page);
+  dispatch(accountGetTransactionsPages([], existingTransactions, accountAddress,
+                               network, lastTxHash, page));
 }
 
 const accountGetTransactionsPages = (newTransactions, existingTransactions, accountAddress, network, lastTxHash, page) => (dispatch, getState) => {

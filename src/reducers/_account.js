@@ -489,7 +489,6 @@ const accountGetTransactionStatus = (txHash, network) => (
         const address = getState().account.accountInfo.address;
         const transactions = getState().account.transactions;
         let promises = transactions.map(async tx => {
-          console.log('tx hash', tx.hash);
           if (tx.hash && tx.hash.toLowerCase() === txHash.toLowerCase()) {
             return await parseConfirmedTransactions(data);
           } else {
@@ -512,6 +511,7 @@ const accountGetTransactionStatus = (txHash, network) => (
       }
     })
     .catch(error => {
+      console.log('error getting transaction for txHash', txHash, error);
       setTimeout(
         () => dispatch(accountGetTransactionStatus(txHash, network)),
         5000,

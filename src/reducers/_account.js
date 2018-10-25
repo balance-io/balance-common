@@ -351,12 +351,17 @@ const accountUpdateBalances = () => (dispatch, getState) => {
 };
 
 const accountGetTransactions = (accountAddress, network, lastTxHash, page) => (dispatch, getState) => {
+  const existingTransactions = getState().account.transactions;
+  accountGetTransactionsPages([], existingTransactions, accountAddress,
+                               network, lastTxHash, page);
+}
+
+const accountGetTransactionsPages = (newTransactions, existingTransactions, accountAddress, network, lastTxHash, page) => (dispatch, getState) => {
   apiGetAccountTransactions(accountAddress, network, lastTxHash, page)
-    .then(({ data, pages }) => {
-      const transactions = data;
+    .then(({ data: transactionsForPage, pages }) => {
       const address = getState().account.accountAddress;
-      const currentTransactions = getState().account.transactions;
-      let _transactions = _.unionBy(transactions, currentTransactions, 'hash');
+      let _newPages = newTransactions.concat(transactionsForPage);
+      let _transactions = _.unionBy(_newPages, existingTransactions, 'hash');
       updateLocalTransactions(address, _transactions, network);
       dispatch({
         type: ACCOUNT_GET_ACCOUNT_TRANSACTIONS_SUCCESS,
@@ -364,7 +369,7 @@ const accountGetTransactions = (accountAddress, network, lastTxHash, page) => (d
       });
       if (page < pages) {
         const nextPage = page + 1;
-        dispatch(accountGetTransactions(accountAddress, network, lastTxHash, nextPage));
+        dispatch(accountGetTransactionsPages(_newPages, existingTransactions, accountAddress, network, lastTxHash, nextPage));
       }
     })
     .catch(error => {

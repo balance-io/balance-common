@@ -100,6 +100,7 @@ export const apiGetAccountBalances = async (
     const result = { data: accountInfo };
     return result;
   } catch (error) {
+    console.log('Error getting acct balances from proxy', error);
     throw error;
   }
 };
@@ -153,6 +154,7 @@ export const apiGetAccountTransactions = async (
     const result = { data: transactions, pages };
     return result;
   } catch (error) {
+    console.log('Error getting acct transactions', error);
     throw error;
   }
 };

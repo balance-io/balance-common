@@ -149,7 +149,6 @@ export const accountUpdateTransactions = txDetails => (dispatch, getState) => ne
         type: ACCOUNT_UPDATE_TRANSACTIONS_SUCCESS,
         payload: _transactions,
       });
-      console.log('accountUpdateTxns', txDetails);
       dispatch(accountCheckTransactionStatus(txDetails.hash));
       resolve(true);
     })
@@ -504,19 +503,10 @@ const accountGetTransactionStatus = (txHash, network) => (
             payload: _transactions,
           });
         });
-      } else {
-        setTimeout(
-          () => dispatch(accountGetTransactionStatus(txHash, network)),
-          5000,
-        );
       }
     })
     .catch(error => {
       console.log('error getting transaction for txHash', txHash, error);
-      setTimeout(
-        () => dispatch(accountGetTransactionStatus(txHash, network)),
-        5000,
-      );
     });
 };
 

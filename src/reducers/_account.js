@@ -149,6 +149,7 @@ export const accountUpdateTransactions = txDetails => (dispatch, getState) => ne
         type: ACCOUNT_UPDATE_TRANSACTIONS_SUCCESS,
         payload: _transactions,
       });
+      console.log('accountUpdateTxns', txDetails);
       dispatch(accountCheckTransactionStatus(txDetails.hash));
       resolve(true);
     })
@@ -393,7 +394,7 @@ const accountGetAccountTransactions = () => (dispatch, getState) => {
         if (accountLocal[network].pending) {
           cachedTransactions = [...accountLocal[network].pending];
           accountLocal[network].pending.forEach(pendingTx =>
-            dispatch(accountCheckTransactionStatus(pendingTx.hash)),
+            console.log('acct get txns pendingtx', pendingTx) || dispatch(accountCheckTransactionStatus(pendingTx.hash)),
           );
         }
         if (accountLocal[network].transactions) {

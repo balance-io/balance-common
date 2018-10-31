@@ -67,6 +67,7 @@ function getBalanceAmount(accountInfo, gasPrice, selected) {
     );
     amount = convertAmountFromBigNumber(remaining < 0 ? '0' : remaining);
   } else {
+    console.log('selected', selected);
     amount = convertAmountFromBigNumber(selected.balance.amount);
   }
 
@@ -263,6 +264,7 @@ export const sendUpdateRecipient = recipient => dispatch => {
 };
 
 export const sendUpdateAssetAmount = assetAmount => (dispatch, getState) => {
+  console.log('send update asset amount', assetAmount);
   const { accountInfo, prices, nativeCurrency } = getState().account;
   const { gasPrice, selected } = getState().send;
   const _assetAmount = assetAmount.replace(/[^0-9.]/g, '');
@@ -276,12 +278,15 @@ export const sendUpdateAssetAmount = assetAmount => (dispatch, getState) => {
     _nativeAmount = formatInputDecimals(nativeAmount, _assetAmount);
   }
 
+  /*
   const asset = accountInfo.assets.filter(
     asset => asset.symbol === selected.symbol,
   )[0];
+  */
+  console.log('send update asset _amount', _assetAmount);
 
   const balanceAmount = getBalanceAmount(accountInfo, gasPrice, selected);
-
+  console.log('send update asset amount balance', balanceAmount);
   dispatch({
     type: SEND_UPDATE_ASSET_AMOUNT,
     payload: {
@@ -305,12 +310,16 @@ export const sendUpdateNativeAmount = nativeAmount => (dispatch, getState) => {
     );
     _assetAmount = formatInputDecimals(assetAmount, _nativeAmount);
   }
+  console.log('send update native amount _assetAmount', _assetAmount);
 
+  /*
   const asset = accountInfo.assets.filter(
     asset => asset.symbol === selected.symbol,
   )[0];
+  */
 
   const balanceAmount = getBalanceAmount(accountInfo, gasPrice, selected);
+  console.log('send update native amount balance', balanceAmount);
 
   dispatch({
     type: SEND_UPDATE_ASSET_AMOUNT,

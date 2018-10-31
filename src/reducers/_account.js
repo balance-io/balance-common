@@ -393,7 +393,7 @@ const accountGetAccountTransactions = () => (dispatch, getState) => {
         if (accountLocal[network].pending) {
           cachedTransactions = [...accountLocal[network].pending];
           accountLocal[network].pending.forEach(pendingTx =>
-            console.log('acct get txns pendingtx', pendingTx) || dispatch(accountCheckTransactionStatus(pendingTx.hash)),
+            dispatch(accountCheckTransactionStatus(pendingTx.hash)),
           );
         }
         if (accountLocal[network].transactions) {
@@ -420,7 +420,6 @@ const accountGetAccountTransactions = () => (dispatch, getState) => {
       });
       const lastSuccessfulTxn = _.find(confirmedTransactions, (txn) => txn.hash);
       const lastTxHash = lastSuccessfulTxn ? lastSuccessfulTxn.hash : '';
-      console.log('lastTxHash', lastTxHash);
       dispatch(accountGetTransactions(accountAddress, network, lastTxHash, 1));
     }).catch(error => {
       console.log('error', error);

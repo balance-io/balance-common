@@ -111,7 +111,6 @@ export const sendModalInit = (options = {}) => (dispatch, getState) => {
 };
 
 export const sendUpdateGasPrice = newGasPriceOption => (dispatch, getState) => {
-  console.log('send update gas price');
   const {
     selected,
     address,
@@ -255,16 +254,13 @@ export const sendToggleConfirmationView = boolean => (dispatch, getState) => {
 
 export const sendUpdateRecipient = recipient => dispatch => {
   const input = recipient.replace(/[^\w.]/g, '');
-  if (input.length <= 42) {
-    dispatch({
-      type: SEND_UPDATE_RECIPIENT,
-      payload: input,
-    });
-  }
+  dispatch({
+    type: SEND_UPDATE_RECIPIENT,
+    payload: input,
+  });
 };
 
 export const sendUpdateAssetAmount = assetAmount => (dispatch, getState) => {
-  console.log('send update asset amount');
   const { accountInfo, prices, nativeCurrency } = getState().account;
   const { gasPrice, selected } = getState().send;
   const _assetAmount = assetAmount.replace(/[^0-9.]/g, '');
@@ -279,7 +275,6 @@ export const sendUpdateAssetAmount = assetAmount => (dispatch, getState) => {
   }
 
   const balanceAmount = getBalanceAmount(accountInfo, gasPrice, selected);
-  console.log('send update asset amount balance', balanceAmount);
   dispatch({
     type: SEND_UPDATE_ASSET_AMOUNT,
     payload: {
@@ -288,7 +283,6 @@ export const sendUpdateAssetAmount = assetAmount => (dispatch, getState) => {
       isSufficientBalance: Number(_assetAmount) <= Number(balanceAmount),
     },
   });
-  console.log('finished updating asset amount');
 };
 
 export const sendUpdateNativeAmount = nativeAmount => (dispatch, getState) => {
@@ -318,7 +312,6 @@ export const sendUpdateNativeAmount = nativeAmount => (dispatch, getState) => {
 };
 
 export const sendUpdateSelected = value => (dispatch, getState) => {
-  console.log('send update selected');
   const state = getState();
   const assetAmount = get(state, 'send.assetAmount', 0);
   const assets = get(state, 'account.accountInfo.assets', []);

@@ -53,13 +53,33 @@ const SEND_UPDATE_HAS_PENDING_TRANSACTION =
 
 const SEND_CLEAR_FIELDS = 'send/SEND_CLEAR_FIELDS';
 
+function getBalanceAmount(accountInfo, gasPrice, selected) {
+  let amount = '';
+
+  if (selected.symbol === 'ETH') {
+    const ethereum = accountInfo.assets.filter(
+      asset => asset.symbol === 'ETH',
+    )[0];
+    const balanceAmount = ethereum.balance.amount;
+    const txFeeAmount = gasPrice.txFee.value.amount;
+    const remaining = convertStringToNumber(
+      subtract(balanceAmount, txFeeAmount),
+    );
+    amount = convertAmountFromBigNumber(remaining < 0 ? '0' : remaining);
+  } else {
+    amount = convertAmountFromBigNumber(selected.balance.amount);
+  }
+
+  return amount;
+}
+
 // -- Actions --------------------------------------------------------------- //
 
-export const sendModalInit = (options) => (dispatch, getState) => {
+export const sendModalInit = (options = {}) => (dispatch, getState) => {
   const { accountAddress, accountInfo, prices } = getState().account;
   const { gasLimit } = getState().send;
 
-  const fallbackGasPrices = parseGasPrices(null, prices, gasLimit);
+  const fallbackGasPrices = parseGasPrices(null, prices, gasLimit, options.gasFormat === 'short');
   const assets = get(accountInfo, 'assets', []);
   const selected = assets.filter(asset => asset.symbol === options.defaultAsset)[0] || {};
 
@@ -74,7 +94,7 @@ export const sendModalInit = (options) => (dispatch, getState) => {
 
   apiGetGasPrices()
     .then(({ data }) => {
-      const gasPrices = parseGasPrices(data, prices, gasLimit);
+      const gasPrices = parseGasPrices(data, prices, gasLimit, options.gasFormat === 'short');
       dispatch({
         type: SEND_GET_GAS_PRICES_SUCCESS,
         payload: gasPrices,
@@ -115,8 +135,16 @@ export const sendUpdateGasPrice = newGasPriceOption => (dispatch, getState) => {
     amount: assetAmount,
   })
     .then(gasLimit => {
-      const { prices } = getState().account;
+      const { accountInfo, prices } = getState().account;
       gasPrices = parseGasPricesTxFee(gasPrices, prices, gasLimit);
+
+      const ethereum = accountInfo.assets.filter(
+        asset => asset.symbol === 'ETH',
+      )[0];
+
+      const balanceAmount = ethereum.balance.amount;
+      const txFeeAmount = _gasPrice.txFee.value.amount;
+
       dispatch({
         type: SEND_UPDATE_GAS_PRICE_SUCCESS,
         payload: {
@@ -124,6 +152,7 @@ export const sendUpdateGasPrice = newGasPriceOption => (dispatch, getState) => {
           gasPrice: _gasPrice,
           gasPriceOption: _gasPriceOption,
           gasPrices,
+          isSufficientGas: Number(balanceAmount) > Number(txFeeAmount),
         },
       });
     })
@@ -179,7 +208,7 @@ export const sendTransaction = (transactionDetails, signAndSendTransactionCb) =>
     gasPrice: gasPrice.value.amount,
     gasLimit: gasLimit,
   };
-  createSignableTransaction(txDetails)
+  return createSignableTransaction(txDetails)
     .then(signableTransactionDetails => {
       signAndSendTransactionCb(signableTransactionDetails, accountType)
       .then((txHash) => {
@@ -225,17 +254,15 @@ export const sendToggleConfirmationView = boolean => (dispatch, getState) => {
 
 export const sendUpdateRecipient = recipient => dispatch => {
   const input = recipient.replace(/[^\w.]/g, '');
-  if (input.length <= 42) {
-    dispatch({
-      type: SEND_UPDATE_RECIPIENT,
-      payload: input,
-    });
-  }
+  dispatch({
+    type: SEND_UPDATE_RECIPIENT,
+    payload: input,
+  });
 };
 
 export const sendUpdateAssetAmount = assetAmount => (dispatch, getState) => {
-  const { prices, nativeCurrency } = getState().account;
-  const { selected } = getState().send;
+  const { accountInfo, prices, nativeCurrency } = getState().account;
+  const { gasPrice, selected } = getState().send;
   const _assetAmount = assetAmount.replace(/[^0-9.]/g, '');
   let _nativeAmount = '';
   if (_assetAmount.length && prices[nativeCurrency][selected.symbol]) {
@@ -246,15 +273,21 @@ export const sendUpdateAssetAmount = assetAmount => (dispatch, getState) => {
     );
     _nativeAmount = formatInputDecimals(nativeAmount, _assetAmount);
   }
+
+  const balanceAmount = getBalanceAmount(accountInfo, gasPrice, selected);
   dispatch({
     type: SEND_UPDATE_ASSET_AMOUNT,
-    payload: { assetAmount: _assetAmount, nativeAmount: _nativeAmount },
+    payload: {
+      assetAmount: _assetAmount,
+      nativeAmount: _nativeAmount,
+      isSufficientBalance: Number(_assetAmount) <= Number(balanceAmount),
+    },
   });
 };
 
 export const sendUpdateNativeAmount = nativeAmount => (dispatch, getState) => {
-  const { prices, nativeCurrency } = getState().account;
-  const { selected } = getState().send;
+  const { accountInfo, prices, nativeCurrency } = getState().account;
+  const { gasPrice, selected } = getState().send;
   const _nativeAmount = nativeAmount.replace(/[^0-9.]/g, '');
   let _assetAmount = '';
   if (_nativeAmount.length && prices[nativeCurrency][selected.symbol]) {
@@ -265,9 +298,16 @@ export const sendUpdateNativeAmount = nativeAmount => (dispatch, getState) => {
     );
     _assetAmount = formatInputDecimals(assetAmount, _nativeAmount);
   }
+
+  const balanceAmount = getBalanceAmount(accountInfo, gasPrice, selected);
+
   dispatch({
     type: SEND_UPDATE_ASSET_AMOUNT,
-    payload: { assetAmount: _assetAmount, nativeAmount: _nativeAmount },
+    payload: {
+      assetAmount: _assetAmount,
+      nativeAmount: _nativeAmount,
+      isSufficientBalance: Number(_assetAmount) <= Number(balanceAmount),
+    },
   });
 };
 
@@ -290,21 +330,9 @@ export const sendUpdateSelected = value => (dispatch, getState) => {
 export const sendMaxBalance = () => (dispatch, getState) => {
   const { selected, gasPrice } = getState().send;
   const { accountInfo } = getState().account;
-  let amount = '';
-  if (selected.symbol === 'ETH') {
-    const ethereum = accountInfo.assets.filter(
-      asset => asset.symbol === 'ETH',
-    )[0];
-    const balanceAmount = ethereum.balance.amount;
-    const txFeeAmount = gasPrice.txFee.value.amount;
-    const remaining = convertStringToNumber(
-      subtract(balanceAmount, txFeeAmount),
-    );
-    amount = convertAmountFromBigNumber(remaining < 0 ? '0' : remaining);
-  } else {
-    amount = convertAmountFromBigNumber(selected.balance.amount);
-  }
-  dispatch(sendUpdateAssetAmount(amount));
+  const balanceAmount = getBalanceAmount(accountInfo, gasPrice, selected);
+
+  dispatch(sendUpdateAssetAmount(balanceAmount));
 };
 
 export const sendClearFields = () => ({ type: SEND_CLEAR_FIELDS });
@@ -364,6 +392,7 @@ export default (state = INITIAL_STATE, action) => {
         gasPrice: action.payload.gasPrice,
         gasPrices: action.payload.gasPrices,
         gasPriceOption: action.payload.gasPriceOption,
+        isSufficientGas: action.payload.isSufficientGas,
       };
 
     case SEND_UPDATE_GAS_PRICE_FAILURE:
@@ -405,6 +434,7 @@ export default (state = INITIAL_STATE, action) => {
         ...state,
         assetAmount: action.payload.assetAmount,
         nativeAmount: action.payload.nativeAmount,
+        isSufficientBalance: action.payload.isSufficientBalance,
       };
     case SEND_UPDATE_SELECTED:
       return { ...state, selected: action.payload };

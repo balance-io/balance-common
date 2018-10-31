@@ -420,7 +420,6 @@ const accountGetAccountTransactions = () => (dispatch, getState) => {
       });
       const lastSuccessfulTxn = _.find(confirmedTransactions, (txn) => txn.hash);
       const lastTxHash = lastSuccessfulTxn ? lastSuccessfulTxn.hash : '';
-      console.log('lastTxHash', lastTxHash);
       dispatch(accountGetTransactions(accountAddress, network, lastTxHash, 1));
     }).catch(error => {
       console.log('error', error);
@@ -503,19 +502,10 @@ const accountGetTransactionStatus = (txHash, network) => (
             payload: _transactions,
           });
         });
-      } else {
-        setTimeout(
-          () => dispatch(accountGetTransactionStatus(txHash, network)),
-          5000,
-        );
       }
     })
     .catch(error => {
       console.log('error getting transaction for txHash', txHash, error);
-      setTimeout(
-        () => dispatch(accountGetTransactionStatus(txHash, network)),
-        5000,
-      );
     });
 };
 

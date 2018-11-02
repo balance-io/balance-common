@@ -1,10 +1,10 @@
+import { differenceInMinutes } from 'date-fns';
+import { omit, pickBy } from 'lodash';
+
 const defaultVersion = '0.1.0';
 const accountLocalVersion = '0.1.0';
 const globalSettingsVersion = '0.1.0';
 const walletConnectVersion = '0.1.0';
-
-const expiryBufferInSeconds = 10 * 60;
-const defaultExpiryInSeconds = 24 * 60 * 60;
 
 /**
  * @desc save to storage
@@ -205,42 +205,56 @@ export const updateLocalTransactions = async (
 };
 
 /**
- * @desc get wallet connect session
+ * @desc get all wallet connect sessions
  * @return {Object}
  */
-export const getWalletConnectSession = async () => {
-  const webConnectorOptions = await getLocal(
+export const getAllValidWalletConnectSessions = async () => {
+  const allSessions = await getAllWalletConnectSessions();
+  const validSessions = pickBy(allSessions, (value, key) => {
+    const expiration = new Date(value.expiration);
+    return (new Date() < expiration);
+  });
+  return validSessions;
+};
+
+/**
+ * @desc get all wallet connect sessions
+ * @return {Object}
+ */
+export const getAllWalletConnectSessions = async () => {
+  const allSessions = await getLocal(
     'walletconnect',
     walletConnectVersion,
   );
-  const details = webConnectorOptions ? webConnectorOptions.data : null;
-  if (details) {
-    const expiration = Date.parse(webConnectorOptions.expiration);
-    return new Date() < expiration ? details : null;
-  } else {
-    return null;
-  }
+  return allSessions ? allSessions : {};
 };
 
 /**
  * @desc save wallet connect session
- * @param  {String}   [address]
+ * @param  {String}   [sessionId]
+ * @param  {String}   [uriString]
+ * @param  {Number}   [expirationDateInMs]
  */
-export const saveWalletConnectSession = async (webConnectorOptions, ttlInSeconds = defaultExpiryInSeconds) => {
-  let expiration = new Date();
-  expiration.setSeconds(
-    expiration.getSeconds() + ttlInSeconds - expiryBufferInSeconds);
+export const saveWalletConnectSession = async (sessionId, uriString, expirationDateInMs) => {
+  let allSessions = await getAllValidWalletConnectSessions();
+  allSessions[sessionId] = { uriString, expiration: expirationDateInMs };
   await saveLocal('walletconnect',
-    { data: webConnectorOptions, expiration },
+    allSessions,
     walletConnectVersion);
 };
 
 /**
- * @desc reset wallet connect session
- * @param {String} [address]
+ * @desc remove wallet connect session
+ * @param  {String}   [sessionId]
  */
-export const resetWalletConnect = () => {
-  removeLocal('walletconnect');
+export const removeWalletConnectSession = async (sessionId) => {
+  const allSessions = await getAllWalletConnectSessions();
+  const session = allSessions ? allSessions[sessionId] : null;
+  const resultingSessions = omit(allSessions, [sessionId]);
+  await saveLocal('walletconnect',
+    resultingSessions,
+    walletConnectVersion);
+  return session;
 };
 
 /**

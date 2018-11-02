@@ -73,12 +73,12 @@ export const getTxFee = (gasPrice, gasLimit) => {
   };
 };
 
-export const defaultGasPriceFormat = (option, timeAmount, valueAmount, valueDisplay) => {
+export const defaultGasPriceFormat = (option, timeAmount, valueAmount, valueDisplay, short) => {
   return {
     option,
     estimatedTime: {
       amount: timeAmount,
-      display: getTimeString(timeAmount, 'ms'),
+      display: getTimeString(timeAmount, 'ms', short),
     },
     value: {
       amount: valueAmount,
@@ -93,16 +93,16 @@ export const defaultGasPriceFormat = (option, timeAmount, valueAmount, valueDisp
  * @param {Object} prices
  * @param {Number} gasLimit
  */
-export const parseGasPrices = (data, prices, gasLimit) => {
+export const parseGasPrices = (data, prices, gasLimit, short) => {
   const gasPrices = {
     slow: null,
     average: null,
     fast: null,
   };
   if (!data) {
-    gasPrices.fast = defaultGasPriceFormat('fast', '30000','5000000000', '5 Gwei');
-    gasPrices.average = defaultGasPriceFormat('average', '360000', '2000000000', '2 Gwei');
-    gasPrices.slow = defaultGasPriceFormat('slow', '1800000','1000000000', '1 Gwei');
+    gasPrices.fast = defaultGasPriceFormat('fast', '30000','5000000000', '5 Gwei', short);
+    gasPrices.average = defaultGasPriceFormat('average', '360000', '2000000000', '2 Gwei', short);
+    gasPrices.slow = defaultGasPriceFormat('slow', '1800000','1000000000', '1 Gwei', short);
   } else {
     const fastTimeAmount = multiply(data.fastWait, timeUnits.ms.minute);
     const fastValueAmount = divide(data.fast, 10);
@@ -110,7 +110,8 @@ export const parseGasPrices = (data, prices, gasLimit) => {
       'fast',
       fastTimeAmount,
       multiply(fastValueAmount, ethUnits.gwei),
-      `${fastValueAmount} Gwei`
+      `${fastValueAmount} Gwei`,
+      short
     );
 
     const avgTimeAmount = multiply(data.avgWait, timeUnits.ms.minute);
@@ -119,7 +120,8 @@ export const parseGasPrices = (data, prices, gasLimit) => {
       'average',
       avgTimeAmount,
       multiply(avgValueAmount, ethUnits.gwei),
-      `${avgValueAmount} Gwei`
+      `${avgValueAmount} Gwei`,
+      short
     );
 
     const slowTimeAmount = multiply(data.safeLowWait, timeUnits.ms.minute);
@@ -128,10 +130,11 @@ export const parseGasPrices = (data, prices, gasLimit) => {
       'slow',
       slowTimeAmount,
       multiply(slowValueAmount, ethUnits.gwei),
-      `${slowValueAmount} Gwei`
+      `${slowValueAmount} Gwei`,
+      short
     );
   }
-  return parseGasPricesTxFee(gasPrices, prices, gasLimit); 
+  return parseGasPricesTxFee(gasPrices, prices, gasLimit);
 };
 
 export const convertGasPricesToNative = (prices, gasPrices) => {
@@ -357,7 +360,7 @@ export const parseAccountBalancesPrices = (
  */
 export const parseAccountUniqueTokens = data =>
   get(data, 'data.assets', []).map(asset => ({
-    background: `#${asset.background_color}`,
+    background: asset.background_color ? `#${asset.background_color}` : null,
     contractAddress: asset.asset_contract.address,
     contractName: asset.asset_contract.name,
     id: asset.token_id,
@@ -385,6 +388,7 @@ const ethFeeAsset = {
  */
 export const parseHistoricalNativePrice = async transaction => {
   let tx = { ...transaction };
+  // TODO: error: Date.now() provides ms not secs
   const timestamp = tx.timestamp ? tx.timestamp.secs : Date.now();
   let asset = { ...tx.asset };
   asset.symbol = tx.asset.symbol === 'WETH' ? 'ETH' : tx.asset.symbol;
@@ -442,7 +446,7 @@ export const parseHistoricalNativePrice = async transaction => {
       };
       const feePriceDisplay = convertAmountToDisplay(feePriceAmount, prices);
       prices[nativeCurrency]['ETH'].price.display = feePriceDisplay;
-
+      
       const txFeePriceAmount = convertAssetAmountToNativeValue(
         tx.txFee.amount,
         ethFeeAsset,
@@ -467,30 +471,6 @@ export const parseHistoricalNativePrice = async transaction => {
 };
 
 /**
- * @desc update successful shapeshift deposit
- * @param  {Object} [transactions=null]
- * @param  {String} [hash='']
- * @param  {String} [newHash='']
- * @return {Array}
- */
-export const parseConfirmedDeposit = (
-  transactions = null,
-  hash = '',
-  newHash = '',
-) => {
-  let _transactions = [];
-  transactions.forEach(tx => {
-    if (tx.hash.toLowerCase() === hash.toLowerCase()) {
-      tx.pending = true;
-      tx.hash = newHash;
-    }
-    _transactions.push(tx);
-  });
-  return _transactions;
-};
-
-
-/**
  * @desc parse confirmed transactions
  * @param  {Object} [data=null]
  * @return {Array}
@@ -500,22 +480,6 @@ export const parseConfirmedTransactions = async (data = '') => {
   return await Promise.all(
     transactions.map(async tx => await parseHistoricalNativePrice(tx)),
   );
-};
-
-/**
- * @desc update failed shapeshift deposit
- * @param  {Object} [transactions=null]
- * @param  {String} [hash='']
- * @return {Array}
- */
-export const parseFailedDeposit = (transactions = null, hash = '') => {
-  let _transactions = [];
-  transactions.forEach(tx => {
-    if (tx.hash.toLowerCase() !== hash.toLowerCase()) {
-      _transactions.push(tx);
-    }
-  });
-  return _transactions;
 };
 
 /**
@@ -565,7 +529,7 @@ export const parseNewTransaction = async (
     value: value,
     txFee: txFee,
     native: { selected: nativeCurrencies[nativeCurrency] },
-    pending: true,
+    pending: txDetails.hash ? true : false,
     asset: txDetails.asset,
   };
 
@@ -584,7 +548,7 @@ export const parseAccountTransactions = async (
   address = '',
   network = '',
 ) => {
-  if (!data || !data.docs) return [];
+  if (!data || !data.docs) return { transactions: [], pages: 0 };
 
   let transactions = await Promise.all(
     data.docs.map(async tx => {
@@ -599,25 +563,7 @@ export const parseAccountTransactions = async (
     });
   });
 
-  if (data.pages > data.page) {
-    try {
-      const newPageResponse = await apiGetTransactionData(
-        address,
-        network,
-        data.page + 1,
-      );
-      const newPageTransations = await parseAccountTransactions(
-        newPageResponse.data,
-        address,
-        network,
-      );
-      _transactions = [..._transactions, ...newPageTransations];
-    } catch (error) {
-      throw error;
-    }
-  }
-
-  return _transactions;
+  return { transactions: _transactions, pages: data.pages };
 };
 
 /**
@@ -737,15 +683,16 @@ export const parseTransaction = async tx => {
  * @param  {Array} [transactions=null]
  * @return {Array}
  */
-export const parseHistoricalTransactions = async (transactions = null) => {
+export const parseHistoricalTransactions = async (transactions, page) => {
   if (!transactions.length) return transactions;
+  const pageOffset = (page - 1) * 2000;
   const _transactions = await Promise.all(
     transactions.map(async (tx, idx) => {
       if (!tx.native || (tx.native && Object.keys(tx.native).length < 1)) {
         const parsedTxn = await debounceRequest(
           parseHistoricalNativePrice,
           [tx],
-          50 * idx,
+          (40 * idx) + pageOffset,
         );
         return parsedTxn;
       }

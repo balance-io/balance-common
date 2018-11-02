@@ -32,6 +32,8 @@ const reduxProps = ({ send, account }) => ({
   recipient: send.recipient,
   nativeAmount: send.nativeAmount,
   assetAmount: send.assetAmount,
+  isSufficientGas: send.isSufficientGas,
+  isSufficientBalance: send.isSufficientBalance,
   txHash: send.txHash,
   address: send.address,
   selected: send.selected,
@@ -73,6 +75,8 @@ export const withSendComponentWithData = (SendComponent, options) => {
       recipient: PropTypes.string.isRequired,
       nativeAmount: PropTypes.string.isRequired,
       assetAmount: PropTypes.string.isRequired,
+      isSufficientGas: PropTypes.func.isRequired,
+      isSufficientBalance: PropTypes.func.isRequired,
       txHash: PropTypes.string.isRequired,
       selected: PropTypes.object.isRequired,
       gasPrice: PropTypes.object.isRequired,
@@ -98,15 +102,17 @@ export const withSendComponentWithData = (SendComponent, options) => {
       // Allow sendTransactionCallback to be passed in directly for backwards compatibility.
       if (typeof options === 'function') {
         this.defaultAsset = 'ETH';
+        this.gasFormat = 'long';
         this.sendTransactionCallback = options;
       } else {
         this.defaultAsset = options.defaultAsset;
+        this.gasFormat = options.gasFormat;
         this.sendTransactionCallback = options.sendTransactionCallback || function noop() {};
       }
     }
 
     componentDidMount() {
-      this.props.sendModalInit({ defaultAsset: this.defaultAsset });
+      this.props.sendModalInit({ defaultAsset: this.defaultAsset, gasFormat: this.gasFormat });
     }
 
     componentDidUpdate(prevProps) {
@@ -220,7 +226,7 @@ export const withSendComponentWithData = (SendComponent, options) => {
           }
         }
 
-        this.props.sendTransaction({
+        return this.props.sendTransaction({
           address: this.props.accountInfo.address,
           recipient: this.props.recipient,
           amount: this.props.assetAmount,

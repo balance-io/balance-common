@@ -1,4 +1,8 @@
 import axios from 'axios';
+import { findIndex, slice } from 'lodash';
+import {
+  REACT_APP_CRYPTOCOMPARE_API_KEY,
+} from 'react-native-dotenv';
 import {
   parseAccountAssets,
   parseAccountTransactions,
@@ -6,8 +10,6 @@ import {
 } from './parsers';
 import { formatInputDecimals } from '../helpers/bignumber';
 import nativeCurrencies from '../references/native-currencies.json';
-
-const cryptocompareApiKey = process.env.REACT_APP_CRYPTOCOMPARE_API_KEY || '';
 
 /**
  * @desc get single asset price
@@ -17,7 +19,7 @@ const cryptocompareApiKey = process.env.REACT_APP_CRYPTOCOMPARE_API_KEY || '';
  */
 export const apiGetSinglePrice = (asset = '', native = 'USD') => {
   return cryptocompare.get(
-    `/price?fsym=${asset}&tsyms=${native}&apiKey=${cryptocompareApiKey}`,
+    `/price?fsym=${asset}&tsyms=${native}&apiKey=${REACT_APP_CRYPTOCOMPARE_API_KEY}`,
   );
 };
 
@@ -46,7 +48,7 @@ export const apiGetPrices = (assets = []) => {
     '',
   );
   return cryptocompare.get(
-    `/pricemultifull?fsyms=${assetsQuery}&tsyms=${nativeQuery}&apiKey=${cryptocompareApiKey}`,
+    `/pricemultifull?fsyms=${assetsQuery}&tsyms=${nativeQuery}&apiKey=${REACT_APP_CRYPTOCOMPARE_API_KEY}`,
   );
 };
 
@@ -58,14 +60,14 @@ export const apiGetPrices = (assets = []) => {
  */
 export const apiGetHistoricalPrices = (
   assetSymbol = '',
-  timestamp = Date.now(),
+  timestamp = Date.now(), // TODO error: timestamp would be ms
 ) => {
   const nativeQuery = JSON.stringify(Object.keys(nativeCurrencies)).replace(
     /[[\]"]/gi,
     '',
   );
   return cryptocompare.get(
-    `/pricehistorical?fsym=${assetSymbol}&tsyms=${nativeQuery}&ts=${timestamp}&apiKey=${cryptocompareApiKey}`,
+    `/pricehistorical?fsym=${assetSymbol}&tsyms=${nativeQuery}&ts=${timestamp}&apiKey=${REACT_APP_CRYPTOCOMPARE_API_KEY}`,
   );
 };
 
@@ -98,6 +100,7 @@ export const apiGetAccountBalances = async (
     const result = { data: accountInfo };
     return result;
   } catch (error) {
+    console.log('Error getting acct balances from proxy', error);
     throw error;
   }
 };
@@ -134,27 +137,24 @@ export const apiGetAccountTransactions = async (
   address = '',
   network = 'mainnet',
   lastTxHash = '',
+  page = 1,
 ) => {
   try {
-    let { data } = await apiGetTransactionData(address, network, 1);
-    let transactions = await parseAccountTransactions(data, address, network);
+    // TODO: hit api directly instead of through indexer
+    let { data } = await apiGetTransactionData(address, network, page);
+    let { transactions, pages } = await parseAccountTransactions(data, address, network);
     if (transactions.length && lastTxHash) {
-      let newTxs = true;
-      transactions = transactions.filter(tx => {
-        if (tx.hash === lastTxHash && newTxs) {
-          newTxs = false;
-          return false;
-        } else if (tx.hash !== lastTxHash && newTxs) {
-          return true;
-        } else {
-          return false;
-        }
-      });
+      const lastTxnHashIndex = findIndex(transactions, (txn) => { return txn.hash === lastTxHash });
+      if (lastTxnHashIndex > -1) {
+        transactions = slice(transactions, 0, lastTxnHashIndex); 
+        pages = page;
+      }
     }
-    transactions = await parseHistoricalTransactions(transactions);
-    const result = { data: transactions };
+    transactions = await parseHistoricalTransactions(transactions, page);
+    const result = { data: transactions, pages };
     return result;
   } catch (error) {
+    console.log('Error getting acct transactions', error);
     throw error;
   }
 };
@@ -164,143 +164,3 @@ export const apiGetAccountTransactions = async (
  * @return {Promise}
  */
 export const apiGetGasPrices = () => api.get(`/get_eth_gas_prices`);
-
-/**
- * @desc shapeshift get coins
- * @return {Promise}
- */
-export const apiShapeshiftGetCurrencies = () => api.get(`/get_currencies`);
-
-/**
- * Configuration for shapeshift api
- * @type axios instance
- */
-const shapeshift = axios.create({
-  baseURL: 'https://shapeshift.io',
-  timeout: 30000, // 30 secs
-  headers: {
-    'Content-Type': 'application/json',
-    Accept: 'application/json',
-  },
-});
-
-/**
- * @desc shapeshift get coins
- * @return {Promise}
- */
-export const apiShapeshiftGetCoins = () => shapeshift.get('/getcoins');
-
-/**
- * @desc shapeshift get market info
- * @param  {String}   [pair = '']
- * @return {Promise}
- */
-export const apiShapeshiftGetMarketInfo = (pair = '') =>
-  shapeshift.get(`/marketinfo/${pair}`);
-
-/**
- * @desc shapeshift get txn status of deposit address
- * @param  {String}   [depositAddress = '']
- * @return {Promise}
- */
-export const apiShapeshiftGetDepositStatus = (depositAddress = '') =>
-  shapeshift.get(`/txStat/${depositAddress}`);
-
-/**
- * @desc shapeshift get fixed or quoted price
- * @param  {String}   [depositSymbol = '']
- * @param  {String}   [withdrawalSymbol = '']
- * @param  {String}   [depositAmount = '']
- * @param  {String}   [withdrawalAmount = '']
- * @return {Promise}
- */
-export const apiShapeshiftSendAmount = async ({
-  address = '',
-  depositSymbol = '',
-  withdrawalSymbol = '',
-  depositAmount = '',
-  withdrawalAmount = '',
-}) => {
-  try {
-    const pair = `${depositSymbol.toLowerCase()}_${withdrawalSymbol.toLowerCase()}`;
-    const marketInfo = await apiShapeshiftGetMarketInfo(pair);
-    const min = marketInfo.data.minimum;
-    const body = address
-      ? {
-          pair,
-          withdrawal: address,
-          returnAddress: address,
-        }
-      : { pair };
-    if (withdrawalAmount) {
-      body.amount = withdrawalAmount;
-    } else if (depositAmount) {
-      body.depositAmount = depositAmount;
-    } else {
-      body.depositAmount = min;
-    }
-    const shapeshiftApiKey = process.env.REACT_APP_SHAPESHIFT_API_KEY || '';
-    if (shapeshiftApiKey) {
-      body.apiKey = shapeshiftApiKey;
-    }
-    const response = await shapeshift.post(`/sendamount`, body);
-    if (response.data.success) {
-      response.data.success.min = min;
-      return response;
-    } else {
-      /* Error Fallback */
-      return {
-        data: {
-          success: {
-            pair,
-            depositAmount: '',
-            withdrawalAmount: '',
-            quotedRate: marketInfo.data.rate,
-            maxLimit: marketInfo.data.maxLimit,
-            min: marketInfo.data.minimum,
-            minerFee: marketInfo.data.minerFee,
-            error: response.data.error,
-          },
-        },
-      };
-    }
-  } catch (error) {
-    throw error;
-  }
-};
-
-/**
- * @desc shapeshift get exchange details
- * @param  {Object}     [request = [object Object]]
- * @param  {String}     [inputOne = '']
- * @param  {String}     [inputTwo = '']
- * @param  {Boolean}    [withdrawal = false]
- * @return {Promise}
- */
-export const apiShapeshiftGetExchangeDetails = ({
-  request = {
-    depositSymbol: '',
-    withdrawalSymbol: '',
-    withdrawalAmount: '',
-  },
-  inputOne = '',
-  inputTwo = '',
-  withdrawal = false,
-}) =>
-  apiShapeshiftSendAmount(request).then(({ data }) => {
-    const inputTwoName = withdrawal ? 'depositAmount' : 'withdrawalAmount';
-    let result = {};
-    let exchangeDetails = null;
-    exchangeDetails = data.success;
-    result = { exchangeDetails };
-    if (exchangeDetails.error) {
-      inputTwo = '';
-    } else if (!inputOne) {
-      inputTwo = '';
-    } else {
-      inputTwo = exchangeDetails[inputTwoName] || '';
-      inputTwo = formatInputDecimals(inputTwo, inputOne);
-    }
-    result[inputTwoName] = inputTwo;
-    return result;
-  });

@@ -226,6 +226,8 @@ export const withSendComponentWithData = (SendComponent, options) => {
           }
         }
 
+        this.props.sendToggleConfirmationView(true);
+
         return this.props.sendTransaction({
           address: this.props.accountInfo.address,
           recipient: this.props.recipient,
@@ -236,7 +238,6 @@ export const withSendComponentWithData = (SendComponent, options) => {
         }, this.sendTransactionCallback);
       }
 
-      this.props.sendToggleConfirmationView(true);
     };
 
     updateGasPrice = gasPrice => {

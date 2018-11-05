@@ -149,7 +149,6 @@ export const accountUpdateTransactions = txDetails => (dispatch, getState) => ne
         type: ACCOUNT_UPDATE_TRANSACTIONS_SUCCESS,
         payload: _transactions,
       });
-      dispatch(accountCheckTransactionStatus(txDetails.hash));
       resolve(true);
     })
     .catch(error => {

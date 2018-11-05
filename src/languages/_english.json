@@ -284,6 +284,7 @@
       },
       "unrecognized_qrcode": "Could not recognize QR code.",
       "wallet_connect": {
+        "missing_fcm": "Unable to initialize WalletConnect: missing push notification token. Please try again.",
         "error": "Error initializing with WalletConnect"
       }
     }

@@ -25,7 +25,7 @@ export const apiGetAccountUniqueTokens = async (address = '') => {
     const data = await api.get(`/assets?owner=${address}`);
     return parseAccountUniqueTokens(data);
   } catch(error) {
-    console.log('error getting unique tokens', error);
-    return [];
+    console.log('Error getting unique tokens', error);
+    throw error;
   }
 };

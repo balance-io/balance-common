@@ -400,9 +400,9 @@ const accountGetAccountTransactions = () => (dispatch, getState) => {
     console.log('$$$$$$$ account get account txns');
     const { accountAddress, network, transactions } = getState().account;
     if (transactions.length) {
-      console.log('$$$$$$ just getting transactions');
-      const lastSuccessfulTxn = _.find(transactions, (txn) => txn.hash);
+      const lastSuccessfulTxn = _.find(transactions, (txn) => txn.hash && !tx.pending);
       const lastTxHash = lastSuccessfulTxn ? lastSuccessfulTxn.hash : '';
+      console.log('$$$$$$ just getting transactions last tx hash', lastTxHash);
       dispatch(accountGetTransactions(accountAddress, network, lastTxHash, 1));
     } else {
       console.log('$$$$$$ getting transactions from local storage');

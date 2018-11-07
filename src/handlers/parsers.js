@@ -19,7 +19,7 @@ import timeUnits from '../references/time-units.json';
 import { debounceRequest } from '../helpers/utilities';
 import { getTransactionCount } from './web3';
 import { getTimeString } from '../helpers/time';
-import { apiGetHistoricalPrices, apiGetTransactionData } from './api';
+import { apiGetHistoricalPrices } from './api';
 
 /**
  * @desc parse error code message
@@ -468,18 +468,6 @@ export const parseHistoricalNativePrice = async transaction => {
   });
 
   return tx;
-};
-
-/**
- * @desc parse confirmed transactions
- * @param  {Object} [data=null]
- * @return {Array}
- */
-export const parseConfirmedTransactions = async (data = '') => {
-  let transactions = await parseTransaction(data);
-  return await Promise.all(
-    transactions.map(async tx => await parseHistoricalNativePrice(tx)),
-  );
 };
 
 /**

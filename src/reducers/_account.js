@@ -143,6 +143,7 @@ export const accountUpdateTransactions = txDetails => (dispatch, getState) => ne
   parseNewTransaction(txDetails, nativeCurrency)
     .then(parsedTransaction => {
       let _transactions = [...currentTransactions];
+      // TODO: could technically send in pending and normal separately
       _transactions = [parsedTransaction, ..._transactions];
       updateLocalTransactions(address, _transactions, network);
       dispatch({
@@ -350,17 +351,23 @@ const accountUpdateBalances = () => (dispatch, getState) => {
 };
 
 const accountGetTransactions = (accountAddress, network, lastTxHash, page) => (dispatch, getState) => {
+  console.log('$$$$$$ account get txns: page, lastTxHash', page, lastTxHash);
   const existingTransactions = getState().account.transactions;
+  console.log('$$$$$$ account get txns existing txns from redux state', existingTransactions);
   dispatch(accountGetTransactionsPages([], existingTransactions, accountAddress,
                                network, lastTxHash, page));
 }
 
 const accountGetTransactionsPages = (newTransactions, existingTransactions, accountAddress, network, lastTxHash, page) => (dispatch, getState) => {
+  console.log('$$$$$$ acct get txns pages', page);
+  console.log('$$$$$$ acct get txns newTransactions incoming', newTransactions);
+  console.log('$$$$$$ acct get txns existingTransactions incoming', existingTransactions);
   apiGetAccountTransactions(accountAddress, network, lastTxHash, page)
     .then(({ data: transactionsForPage, pages }) => {
       const address = getState().account.accountAddress;
       let _newPages = newTransactions.concat(transactionsForPage);
       let _transactions = _.unionBy(_newPages, existingTransactions, 'hash');
+      console.log('$$$$$ update local txns and redux state', _transactions);
       updateLocalTransactions(address, _transactions, network);
       dispatch({
         type: ACCOUNT_GET_ACCOUNT_TRANSACTIONS_SUCCESS,
@@ -384,12 +391,14 @@ const accountGetTransactionsPages = (newTransactions, existingTransactions, acco
 
 const accountGetAccountTransactions = () => (dispatch, getState) => {
   const getAccountTransactions = () => {
+    console.log('$$$$$$$ account get account txns');
     const { accountAddress, network } = getState().account;
     let cachedTransactions = [];
     let confirmedTransactions = [];
     getAccountLocal(accountAddress).then(accountLocal => {
       if (accountLocal && accountLocal[network]) {
         if (accountLocal[network].pending) {
+          console.log('$$$$$$$$$ get acct txns has pending txns', accountLocal[network].pending);
           cachedTransactions = [...accountLocal[network].pending];
           accountLocal[network].pending.forEach(pendingTx =>
             dispatch(accountCheckTransactionStatus(pendingTx.hash)),
@@ -402,10 +411,8 @@ const accountGetAccountTransactions = () => (dispatch, getState) => {
             accountLocal[network].transactions,
             'hash',
           );
-          if (accountLocal[network].pending) {
-            updateLocalTransactions(accountAddress, cachedTransactions, network);
-          }
         }
+        console.log('$$$$$$$$$ cached transactions');
       }
       dispatch({
         type: ACCOUNT_GET_ACCOUNT_TRANSACTIONS_REQUEST,
@@ -431,11 +438,42 @@ const accountGetAccountTransactions = () => (dispatch, getState) => {
 };
 
 export const accountCheckTransactionStatus = txHash => (dispatch, getState) => {
+  console.log('$$$$$ acct check txn status', txHash);
   if (!txHash) { return };
   dispatch({ type: ACCOUNT_CHECK_TRANSACTION_STATUS_REQUEST });
   const network = getState().account.network;
-  console.log('checking txn status for hash', txHash);
-  dispatch(accountGetTransactionStatus(txHash, network));
+  apiGetTransaction(txHash, network)
+    .then(response => {
+      const data = response.data;
+      if (
+        data &&
+        !data.error &&
+        (data.input === '0x' ||
+          (data.input !== '0x' && data.operations && data.operations.length))
+      ) {
+        const address = getState().account.accountInfo.address;
+        const transactions = getState().account.transactions;
+        let promises = transactions.map(async tx => {
+          if (tx.hash && tx.hash.toLowerCase() === txHash.toLowerCase()) {
+            return await parseConfirmedTransactions(data);
+          } else {
+            return tx;
+          }
+        });
+        Promise.all(promises).then(parsedTransactions => {
+          let _transactions = [].concat(...parsedTransactions);
+          console.log('$$$$$ updating local txns and redux state after checking txn status', _transactions);
+          updateLocalTransactions(address, _transactions, network);
+          dispatch({
+            type: ACCOUNT_CHECK_TRANSACTION_STATUS_SUCCESS,
+            payload: _transactions,
+          });
+        });
+      }
+    })
+    .catch(error => {
+      console.log('error getting transaction for txHash', txHash, error);
+    });
 };
 
 const accountGetUniqueTokens = () => (dispatch, getState) => {
@@ -470,43 +508,6 @@ const accountGetUniqueTokens = () => (dispatch, getState) => {
 
 };
 
-const accountGetTransactionStatus = (txHash, network) => (
-  dispatch,
-  getState,
-) => {
-  if (!txHash) { return };
-  apiGetTransaction(txHash, network)
-    .then(response => {
-      const data = response.data;
-      if (
-        data &&
-        !data.error &&
-        (data.input === '0x' ||
-          (data.input !== '0x' && data.operations && data.operations.length))
-      ) {
-        const address = getState().account.accountInfo.address;
-        const transactions = getState().account.transactions;
-        let promises = transactions.map(async tx => {
-          if (tx.hash && tx.hash.toLowerCase() === txHash.toLowerCase()) {
-            return await parseConfirmedTransactions(data);
-          } else {
-            return tx;
-          }
-        });
-        Promise.all(promises).then(parsedTransactions => {
-          let _transactions = [].concat(...parsedTransactions);
-          updateLocalTransactions(address, _transactions, network);
-          dispatch({
-            type: ACCOUNT_CHECK_TRANSACTION_STATUS_SUCCESS,
-            payload: _transactions,
-          });
-        });
-      }
-    })
-    .catch(error => {
-      console.log('error getting transaction for txHash', txHash, error);
-    });
-};
 
 // -- Reducer --------------------------------------------------------------- //
 export const INITIAL_ACCOUNT_STATE = {

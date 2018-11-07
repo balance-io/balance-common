@@ -533,6 +533,8 @@ export const parseNewTransaction = async (
     asset: txDetails.asset,
   };
 
+  console.log('$$$$$$$ tx hash', tx.hash);
+  console.log('$$$$$$$ tx pending', tx.pending);
   return await parseHistoricalNativePrice(tx);
 };
 

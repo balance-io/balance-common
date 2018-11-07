@@ -35,6 +35,8 @@ const ACCOUNT_GET_ACCOUNT_TRANSACTIONS_REQUEST =
   'account/ACCOUNT_GET_ACCOUNT_TRANSACTIONS_REQUEST';
 const ACCOUNT_GET_ACCOUNT_TRANSACTIONS_SUCCESS =
   'account/ACCOUNT_GET_ACCOUNT_TRANSACTIONS_SUCCESS';
+const ACCOUNT_GET_ACCOUNT_TRANSACTIONS_NO_NEW_PAYLOAD_SUCCESS =
+  'account/ACCOUNT_GET_ACCOUNT_TRANSACTIONS_NO_NEW_PAYLOAD_SUCCESS';
 const ACCOUNT_GET_ACCOUNT_TRANSACTIONS_FAILURE =
   'account/ACCOUNT_GET_ACCOUNT_TRANSACTIONS_FAILURE';
 
@@ -353,17 +355,24 @@ const accountUpdateBalances = () => (dispatch, getState) => {
 const accountGetTransactions = (accountAddress, network, lastTxHash, page) => (dispatch, getState) => {
   console.log('$$$$$$ account get txns: page, lastTxHash', page, lastTxHash);
   const existingTransactions = getState().account.transactions;
-  console.log('$$$$$$ account get txns existing txns from redux state', existingTransactions);
   dispatch(accountGetTransactionsPages([], existingTransactions, accountAddress,
                                network, lastTxHash, page));
 }
 
+// TODO: existingTransactions can have pending ones in front of them
 const accountGetTransactionsPages = (newTransactions, existingTransactions, accountAddress, network, lastTxHash, page) => (dispatch, getState) => {
   console.log('$$$$$$ acct get txns pages', page);
   console.log('$$$$$$ acct get txns newTransactions incoming', newTransactions);
   console.log('$$$$$$ acct get txns existingTransactions incoming', existingTransactions);
   apiGetAccountTransactions(accountAddress, network, lastTxHash, page)
     .then(({ data: transactionsForPage, pages }) => {
+      console.log('$$$$$$ transactionsForPage', transactionsForPage);
+      if (!transactionsForPage.length) {
+        dispatch({
+          type: ACCOUNT_GET_ACCOUNT_TRANSACTIONS_NO_NEW_PAYLOAD_SUCCESS
+        });
+        return;
+      }
       const address = getState().account.accountAddress;
       let _newPages = newTransactions.concat(transactionsForPage);
       let _transactions = _.unionBy(_newPages, existingTransactions, 'hash');
@@ -558,6 +567,11 @@ export default (state = INITIAL_ACCOUNT_STATE, action) => {
         ...state,
         fetchingTransactions: action.payload.fetchingTransactions,
         transactions: action.payload.transactions,
+      };
+    case ACCOUNT_GET_ACCOUNT_TRANSACTIONS_NO_NEW_PAYLOAD_SUCCESS:
+      return {
+        ...state,
+        fetchingTransactions: false,
       };
     case ACCOUNT_GET_ACCOUNT_TRANSACTIONS_SUCCESS:
       return {

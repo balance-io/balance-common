@@ -284,47 +284,38 @@ const accountGetAccountBalances = () => (dispatch, getState) => {
     accountType,
   } = getState().account;
   let cachedAccount = { ...accountInfo };
-  let cachedTransactions = [];
-  getAccountLocal(accountAddress)
-    .then(accountLocal => {
-      if (accountLocal && accountLocal[network]) {
-        if (accountLocal[network].balances) {
-          cachedAccount = {
-            ...cachedAccount,
-            assets: accountLocal[network].balances.assets,
-            total: accountLocal[network].balances.total,
-          };
-        }
-        if (accountLocal[network].type && !cachedAccount.type) {
-            cachedAccount.type = accountLocal[network].type;
+  if (accountInfo.address && accountInfo.accountType) {
+    dispatch(accountUpdateBalances());
+  } else {
+    getAccountLocal(accountAddress)
+      .then(accountLocal => {
+        if (accountLocal && accountLocal[network]) {
+          if (accountLocal[network].balances) {
+            cachedAccount = {
+              ...cachedAccount,
+              assets: accountLocal[network].balances.assets,
+              total: accountLocal[network].balances.total,
+            };
           }
-        if (accountLocal[network].pending) {
-          cachedTransactions = [...accountLocal[network].pending];
+          if (accountLocal[network].type && !cachedAccount.type) {
+              cachedAccount.type = accountLocal[network].type;
+            }
+          dispatch({
+            type: ACCOUNT_GET_ACCOUNT_BALANCES_REQUEST,
+            payload: {
+              accountType: cachedAccount.type || accountType,
+              accountInfo: cachedAccount,
+              fetching: (accountLocal && !accountLocal[network]) || !accountLocal,
+            },
+          });
         }
-        if (accountLocal[network].transactions) {
-          cachedTransactions = _.unionBy(
-            cachedTransactions,
-            accountLocal[network].transactions,
-            'hash',
-          );
-          updateLocalTransactions(accountAddress, cachedTransactions, network);
-        }
-        dispatch({
-          type: ACCOUNT_GET_ACCOUNT_BALANCES_REQUEST,
-          payload: {
-            accountType: cachedAccount.type || accountType,
-            accountInfo: cachedAccount,
-            transactions: cachedTransactions,
-            fetching: (accountLocal && !accountLocal[network]) || !accountLocal,
-          },
-        });
-      }
-      dispatch(accountUpdateBalances());
-			})
-    .catch(error => {
-      const message = parseError(error);
-      dispatch(notificationShow(message, true));
-    });
+        dispatch(accountUpdateBalances());
+        })
+      .catch(error => {
+        const message = parseError(error);
+        dispatch(notificationShow(message, true));
+      });
+  }
 };
 
 const accountUpdateBalances = () => (dispatch, getState) => {
@@ -351,16 +342,31 @@ const accountUpdateBalances = () => (dispatch, getState) => {
 };
 
 const accountGetTransactions = (accountAddress, network, lastTxHash, page) => (dispatch, getState) => {
-  console.log('$$$$$$ account get txns: page, lastTxHash', page, lastTxHash);
+  console.log('$$$$$$ account get txns: lastTxHash', lastTxHash);
   const existingTransactions = getState().account.transactions;
-  dispatch(accountGetTransactionsPages([], existingTransactions, accountAddress,
-                               network, lastTxHash, page));
+  const partitions = _.partition(existingTransactions, (txn) => txn.pending);
+  dispatch(accountGetTransactionsPages({
+    newTransactions: [],
+    pendingTransactions: partitions[0],
+    confirmedTransactions: partitions[1],
+    accountAddress,
+    network,
+    lastTxHash,
+    page
+  }));
 }
 
-const accountGetTransactionsPages = (newTransactions, existingTransactions, accountAddress, network, lastTxHash, page) => (dispatch, getState) => {
-  console.log('$$$$$$ acct get txns pages', page);
-  console.log('$$$$$$ acct get txns newTransactions incoming', newTransactions);
-  console.log('$$$$$$ acct get txns existingTransactions incoming', existingTransactions);
+const accountGetTransactionsPages = ({
+  newTransactions,
+  pendingTransactions,
+  confirmedTransactions,
+  accountAddress,
+  network,
+  lastTxHash,
+  page
+}) => (dispatch, getState) => {
+  console.log('$$$$$$ get txn pages page', page);
+  console.log('$$$$$$ acct get txns confirmedTxns incoming', confirmedTransactions);
   apiGetAccountTransactions(accountAddress, network, lastTxHash, page)
     .then(({ data: transactionsForPage, pages }) => {
       console.log('$$$$$$ transactionsForPage', transactionsForPage);
@@ -370,9 +376,16 @@ const accountGetTransactionsPages = (newTransactions, existingTransactions, acco
         });
         return;
       }
+      let updatedPendingTransactions = pendingTransactions;
+      if (pendingTransactions.length) {
+        updatedPendingTransactions = _.filter(pendingTransactions, (pendingTxn) => {
+          const matchingElement = _.find(transactionsForPage, (txn) => txn.hash && txn.hash.startsWith(pendingTxn.hash));
+          return !matchingElement;
+        }); 
+      }
       const address = getState().account.accountAddress;
       let _newPages = newTransactions.concat(transactionsForPage);
-      let _transactions = _.unionBy(_newPages, existingTransactions, 'hash');
+      let _transactions = _.unionBy(updatedPendingTransactions, _newPages, confirmedTransactions, 'hash');
       console.log('$$$$$ update local txns and redux state', _transactions);
       updateLocalTransactions(address, _transactions, network);
       dispatch({
@@ -381,7 +394,15 @@ const accountGetTransactionsPages = (newTransactions, existingTransactions, acco
       });
       if (page < pages) {
         const nextPage = page + 1;
-        dispatch(accountGetTransactionsPages(_newPages, existingTransactions, accountAddress, network, lastTxHash, nextPage));
+        dispatch(accountGetTransactionsPages({
+          newTransactions: _newPages,
+          pendingTransactions: updatedPendingTransactions,
+          confirmedTransactions,
+          accountAddress,
+          network,
+          lastTxHash,
+          page: nextPage
+        }));
       }
     })
     .catch(error => {
@@ -571,7 +592,6 @@ export default (state = INITIAL_ACCOUNT_STATE, action) => {
         fetching: action.payload.fetching,
         accountType: action.payload.accountType,
         accountInfo: action.payload.accountInfo,
-        transactions: action.payload.transactions,
       };
     case ACCOUNT_GET_ACCOUNT_BALANCES_SUCCESS:
       return {

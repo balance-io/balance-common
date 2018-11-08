@@ -282,7 +282,10 @@
         "request": "Transaction Request",
         "send": "Send Transaction"
       },
+      "unrecognized_qrcode": "Sorry, this QR code could not be recognized.",
+      "unrecognized_qrcode_title": "Unrecognized QR Code",
       "wallet_connect": {
+        "missing_fcm": "Unable to initialize WalletConnect: missing push notification token. Please try again.",
         "error": "Error initializing with WalletConnect"
       }
     }

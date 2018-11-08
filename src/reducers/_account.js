@@ -342,7 +342,6 @@ const accountUpdateBalances = () => (dispatch, getState) => {
 };
 
 const accountGetTransactions = (accountAddress, network, lastTxHash, page) => (dispatch, getState) => {
-  console.log('$$$$$$ account get txns: lastTxHash', lastTxHash);
   const existingTransactions = getState().account.transactions;
   const partitions = _.partition(existingTransactions, (txn) => txn.pending);
   dispatch(accountGetTransactionsPages({
@@ -365,11 +364,8 @@ const accountGetTransactionsPages = ({
   lastTxHash,
   page
 }) => (dispatch, getState) => {
-  console.log('$$$$$$ get txn pages page', page);
-  console.log('$$$$$$ acct get txns confirmedTxns incoming', confirmedTransactions);
   apiGetAccountTransactions(accountAddress, network, lastTxHash, page)
     .then(({ data: transactionsForPage, pages }) => {
-      console.log('$$$$$$ transactionsForPage', transactionsForPage);
       if (!transactionsForPage.length) {
         dispatch({
           type: ACCOUNT_GET_ACCOUNT_TRANSACTIONS_NO_NEW_PAYLOAD_SUCCESS
@@ -386,7 +382,6 @@ const accountGetTransactionsPages = ({
       const address = getState().account.accountAddress;
       let _newPages = newTransactions.concat(transactionsForPage);
       let _transactions = _.unionBy(updatedPendingTransactions, _newPages, confirmedTransactions, 'hash');
-      console.log('$$$$$ update local txns and redux state', _transactions);
       updateLocalTransactions(address, _transactions, network);
       dispatch({
         type: ACCOUNT_GET_ACCOUNT_TRANSACTIONS_SUCCESS,
@@ -418,15 +413,12 @@ const accountGetTransactionsPages = ({
 
 const accountGetAccountTransactions = () => (dispatch, getState) => {
   const getAccountTransactions = () => {
-    console.log('$$$$$$$ account get account txns');
     const { accountAddress, network, transactions } = getState().account;
     if (transactions.length) {
       const lastSuccessfulTxn = _.find(transactions, (txn) => txn.hash && !txn.pending);
       const lastTxHash = lastSuccessfulTxn ? lastSuccessfulTxn.hash : '';
-      console.log('$$$$$$ just getting transactions last tx hash', lastTxHash);
       dispatch(accountGetTransactions(accountAddress, network, lastTxHash, 1));
     } else {
-      console.log('$$$$$$ getting transactions from local storage');
       let cachedTransactions = [];
       let confirmedTransactions = [];
       getAccountLocal(accountAddress).then(accountLocal => {

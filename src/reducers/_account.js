@@ -17,6 +17,7 @@ import {
   getLanguage,
   getNativePrices,
   getNativeCurrency,
+  resetAccount,
   saveLanguage,
   saveNativeCurrency,
   saveNativePrices,
@@ -168,6 +169,11 @@ export const accountUpdateAccountAddress = (accountAddress, accountType) => (
   const { network } = getState().account;
   if (getState().account.accountType !== accountType)
     dispatch(accountClearState());
+  if (getState().account.accountType === accountType &&
+       getState().account.accountAddress !== accountAddress) {
+    resetAccount(getState().account.accountAddress);
+    dispatch(accountClearState());
+  }
   dispatch({
     type: ACCOUNT_UPDATE_ACCOUNT_ADDRESS,
     payload: { accountAddress, accountType },
@@ -293,6 +299,7 @@ const accountGetAccountBalances = () => (dispatch, getState) => {
           if (accountLocal[network].balances) {
             cachedAccount = {
               ...cachedAccount,
+              type: accountType,
               assets: accountLocal[network].balances.assets,
               total: accountLocal[network].balances.total,
             };

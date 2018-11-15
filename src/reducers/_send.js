@@ -199,6 +199,7 @@ export const sendTransaction = (transactionDetails, signAndSendTransactionCb) =>
     gasLimit,
   } = transactionDetails;
   const { accountType } = getState().account;
+  console.log('SEND TXN ACCOUNT TYPE', accountType);
   const txDetails = {
     asset: asset,
     from: address,

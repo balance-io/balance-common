@@ -166,7 +166,6 @@ export const accountUpdateAccountAddress = (accountAddress, accountType) => (
   getState,
 ) => {
   if (!accountAddress || !accountType) return;
-  console.log('ACCOUNT UPDATE ACCT ADDR', accountAddress, accountType);
   const { network } = getState().account;
   if (getState().account.accountType !== accountType)
     dispatch(accountClearState());
@@ -308,7 +307,6 @@ const accountGetAccountBalances = () => (dispatch, getState) => {
           if (accountLocal[network].type && !cachedAccount.type) {
               cachedAccount.type = accountLocal[network].type;
             }
-          console.log('ACCT GET BALANCES REQUEST', cachedAccount.type, accountType);
           dispatch({
             type: ACCOUNT_GET_ACCOUNT_BALANCES_REQUEST,
             payload: {

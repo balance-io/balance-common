@@ -300,6 +300,7 @@ const accountGetAccountBalances = () => (dispatch, getState) => {
           if (accountLocal[network].balances) {
             cachedAccount = {
               ...cachedAccount,
+              type: accountType,
               assets: accountLocal[network].balances.assets,
               total: accountLocal[network].balances.total,
             };
@@ -307,6 +308,7 @@ const accountGetAccountBalances = () => (dispatch, getState) => {
           if (accountLocal[network].type && !cachedAccount.type) {
               cachedAccount.type = accountLocal[network].type;
             }
+          console.log('ACCT GET BALANCES REQUEST', cachedAccount.type, accountType);
           dispatch({
             type: ACCOUNT_GET_ACCOUNT_BALANCES_REQUEST,
             payload: {

@@ -75,6 +75,7 @@ import {
   parseError,
   parseGasPrices,
   toChecksumAddress,
+  web3Instance,
 } from './handlers';
 import * as commonStorage from './handlers/commonStorage';
 export {
@@ -144,5 +145,6 @@ export {
   subtract,
   toChecksumAddress,
   transactionData,
+  web3Instance,
   withSendComponentWithData,
 };

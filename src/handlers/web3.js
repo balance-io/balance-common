@@ -158,14 +158,14 @@ export const getTxDetails = async ({
   const nonce = await getTransactionCount(from);
   console.log('NONCE', nonce);
   const tx = {
-    from: from,
-    to: to,
-    nonce: web3Instance.utils.toHex(nonce),
-    gasPrice: web3Instance.utils.toHex(_gasPrice),
-    gasLimit: web3Instance.utils.toHex(_gasLimit),
+    data,
+    from,
     gas: web3Instance.utils.toHex(_gasLimit),
+    gasLimit: web3Instance.utils.toHex(_gasLimit),
+    gasPrice: web3Instance.utils.toHex(_gasPrice),
+    nonce: web3Instance.utils.toHex(nonce),
+    to,
     value: web3Instance.utils.toHex(value),
-    data: data,
   };
   return tx;
 };

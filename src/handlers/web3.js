@@ -156,7 +156,6 @@ export const getTxDetails = async ({
   const _gasLimit =
     gasLimit || (await web3Instance.eth.estimateGas(estimateGasData));
   const nonce = await getTransactionCount(from);
-  console.log('NONCE', nonce);
   const tx = {
     data,
     from,

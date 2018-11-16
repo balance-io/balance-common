@@ -1,5 +1,12 @@
-import { estimateGasLimit, toChecksumAddress } from './web3';
-import { parseError, parseGasPrices } from './parsers';
+import {
+  estimateGasLimit,
+  getTransactionCount,
+  toChecksumAddress
+} from './web3';
+import {
+  parseError,
+  parseGasPrices
+} from './parsers';
 import {
   apiGetGasPrices,
   apiGetSinglePrice,
@@ -8,6 +15,7 @@ export {
   apiGetGasPrices,
   apiGetSinglePrice,
   estimateGasLimit,
+  getTransactionCount,
   parseError,
   parseGasPrices,
   toChecksumAddress,

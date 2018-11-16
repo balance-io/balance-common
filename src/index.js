@@ -71,9 +71,11 @@ import {
   apiGetGasPrices,
   apiGetSinglePrice,
   estimateGasLimit,
+  getTransactionCount,
   parseError,
   parseGasPrices,
   toChecksumAddress,
+  web3Instance,
 } from './handlers';
 import * as commonStorage from './handlers/commonStorage';
 export {
@@ -113,6 +115,7 @@ export {
   getDerivationPathComponents,
   getEth,
   getLocalTimeDate,
+  getTransactionCount,
   greaterThan,
   greaterThanOrEqual,
   handleSignificantDecimals,
@@ -142,5 +145,6 @@ export {
   subtract,
   toChecksumAddress,
   transactionData,
+  web3Instance,
   withSendComponentWithData,
 };

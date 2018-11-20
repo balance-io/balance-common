@@ -100,7 +100,6 @@ const ACCOUNT_CHANGE_LANGUAGE_FAILURE = 'account/ACCOUNT_CHANGE_LANGUAGE_FAILURE
 
 // -- Actions --------------------------------------------------------------- //
 let getAccountTransactionsInterval = null;
-let getAccountBalancesInterval = null;
 
 export const accountUpdateHasPendingTransaction = (
   hasPending = true,
@@ -241,7 +240,6 @@ const accountUpdatePrices = (nativeCurrency, prices) => (dispatch, getState) => 
 
 export const accountClearState = () => dispatch => {
   clearInterval(getAccountTransactionsInterval);
-  clearInterval(getAccountBalancesInterval);
   dispatch({ type: ACCOUNT_CLEAR_STATE });
 };
 
@@ -344,8 +342,6 @@ const accountUpdateBalances = () => (dispatch, getState) => {
       });
   };
   getAccountBalances();
-  clearInterval(getAccountBalancesInterval);
-  getAccountBalancesInterval = setInterval(getAccountBalances, 15000); // 15secs
 };
 
 const accountGetTransactions = (accountAddress, network, lastTxHash, page) => (dispatch, getState) => {

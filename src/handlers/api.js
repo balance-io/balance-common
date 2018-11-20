@@ -48,7 +48,7 @@ export const apiGetPrices = (assets = []) => {
     '',
   );
   return cryptocompare.get(
-    `/pricemultifull?fsyms=${assetsQuery}&tsyms=${nativeQuery}&apiKey=${REACT_APP_CRYPTOCOMPARE_API_KEY}`,
+    `/pricemultifull?fsyms=${assetsQuery}&tsyms=${nativeQuery}`,
   );
 };
 

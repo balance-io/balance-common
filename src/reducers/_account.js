@@ -239,6 +239,7 @@ const accountUpdatePrices = (nativeCurrency, prices) => (dispatch, getState) => 
 };
 
 export const accountClearState = () => dispatch => {
+  clearInterval(getAccountBalancesInterval);
   clearInterval(getAccountTransactionsInterval);
   dispatch({ type: ACCOUNT_CLEAR_STATE });
 };
@@ -342,6 +343,8 @@ const accountUpdateBalances = () => (dispatch, getState) => {
       });
   };
   getAccountBalances();
+  clearInterval(getAccountBalancesInterval);
+  getAccountBalancesInterval = setInterval(getAccountBalances, 15000); // 15 secs
 };
 
 const accountGetTransactions = (accountAddress, network, lastTxHash, page) => (dispatch, getState) => {

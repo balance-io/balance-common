@@ -197,7 +197,7 @@ export const parsePricesObject = (
     prices[nativeCurrency] = {};
     assets.forEach(asset => {
       let assetPrice = null;
-      if (data.RAW[asset]) {
+      if (data.RAW && data.RAW[asset]) {
         assetPrice = {
           price: {
             amount: convertAmountToBigNumber(

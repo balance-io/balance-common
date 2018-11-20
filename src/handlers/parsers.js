@@ -1,5 +1,5 @@
 import lang from '../languages';
-import { get } from 'lodash';
+import { get, pick } from 'lodash';
 import {
   add,
   convertAmountFromBigNumber,
@@ -359,19 +359,41 @@ export const parseAccountBalancesPrices = (
  * @return {Array}
  */
 export const parseAccountUniqueTokens = data =>
-  get(data, 'data.assets', []).map(asset => ({
-    background: asset.background_color ? `#${asset.background_color}` : null,
-    contractAddress: asset.asset_contract.address,
-    contractName: asset.asset_contract.name,
-    id: asset.token_id,
-    imageOriginalUrl: asset.image_original_url,
-    imagePreviewUrl: asset.image_preview_url,
-    imageThumbnailUrl: asset.image_thumbnail_url,
-    imageUrl: asset.image_url,
+  get(data, 'data.assets', []).map(({ asset_contract, background_color, token_id, ...asset }) => ({
+    ...pick(asset, [
+      'animation_url',
+      'current_price',
+      'description',
+      'external_link',
+      'image_original_url',
+      'image_preview_url',
+      'image_thumbnail_url',
+      'image_url',
+      'name',
+      'permalink',
+      'traits',
+    ]),
+    asset_contract: pick(asset_contract, [
+      'address',
+      'description',
+      'external_link',
+      'featured_image_url',
+      'hidden',
+      'image_url',
+      'name',
+      'nft_version',
+      'schema_name',
+      'short_description',
+      'symbol',
+      'total_supply',
+      'wiki_link',
+    ]),
+    background: background_color ? `#${background_color}` : null,
+    id: token_id,
     lastPrice:
-      asset.last_sale &&
-      Number(convertAmountFromBigNumber(asset.last_sale.total_price)),
-    name: asset.name,
+      asset.last_sale
+      ? Number(convertAmountFromBigNumber(asset.last_sale.total_price))
+      : null,
   }));
 
 const ethFeeAsset = {
@@ -446,7 +468,7 @@ export const parseHistoricalNativePrice = async transaction => {
       };
       const feePriceDisplay = convertAmountToDisplay(feePriceAmount, prices);
       prices[nativeCurrency]['ETH'].price.display = feePriceDisplay;
-      
+
       const txFeePriceAmount = convertAssetAmountToNativeValue(
         tx.txFee.amount,
         ethFeeAsset,

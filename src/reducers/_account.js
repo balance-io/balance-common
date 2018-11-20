@@ -113,25 +113,25 @@ export const accountUpdateHasPendingTransaction = (
 
 export const accountInitializeState = () => dispatch => {
   getLanguage().then(language => {
-    dispatch({ 
+    dispatch({
       type: ACCOUNT_CHANGE_LANGUAGE_SUCCESS,
       payload: { language }
     });
   }).catch(error => {
-    dispatch({ 
+    dispatch({
       type: ACCOUNT_CHANGE_LANGUAGE_FAILURE
     });
   });
   getNativeCurrency().then(nativeCurrency => {
-    dispatch({ 
+    dispatch({
       type: ACCOUNT_INITIALIZE_PRICES_SUCCESS,
       payload: { nativeCurrency }
     });
   }).catch(error => {
-    dispatch({ 
+    dispatch({
       type: ACCOUNT_INITIALIZE_PRICES_FAILURE
     });
-  
+
   });
 };
 
@@ -384,7 +384,7 @@ const accountGetTransactionsPages = ({
         updatedPendingTransactions = _.filter(pendingTransactions, (pendingTxn) => {
           const matchingElement = _.find(transactionsForPage, (txn) => txn.hash && txn.hash.startsWith(pendingTxn.hash));
           return !matchingElement;
-        }); 
+        });
       }
       const address = getState().account.accountAddress;
       let _newPages = newTransactions.concat(transactionsForPage);
@@ -495,7 +495,6 @@ const accountGetUniqueTokens = () => (dispatch, getState) => {
   .catch(error => {
     dispatch({ type: ACCOUNT_GET_ACCOUNT_UNIQUE_TOKENS_FAILURE });
   });
-
 };
 
 
@@ -521,7 +520,7 @@ export const INITIAL_ACCOUNT_STATE = {
     ],
     total: null,
   },
-  fetching: false,
+  fetching: null,
   fetchingTransactions: false,
   fetchingUniqueTokens: false,
   hasPendingTransaction: false,

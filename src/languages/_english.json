@@ -245,7 +245,7 @@
         "please_enable_body": "It looks like you are using WalletConnect. Please enable push notifications to be notified of transaction requests from WalletConnect."
       },
       "assets": {
-        "no_price": "assets with no price data"
+        "no_price": "small balances"
       },
       "intro": {
         "create_wallet": "Create a Wallet",

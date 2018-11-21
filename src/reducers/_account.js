@@ -100,6 +100,7 @@ const ACCOUNT_CHANGE_LANGUAGE_FAILURE = 'account/ACCOUNT_CHANGE_LANGUAGE_FAILURE
 
 // -- Actions --------------------------------------------------------------- //
 let getAccountTransactionsInterval = null;
+let getAccountBalancesInterval = null;
 
 export const accountUpdateHasPendingTransaction = (
   hasPending = true,

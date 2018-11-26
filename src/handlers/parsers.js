@@ -654,9 +654,13 @@ export const parseTransaction = async tx => {
           pending: false,
           asset,
         };
-        const name = !transferData.contract.name.startsWith('0x')
-          ? transferData.contract.name
-          : transferData.contract.symbol || 'Unknown Token';
+        const contractEnabled = get(transferData, 'contract.enabled', false);
+        const contractName = get(transferData, 'contract.name', null);
+        const name = (contractEnabled &&
+                      contractName &&
+                      !contractName.startsWith('0x'))
+          ? contractName
+          : get(transferData, 'contract.symbol', 'Unknown Token');
         transferTx.asset = {
           name: name,
           symbol: transferData.contract.symbol || '———',

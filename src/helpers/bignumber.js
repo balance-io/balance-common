@@ -314,6 +314,18 @@ export const convertAssetAmountFromBigNumber = (value, decimals) => {
  */
 export const convertAssetAmountToNativeValue = (value, asset, nativePrices) => {
   const nativeSelected = nativePrices.selected.currency;
+  return convertAssetAmountToSpecifiedNativeValue(value, asset, nativePrices, nativeSelected);
+};
+
+/**
+ * @desc convert from asset amount units to native price value units
+ * @param  {String}   value
+ * @param  {Object}   asset
+ * @param  {Object}   nativePrices
+ * @param  {String}   nativeSelected
+ * @return {String}
+ */
+export const convertAssetAmountToSpecifiedNativeValue = (value, asset, nativePrices, nativeSelected = 'USD') => {
   const assetPriceUnit = convertAmountFromBigNumber(
     nativePrices[nativeSelected][asset.symbol].price.amount,
   );

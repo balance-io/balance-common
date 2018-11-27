@@ -7,6 +7,7 @@ import {
   convertAmountToBigNumber,
   convertAssetAmountFromNativeValue,
   convertAssetAmountToNativeValue,
+  convertAssetAmountToSpecifiedNativeValue,
   convertStringToNumber,
   formatInputDecimals,
   greaterThan,
@@ -199,6 +200,7 @@ export const sendTransaction = (transactionDetails, signAndSendTransactionCb) =>
     gasLimit,
   } = transactionDetails;
   const { accountType } = getState().account;
+  const { selected, trackingAmount } = getState().send;
   const txDetails = {
     asset: asset,
     from: address,
@@ -210,7 +212,15 @@ export const sendTransaction = (transactionDetails, signAndSendTransactionCb) =>
   };
   return createSignableTransaction(txDetails)
     .then(signableTransactionDetails => {
-      signAndSendTransactionCb(signableTransactionDetails, accountType)
+      const symbol = get(selected, 'symbol', 'unknown');
+      const address = get(selected, 'address', '');
+      const trackingName = `${symbol}:${address}`;
+      signAndSendTransactionCb({
+        accountType,
+        trackingAmount: parseFloat(trackingAmount),
+        trackingName,
+        transaction: signableTransactionDetails,
+      })
       .then((txHash) => {
         // has pending transactions set to true for redirect to Transactions route
         if (txHash) {
@@ -265,6 +275,7 @@ export const sendUpdateAssetAmount = assetAmount => (dispatch, getState) => {
   const { gasPrice, selected } = getState().send;
   const _assetAmount = assetAmount.replace(/[^0-9.]/g, '');
   let _nativeAmount = '';
+  let _trackingAmount = '';
   if (_assetAmount.length && prices[nativeCurrency][selected.symbol]) {
     const nativeAmount = convertAssetAmountToNativeValue(
       _assetAmount,
@@ -272,6 +283,15 @@ export const sendUpdateAssetAmount = assetAmount => (dispatch, getState) => {
       prices,
     );
     _nativeAmount = formatInputDecimals(nativeAmount, _assetAmount);
+    _trackingAmount = _nativeAmount;
+    if (nativeCurrency !== 'USD') {
+      const trackingAmount = convertAssetAmountToSpecifiedNativeValue(
+        _assetAmount,
+        selected,
+        prices,
+      );
+      _trackingAmount = formatInputDecimals(trackingAmount, _assetAmount);
+    }
   }
 
   const balanceAmount = getBalanceAmount(accountInfo, gasPrice, selected);
@@ -280,6 +300,7 @@ export const sendUpdateAssetAmount = assetAmount => (dispatch, getState) => {
     payload: {
       assetAmount: _assetAmount,
       nativeAmount: _nativeAmount,
+      trackingAmount: _trackingAmount,
       isSufficientBalance: Number(_assetAmount) <= Number(balanceAmount),
     },
   });
@@ -290,6 +311,7 @@ export const sendUpdateNativeAmount = nativeAmount => (dispatch, getState) => {
   const { gasPrice, selected } = getState().send;
   const _nativeAmount = nativeAmount.replace(/[^0-9.]/g, '');
   let _assetAmount = '';
+  let _trackingAmount = '';
   if (_nativeAmount.length && prices[nativeCurrency][selected.symbol]) {
     const assetAmount = convertAssetAmountFromNativeValue(
       _nativeAmount,
@@ -297,6 +319,16 @@ export const sendUpdateNativeAmount = nativeAmount => (dispatch, getState) => {
       prices,
     );
     _assetAmount = formatInputDecimals(assetAmount, _nativeAmount);
+
+    _trackingAmount = _nativeAmount;
+    if (nativeCurrency !== 'USD') {
+      const trackingAmount = convertAssetAmountToSpecifiedNativeValue(
+        _assetAmount,
+        selected,
+        prices,
+      );
+      _trackingAmount = formatInputDecimals(trackingAmount, _assetAmount);
+    }
   }
 
   const balanceAmount = getBalanceAmount(accountInfo, gasPrice, selected);
@@ -305,6 +337,7 @@ export const sendUpdateNativeAmount = nativeAmount => (dispatch, getState) => {
     type: SEND_UPDATE_ASSET_AMOUNT,
     payload: {
       assetAmount: _assetAmount,
+      trackingAmount: _trackingAmount,
       nativeAmount: _nativeAmount,
       isSufficientBalance: Number(_assetAmount) <= Number(balanceAmount),
     },
@@ -348,6 +381,7 @@ const INITIAL_STATE = {
   address: '',
   recipient: '',
   nativeAmount: '',
+  trackingAmount: '',
   assetAmount: '',
   txHash: '',
   confirm: false,
@@ -434,6 +468,7 @@ export default (state = INITIAL_STATE, action) => {
         ...state,
         assetAmount: action.payload.assetAmount,
         nativeAmount: action.payload.nativeAmount,
+        trackingAmount: action.payload.trackingAmount,
         isSufficientBalance: action.payload.isSufficientBalance,
       };
     case SEND_UPDATE_SELECTED:

@@ -217,7 +217,7 @@ export const sendTransaction = (transactionDetails, signAndSendTransactionCb) =>
       const trackingName = `${symbol}:${address}`;
       signAndSendTransactionCb({
         accountType,
-        trackingAmount,
+        trackingAmount: parseFloat(trackingAmount),
         trackingName,
         transaction: signableTransactionDetails,
       })

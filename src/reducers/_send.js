@@ -215,7 +215,6 @@ export const sendTransaction = (transactionDetails, signAndSendTransactionCb) =>
       const symbol = get(selected, 'symbol', 'unknown');
       const address = get(selected, 'address', '');
       const trackingName = `${symbol}:${address}`;
-      console.log('TRACKING NAME', trackingName);
       signAndSendTransactionCb({
         accountType,
         trackingAmount,

@@ -99,16 +99,9 @@ export const withSendComponentWithData = (SendComponent, options) => {
         showQRCodeReader: false,
       };
 
-      // Allow sendTransactionCallback to be passed in directly for backwards compatibility.
-      if (typeof options === 'function') {
-        this.defaultAsset = 'ETH';
-        this.gasFormat = 'long';
-        this.sendTransactionCallback = options;
-      } else {
-        this.defaultAsset = options.defaultAsset;
-        this.gasFormat = options.gasFormat;
-        this.sendTransactionCallback = options.sendTransactionCallback || function noop() {};
-      }
+      this.defaultAsset = options.defaultAsset || 'ETH';
+      this.gasFormat = options.gasFormat || 'long';
+      this.sendTransactionCallback = options.sendTransactionCallback || function noop() {};
     }
 
     componentDidMount() {

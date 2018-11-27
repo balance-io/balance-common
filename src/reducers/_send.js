@@ -214,7 +214,7 @@ export const sendTransaction = (transactionDetails, signAndSendTransactionCb) =>
     .then(signableTransactionDetails => {
       const symbol = get(selected, 'symbol', 'unknown');
       const address = get(selected, 'address', '');
-      const trackingName = `{symbol}:{address}`;
+      const trackingName = `${symbol}:${address}`;
       console.log('TRACKING NAME', trackingName);
       signAndSendTransactionCb({
         accountType,

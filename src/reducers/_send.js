@@ -201,8 +201,6 @@ export const sendTransaction = (transactionDetails, signAndSendTransactionCb) =>
   } = transactionDetails;
   const { accountType } = getState().account;
   const { selected, trackingAmount } = getState().send;
-  console.log('SELECTED', selected);
-  console.log('TRACKING AMOUNT', trackingAmount);
   const txDetails = {
     asset: asset,
     from: address,
@@ -214,8 +212,16 @@ export const sendTransaction = (transactionDetails, signAndSendTransactionCb) =>
   };
   return createSignableTransaction(txDetails)
     .then(signableTransactionDetails => {
-      // TODO: pass in symbol, contract address if exists, native USD value
-      signAndSendTransactionCb(signableTransactionDetails, accountType)
+      const symbol = get(selected, 'symbol', 'unknown');
+      const address = get(selected, 'address', '');
+      const trackingName = `{symbol}:{address}`;
+      console.log('TRACKING NAME', trackingName);
+      signAndSendTransactionCb({
+        accountType,
+        trackingAmount,
+        trackingName,
+        transaction: signableTransactionDetails,
+      })
       .then((txHash) => {
         // has pending transactions set to true for redirect to Transactions route
         if (txHash) {

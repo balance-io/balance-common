@@ -199,7 +199,8 @@ export const sendTransaction = (transactionDetails, signAndSendTransactionCb) =>
     gasPrice,
     gasLimit,
   } = transactionDetails;
-  const { accountType, selected, trackingAmount } = getState().account;
+  const { accountType } = getState().account;
+  const { selected, trackingAmount } = getState().send;
   console.log('SELECTED', selected);
   console.log('TRACKING AMOUNT', trackingAmount);
   const txDetails = {

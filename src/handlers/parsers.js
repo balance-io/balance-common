@@ -343,9 +343,11 @@ export const parseAccountBalancesPrices = (
         add(total, asset.native ? asset.native.balance.amount : 0),
       0,
     );
+    console.log('>>>>>>>>>>> TOTAL AMOUNT', totalAmount);
     const totalDisplay = convertAmountToDisplay(totalAmount, nativePrices);
-    // TODO: totalTrackingAmount
-    const total = { amount: totalAmount, display: totalDisplay };
+    const totalTrackingAmount = convertAmountToUnformattedDisplay(totalAmount, nativePrices);
+    // TODO: totalTrackingAmountUSD
+    const total = { amount: totalAmount, display: totalDisplay, totalTrackingAmount };
     newAccount = {
       ...newAccount,
       assets: newAssets,

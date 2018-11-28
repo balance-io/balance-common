@@ -198,6 +198,25 @@ export const handleSignificantDecimals = (value, decimals, buffer) => {
 };
 
 /**
+ * @desc convert from amount value to unformatted display
+ * @param  {BigNumber}  value
+ * @param  {Object}     nativePrices
+ * @param  {Object}     asset
+ * @param  {Number}     buffer
+ * @return {String}
+ */
+export const convertAmountToUnformattedDisplay = (value, nativePrices) => {
+  value = convertAmountFromBigNumber(value);
+  console.log('CONVERTED TOTAL AMOUNT FROM BIG NUMBER', value);
+  if (nativePrices) {
+    const decimals = nativePrices.selected.decimals;
+    const display = handleSignificantDecimals(value, decimals);
+    console.log('DISPLAY UNFORMATTED', display);
+  }
+  return value;
+};
+
+/**
  * @desc convert from amount value to display formatted string
  * @param  {BigNumber}  value
  * @param  {Object}     nativePrices

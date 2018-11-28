@@ -337,12 +337,14 @@ export const parseAccountBalancesPrices = (
         },
       };
     });
+    console.log('NEW ASSETS', newAssets);
     totalAmount = newAssets.reduce(
       (total, asset) =>
         add(total, asset.native ? asset.native.balance.amount : 0),
       0,
     );
     const totalDisplay = convertAmountToDisplay(totalAmount, nativePrices);
+    // TODO: totalTrackingAmount
     const total = { amount: totalAmount, display: totalDisplay };
     newAccount = {
       ...newAccount,

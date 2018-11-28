@@ -173,6 +173,20 @@ export const convertAmountFromBigNumber = value =>
  * @return {String}
  */
 export const handleSignificantDecimals = (value, decimals, buffer) => {
+  const result = significantDecimals(value, decimals, buffer);
+  return BigNumber(`${result}`).dp() <= 2
+    ? BigNumber(`${result}`).toFormat(2)
+    : BigNumber(`${result}`).toFormat();
+};
+
+/**
+ * @desc handle signficant decimals
+ * @param  {String}   value
+ * @param  {Number}   decimals
+ * @param  {Number}   buffer
+ * @return {String}
+ */
+export const significantDecimals = (value, decimals, buffer) => {
   if (
     !BigNumber(`${decimals}`).isInteger() ||
     (buffer && !BigNumber(`${buffer}`).isInteger())
@@ -192,9 +206,24 @@ export const handleSignificantDecimals = (value, decimals, buffer) => {
   }
   let result = BigNumber(`${value}`).toFixed(decimals);
   result = BigNumber(`${result}`).toString();
-  return BigNumber(`${result}`).dp() <= 2
-    ? BigNumber(`${result}`).toFormat(2)
-    : BigNumber(`${result}`).toFormat();
+  return result;
+};
+
+/**
+ * @desc convert from amount value to unformatted display
+ * @param  {BigNumber}  value
+ * @param  {Object}     nativePrices
+ * @param  {Object}     asset
+ * @param  {Number}     buffer
+ * @return {String}
+ */
+export const convertAmountToUnformattedDisplay = (value, nativePrices) => {
+  value = convertAmountFromBigNumber(value);
+  if (nativePrices) {
+    const decimals = nativePrices.selected.decimals;
+    return significantDecimals(value, decimals);
+  }
+  return value;
 };
 
 /**

@@ -301,7 +301,7 @@ export const parseAccountBalancesPrices = (
   let newAccount = {
     ...account,
   };
-  // TODO: tracking selected
+  // TODO: USD tracking selected
   let nativeSelected = nativePrices.selected.currency;
   //if (account && nativePrices && nativePrices.selected) {
   if (account) {
@@ -339,16 +339,13 @@ export const parseAccountBalancesPrices = (
         },
       };
     });
-    console.log('NEW ASSETS', newAssets);
     totalAmount = newAssets.reduce(
       (total, asset) =>
         add(total, asset.native ? asset.native.balance.amount : 0),
       0,
     );
-    console.log('>>>>>>>>>>> TOTAL AMOUNT', totalAmount);
     const totalDisplay = convertAmountToDisplay(totalAmount, nativePrices);
     const totalTrackingAmount = convertAmountToUnformattedDisplay(totalAmount, nativePrices);
-    // TODO: totalTrackingAmountUSD
     const total = { amount: totalAmount, display: totalDisplay, totalTrackingAmount };
     newAccount = {
       ...newAccount,

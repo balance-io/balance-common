@@ -221,9 +221,7 @@ export const convertAmountToUnformattedDisplay = (value, nativePrices) => {
   value = convertAmountFromBigNumber(value);
   if (nativePrices) {
     const decimals = nativePrices.selected.decimals;
-    const display = significantDecimals(value, decimals);
-    console.log('UNFORMATTED', display);
-    return display;
+    return significantDecimals(value, decimals);
   }
   return value;
 };

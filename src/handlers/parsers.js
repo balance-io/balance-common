@@ -6,6 +6,7 @@ import {
   convertAmountToBigNumber,
   convertAmountToDisplay,
   convertAmountToDisplaySpecific,
+  convertAmountToUnformattedDisplay,
   convertAssetAmountToBigNumber,
   convertAssetAmountToNativeAmount,
   convertAssetAmountToNativeValue,
@@ -300,6 +301,7 @@ export const parseAccountBalancesPrices = (
   let newAccount = {
     ...account,
   };
+  // TODO: USD tracking selected
   let nativeSelected = nativePrices.selected.currency;
   //if (account && nativePrices && nativePrices.selected) {
   if (account) {
@@ -343,7 +345,8 @@ export const parseAccountBalancesPrices = (
       0,
     );
     const totalDisplay = convertAmountToDisplay(totalAmount, nativePrices);
-    const total = { amount: totalAmount, display: totalDisplay };
+    const totalTrackingAmount = convertAmountToUnformattedDisplay(totalAmount, nativePrices);
+    const total = { amount: totalAmount, display: totalDisplay, totalTrackingAmount };
     newAccount = {
       ...newAccount,
       assets: newAssets,

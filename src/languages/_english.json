@@ -274,7 +274,8 @@
       "message_signing": {
         "message": "Message",
         "request": "Message Signing Request",
-        "sign": "Sign Message"
+        "sign": "Sign Message",
+        "failed_signing": "Failed to sign message"
       },
       "transaction": {
         "alert": {

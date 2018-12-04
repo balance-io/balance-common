@@ -13,6 +13,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/)
 
 ### Removed
 
+## [0.6.2](https://github.com/balance-io/balance-common/releases/tag/0.6.2)
+### Added
+* English text for message signing
+
 ## [0.6.1](https://github.com/balance-io/balance-common/releases/tag/0.6.1)
 ### Added
 * Support for total balances in USD for Piwik

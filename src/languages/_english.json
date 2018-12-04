@@ -271,6 +271,12 @@
         "hide_seed_phrase": "Hide Seed Phrase",
         "show_seed_phrase": "Show Seed Phrase"
       },
+      "message_signing": {
+        "message": "Message",
+        "request": "Message Signing Request",
+        "sign": "Sign Message",
+        "failed_signing": "Failed to sign message"
+      },
       "transaction": {
         "alert": {
           "authentication": "Authentication Failed",

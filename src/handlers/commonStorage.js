@@ -258,6 +258,19 @@ export const removeWalletConnectSession = async (sessionId) => {
 };
 
 /**
+ * @desc remove wallet connect sessions
+ * @param  {String}   [sessionId]
+ */
+export const removeWalletConnectSessions = async (sessionIds) => {
+  const allSessions = await getAllWalletConnectSessions();
+  const resultingSessions = omit(allSessions, sessionIds);
+  await saveLocal('walletconnect',
+    resultingSessions,
+    walletConnectVersion);
+  return session;
+};
+
+/**
  * @desc get language
  * @return {Object}
  */

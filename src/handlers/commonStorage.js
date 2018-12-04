@@ -267,7 +267,6 @@ export const removeWalletConnectSessions = async (sessionIds) => {
   await saveLocal('walletconnect',
     resultingSessions,
     walletConnectVersion);
-  return session;
 };
 
 /**

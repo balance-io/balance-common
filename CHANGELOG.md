@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/)
 ## [Unreleased]
 
 ### Added
+* Fetch API prices with existing assets even if fetching new assets fails
 
 ### Changed
 

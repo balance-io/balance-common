@@ -8,11 +8,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/)
 ## [Unreleased]
 
 ### Added
-* Fetch API prices with existing assets even if fetching new assets fails
 
 ### Changed
 
 ### Removed
+
+## [0.6.4](https://github.com/balance-io/balance-common/releases/tag/0.6.4)
+### Added
+* Fetch API prices with existing assets even if fetching new assets fails
 
 ## [0.6.3](https://github.com/balance-io/balance-common/releases/tag/0.6.3)
 ### Added

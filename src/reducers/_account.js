@@ -338,6 +338,9 @@ const accountUpdateBalances = () => (dispatch, getState) => {
         dispatch(accountGetNativePrices(accountInfo));
       })
       .catch(error => {
+        // Fetch prices with existing balance info even when balance API fails
+        const { accountInfo } = getState().account;
+        dispatch(accountGetNativePrices(accountInfo));
         const message = parseError(error);
         dispatch(notificationShow(message, true));
         dispatch({ type: ACCOUNT_UPDATE_BALANCES_FAILURE });

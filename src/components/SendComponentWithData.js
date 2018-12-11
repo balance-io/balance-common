@@ -99,7 +99,7 @@ export const withSendComponentWithData = (SendComponent, options) => {
         showQRCodeReader: false,
       };
 
-      this.defaultAsset = options.defaultAsset || 'ETH';
+      this.defaultAsset = options.defaultAsset;
       this.gasFormat = options.gasFormat || 'long';
       this.sendTransactionCallback = options.sendTransactionCallback || function noop() {};
     }

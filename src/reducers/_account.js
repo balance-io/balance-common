@@ -170,7 +170,7 @@ export const accountUpdateAccountAddress = (accountAddress, accountType) => (
   if (getState().account.accountType !== accountType)
     dispatch(accountClearState());
   if (getState().account.accountType === accountType &&
-       getState().account.accountAddress !== accountAddress) {
+       getState().account.accountAddress.toLowerCase() !== accountAddress.toLowerCase()) {
     resetAccount(getState().account.accountAddress);
     dispatch(accountClearState());
   }

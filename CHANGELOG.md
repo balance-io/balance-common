@@ -13,6 +13,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/)
 
 ### Removed
 
+## [0.6.5](https://github.com/balance-io/balance-common/releases/tag/0.6.5)
+### Changed
+* Logic fix for clearing account redux
+
 ## [0.6.4](https://github.com/balance-io/balance-common/releases/tag/0.6.4)
 ### Added
 * Fetch API prices with existing assets even if fetching new assets fails

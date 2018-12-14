@@ -95,13 +95,16 @@ export const sendModalInit = (options = {}) => (dispatch, getState) => {
 
   apiGetGasPrices()
     .then(({ data }) => {
+      console.log('SUCCESS got api gas prices');
       const gasPrices = parseGasPrices(data, prices, gasLimit, options.gasFormat === 'short');
+      console.log('PARSED api gas prices');
       dispatch({
         type: SEND_GET_GAS_PRICES_SUCCESS,
         payload: gasPrices,
       });
     })
     .catch(error => {
+      console.log('ERROR getting gas prices');
       console.error(error);
 
       dispatch({
@@ -347,19 +350,30 @@ export const sendUpdateNativeAmount = nativeAmount => (dispatch, getState) => {
   });
 };
 
-export const sendUpdateSelected = value => (dispatch, getState) => {
-  const state = getState();
-  const assetAmount = get(state, 'send.assetAmount', 0);
-  const assets = get(state, 'account.accountInfo.assets', []);
-  const nativeCurrency = get(state, 'account.nativeCurrency', '');
-  const prices = get(state, 'account.prices', {});
-  const selected = assets.filter(asset => asset.symbol === value)[0] || {};
+export const sendUpdateSelected = (value, isNft=false) => (dispatch, getState) => {
+  if (isNft) {
+    const state = getState();
+    const uniqueTokens = get(state, 'account.uniqueTokens', []);
+    console.log('ALL UNIQUE TOKENS', uniqueTokens);
+    //const selected = uniqueTokens.filter(token => token.symbol === value)[0] || {};
 
-  dispatch({ type: SEND_UPDATE_SELECTED, payload: selected });
-  dispatch(sendUpdateGasPrice());
+    dispatch({ type: SEND_UPDATE_SELECTED, payload: { ...value, isNft: true } });
+    dispatch(sendUpdateGasPrice());
 
-  if (prices[nativeCurrency] && prices[nativeCurrency][selected.symbol]) {
-    dispatch(sendUpdateAssetAmount(assetAmount));
+  } else {
+    const state = getState();
+    const assetAmount = get(state, 'send.assetAmount', 0);
+    const assets = get(state, 'account.accountInfo.assets', []);
+    const nativeCurrency = get(state, 'account.nativeCurrency', '');
+    const prices = get(state, 'account.prices', {});
+    const selected = assets.filter(asset => asset.symbol === value)[0] || {};
+
+    dispatch({ type: SEND_UPDATE_SELECTED, payload: selected });
+    dispatch(sendUpdateGasPrice());
+
+    if (prices[nativeCurrency] && prices[nativeCurrency][selected.symbol]) {
+      dispatch(sendUpdateAssetAmount(assetAmount));
+    }
   }
 };
 

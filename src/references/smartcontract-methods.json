@@ -6,5 +6,9 @@
   "token_balance": {
     "method": "balanceOf(address)",
     "hash": "0x70a08231"
+  },
+  "nft_safe_transfer": {
+    "method": "safeTransferFrom(address,address,uint256)",
+    "hash": "0x42842e0e"
   }
 }

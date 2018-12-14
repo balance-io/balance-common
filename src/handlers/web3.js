@@ -1,3 +1,4 @@
+import { get } from 'lodash';
 import Web3 from 'web3';
 import { isValidAddress } from '../helpers/validators';
 import { getDataString, removeHexPrefix } from '../helpers/utilities';
@@ -170,6 +171,26 @@ export const getTxDetails = async ({
 };
 
 /**
+ * @desc get safe transfer nft transaction
+ * @param  {Object}  transaction { asset, from, to, gasPrice }
+ * @return {Object}
+ */
+export const getTransferNftTransaction = transaction => {
+  const transferMethodHash = smartContractMethods.nft_safe_transfer.hash;
+  const recipient = removeHexPrefix(transaction.to);
+  const from = removeHexPrefix(transaction.from);
+  const tokenId = asset.tokenId;
+  const dataString = getDataString(transferMethodHash, [from, recipient, tokenId]);
+  return {
+    from: transaction.from,
+    to: transaction.asset.address,
+    data: dataString,
+    gasPrice: transaction.gasPrice,
+    gasLimit: transaction.gasLimit,
+  };
+};
+
+/**
  * @desc get transfer token transaction
  * @param  {Object}  transaction { asset, from, to, amount, gasPrice }
  * @return {Object}
@@ -199,7 +220,9 @@ export const createSignableTransaction = (transaction) =>
   new Promise((resolve, reject) => {
     transaction.value = transaction.amount;
     if (transaction.asset.symbol !== 'ETH') {
-      transaction = getTransferTokenTransaction(transaction);
+      const isNft = get(transaction, 'asset.nft', false);
+      transaction = isNft ? getTransferNftTransaction(transaction) :
+        getTransferTokenTransaction(transaction);
     }
     const from =
       transaction.from.substr(0, 2) === '0x'

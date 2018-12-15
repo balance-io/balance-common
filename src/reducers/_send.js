@@ -357,7 +357,7 @@ export const sendUpdateSelected = (value, isNft=false) => (dispatch, getState) =
     console.log('ALL UNIQUE TOKENS', uniqueTokens);
     //const selected = uniqueTokens.filter(token => token.symbol === value)[0] || {};
 
-    dispatch({ type: SEND_UPDATE_SELECTED, payload: { ...value, isNft: true } });
+    dispatch({ type: SEND_UPDATE_SELECTED, payload: { ...value, symbol: value.asset_contract.name, isNft: true } });
     dispatch(sendUpdateGasPrice());
 
   } else {

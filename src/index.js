@@ -1,5 +1,6 @@
 import "@babel/polyfill";
-import lang, { resources } from './languages';
+import supportedNativeCurrencies from './references/native-currencies.json';
+import lang, { resources, supportedLanguages } from './languages';
 
 import {
   withSendComponentWithData
@@ -143,6 +144,8 @@ export {
   sendUpdateSelected,
   smallerThan,
   subtract,
+  supportedLanguages,
+  supportedNativeCurrencies,
   toChecksumAddress,
   transactionData,
   web3Instance,

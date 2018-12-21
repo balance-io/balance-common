@@ -123,13 +123,11 @@ export const accountInitializeState = () => dispatch => {
     });
   });
   getNativeCurrency().then(nativeCurrency => {
-    console.log('GOT NATIVE CURRENCY', nativeCurrency);
     dispatch({
       type: ACCOUNT_INITIALIZE_PRICES_SUCCESS,
       payload: { nativeCurrency }
     });
   }).catch(error => {
-    console.log('ERROR GETTING NATIVE CURRENCY', error);
     dispatch({
       type: ACCOUNT_INITIALIZE_PRICES_FAILURE
     });
@@ -167,16 +165,12 @@ export const accountUpdateAccountAddress = (accountAddress, accountType) => (
   dispatch,
   getState,
 ) => {
-  console.log('UPDATE ACCT ADDRESS');
   if (!accountAddress || !accountType) return;
   const { network } = getState().account;
-  if (getState().account.accountType !== accountType) {
-    console.log('acct type different');
+  if (getState().account.accountType !== accountType)
     dispatch(accountClearState());
-  }
   if (getState().account.accountType === accountType &&
        getState().account.accountAddress.toLowerCase() !== accountAddress.toLowerCase()) {
-    console.log('acct address different');
     resetAccount(getState().account.accountAddress);
     dispatch(accountClearState());
   }
@@ -215,7 +209,6 @@ export const accountChangeNativeCurrency = nativeCurrency => (
   dispatch,
   getState,
 ) => {
-  console.log('ACCT CHANGE NATIVE CURRENCY');
   const prices = getState().account.prices;
   if (prices) {
     dispatch(accountUpdatePrices(nativeCurrency, prices));
@@ -241,7 +234,6 @@ const accountUpdatePrices = (nativeCurrency, prices) => (dispatch, getState) => 
   const newAccountInfo = parseAccountBalancesPrices(oldAccountInfo, newPrices);
   const accountInfo = { ...oldAccountInfo, ...newAccountInfo };
   updateLocalBalances(accountAddress, accountInfo, network);
-  console.log('ACCT UPDATE PRICES', nativeCurrency);
   dispatch({
     type: ACCOUNT_CHANGE_NATIVE_CURRENCY_SUCCESS,
     payload: { nativeCurrency, prices: newPrices, accountInfo },
@@ -249,7 +241,6 @@ const accountUpdatePrices = (nativeCurrency, prices) => (dispatch, getState) => 
 };
 
 export const accountClearState = () => dispatch => {
-  console.log('ACCT CLEAR STATE');
   clearInterval(getAccountBalancesInterval);
   clearInterval(getAccountTransactionsInterval);
   dispatch({ type: ACCOUNT_CLEAR_STATE });
@@ -266,8 +257,6 @@ const accountGetNativePrices = accountInfo => (dispatch, getState) => {
       const nativePriceRequest = getState().account.nativePriceRequest;
       const nativeCurrency = getState().account.nativeCurrency;
       const network = getState().account.network;
-      console.log('GET NATIVE PRICES CURR', nativeCurrency);
-      console.log('GET NATIVE PRICES REQ', nativePriceRequest);
       if (nativeCurrency === nativePriceRequest) {
         const prices = parsePricesObject(data, assetSymbols, nativeCurrency);
         const parsedAccountInfo = parseAccountBalancesPrices(
@@ -471,7 +460,6 @@ const accountGetAccountTransactions = () => (dispatch, getState) => {
         const lastTxHash = lastSuccessfulTxn ? lastSuccessfulTxn.hash : '';
         dispatch(accountGetTransactions(accountAddress, network, lastTxHash, 1));
       }).catch(error => {
-        console.log('error', error);
         dispatch({ type: ACCOUNT_GET_ACCOUNT_TRANSACTIONS_FAILURE });
       });
     }

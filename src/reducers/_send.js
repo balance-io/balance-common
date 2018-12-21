@@ -268,6 +268,7 @@ export const sendToggleConfirmationView = boolean => (dispatch, getState) => {
 
 export const sendUpdateRecipient = recipient => dispatch => {
   const input = recipient.replace(/[^\w.]/g, '');
+  console.log('send update recipient', recipient);
   dispatch({
     type: SEND_UPDATE_RECIPIENT,
     payload: input,

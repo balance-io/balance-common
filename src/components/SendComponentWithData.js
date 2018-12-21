@@ -110,6 +110,7 @@ export const withSendComponentWithData = (SendComponent, options) => {
 
     componentDidUpdate(prevProps) {
       const { assetAmount, recipient, selected, sendUpdateGasPrice } = this.props;
+      console.log('SendComponent did update', recipient, selected);
 
       if (recipient.length >= 42) {
         if ((selected.symbol !== prevProps.selected.symbol) ||

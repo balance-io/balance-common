@@ -181,6 +181,7 @@ export const getTransferNftTransaction = transaction => {
   const recipient = removeHexPrefix(transaction.to);
   const from = removeHexPrefix(transaction.from);
   const tokenId = convertStringToHex(asset.id);
+  console.log('get transfer nft', from, recipient, tokenId);
   const dataString = getDataString(transferMethodHash, [from, recipient, tokenId]);
   return {
     from: transaction.from,

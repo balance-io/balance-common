@@ -210,6 +210,7 @@ export const accountChangeNativeCurrency = nativeCurrency => (
   dispatch,
   getState,
 ) => {
+  console.log('ACCT CHANGE NATIVE CURRENCY');
   const prices = getState().account.prices;
   if (prices) {
     dispatch(accountUpdatePrices(nativeCurrency, prices));
@@ -235,6 +236,7 @@ const accountUpdatePrices = (nativeCurrency, prices) => (dispatch, getState) => 
   const newAccountInfo = parseAccountBalancesPrices(oldAccountInfo, newPrices);
   const accountInfo = { ...oldAccountInfo, ...newAccountInfo };
   updateLocalBalances(accountAddress, accountInfo, network);
+  console.log('ACCT UPDATE PRICES', nativeCurrency);
   dispatch({
     type: ACCOUNT_CHANGE_NATIVE_CURRENCY_SUCCESS,
     payload: { nativeCurrency, prices: newPrices, accountInfo },
@@ -258,6 +260,8 @@ const accountGetNativePrices = accountInfo => (dispatch, getState) => {
       const nativePriceRequest = getState().account.nativePriceRequest;
       const nativeCurrency = getState().account.nativeCurrency;
       const network = getState().account.network;
+      console.log('GET NATIVE PRICES CURR', nativeCurrency);
+      console.log('GET NATIVE PRICES REQ', nativePriceRequest);
       if (nativeCurrency === nativePriceRequest) {
         const prices = parsePricesObject(data, assetSymbols, nativeCurrency);
         const parsedAccountInfo = parseAccountBalancesPrices(
@@ -654,6 +658,7 @@ export default (state = INITIAL_ACCOUNT_STATE, action) => {
       return {
         ...state,
         nativeCurrency: action.payload.nativeCurrency,
+        nativePriceRequest: action.payload.nativeCurrency,
         prices: action.payload.prices,
         accountInfo: action.payload.accountInfo,
       };

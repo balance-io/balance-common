@@ -267,6 +267,7 @@ export const estimateGasLimit = async ({
       convertStringToHex(asset.id)
     ]);
     const estimateGasData = { from: address, to: asset.address, data };
+    console.log('EST GAS DATA', estimateGasData);
     try {
       gasLimit = await web3Instance.eth.estimateGas(estimateGasData);
       console.log('NFT gas limit', gasLimit);

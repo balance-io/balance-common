@@ -167,12 +167,16 @@ export const accountUpdateAccountAddress = (accountAddress, accountType) => (
   dispatch,
   getState,
 ) => {
+  console.log('UPDATE ACCT ADDRESS');
   if (!accountAddress || !accountType) return;
   const { network } = getState().account;
-  if (getState().account.accountType !== accountType)
+  if (getState().account.accountType !== accountType) {
+    console.log('acct type different');
     dispatch(accountClearState());
+  }
   if (getState().account.accountType === accountType &&
        getState().account.accountAddress.toLowerCase() !== accountAddress.toLowerCase()) {
+    console.log('acct address different');
     resetAccount(getState().account.accountAddress);
     dispatch(accountClearState());
   }
@@ -180,6 +184,7 @@ export const accountUpdateAccountAddress = (accountAddress, accountType) => (
     type: ACCOUNT_UPDATE_ACCOUNT_ADDRESS,
     payload: { accountAddress, accountType },
   });
+  dispatch(accountInitializeState());
   dispatch(accountUpdateNetwork(network));
   dispatch(accountGetAccountTransactions());
   dispatch(accountGetAccountBalances());
@@ -244,6 +249,7 @@ const accountUpdatePrices = (nativeCurrency, prices) => (dispatch, getState) => 
 };
 
 export const accountClearState = () => dispatch => {
+  console.log('ACCT CLEAR STATE');
   clearInterval(getAccountBalancesInterval);
   clearInterval(getAccountTransactionsInterval);
   dispatch({ type: ACCOUNT_CLEAR_STATE });

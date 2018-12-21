@@ -352,14 +352,7 @@ export const sendUpdateNativeAmount = nativeAmount => (dispatch, getState) => {
 
 export const sendUpdateSelected = (value, isNft=false) => (dispatch, getState) => {
   if (isNft) {
-    const state = getState();
-    const uniqueTokens = get(state, 'account.uniqueTokens', []);
-    console.log('ALL UNIQUE TOKENS', uniqueTokens);
-    //const selected = uniqueTokens.filter(token => token.symbol === value)[0] || {};
-
     dispatch({ type: SEND_UPDATE_SELECTED, payload: { ...value, symbol: value.asset_contract.name, isNft: true } });
-    dispatch(sendUpdateGasPrice());
-
   } else {
     const state = getState();
     const assetAmount = get(state, 'send.assetAmount', 0);
@@ -369,8 +362,6 @@ export const sendUpdateSelected = (value, isNft=false) => (dispatch, getState) =
     const selected = assets.filter(asset => asset.symbol === value)[0] || {};
 
     dispatch({ type: SEND_UPDATE_SELECTED, payload: selected });
-    dispatch(sendUpdateGasPrice());
-
     if (prices[nativeCurrency] && prices[nativeCurrency][selected.symbol]) {
       dispatch(sendUpdateAssetAmount(assetAmount));
     }

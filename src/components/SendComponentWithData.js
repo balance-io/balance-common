@@ -112,11 +112,9 @@ export const withSendComponentWithData = (SendComponent, options) => {
       const { assetAmount, recipient, selected, sendUpdateGasPrice } = this.props;
 
       if (recipient.length >= 42) {
-        if (selected.symbol !== prevProps.selected.symbol) {
-          sendUpdateGasPrice();
-        } else if (recipient !== prevProps.recipient) {
-          sendUpdateGasPrice();
-        } else if (assetAmount !== prevProps.assetAmount) {
+        if ((selected.symbol !== prevProps.selected.symbol) ||
+           (recipient !== prevProps.recipient) ||
+           (assetAmount !== prevProps.assetAmount)) {
           sendUpdateGasPrice();
         }
       }

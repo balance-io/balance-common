@@ -256,26 +256,35 @@ export const estimateGasLimit = async ({
   recipient,
   amount,
 }) => {
+  console.log('ESTIMATING GAS LIMIT', asset);
   let gasLimit = ethUnits.basic_tx;
-  let data = '0x';
-  let _amount =
-    amount && Number(amount)
-      ? convertAmountToBigNumber(amount)
-      : asset.balance.amount * 0.1;
-  let _recipient =
-    recipient && isValidAddress(recipient)
-      ? recipient
-      : '0x737e583620f4ac1842d4e354789ca0c5e0651fbb';
-  let estimateGasData = { to: _recipient, data };
-  if (asset.symbol !== 'ETH') {
+  if (asset.isNft) {
+    const transferMethodHash = smartContractMethods.nft_safe_transfer.hash;
+    const data = getDataString(transferMethodHash, [
+      from,
+      recipient,
+      asset.tokenId
+    ]);
+    const estimateGasData = { from: address, to: asset.address, data };
+    gasLimit = await web3Instance.eth.estimateGas(estimateGasData);
+    console.log('NFT gas limit', gasLimit);
+  } else if (asset.symbol !== 'ETH') {
+    let _amount =
+      amount && Number(amount)
+        ? convertAmountToBigNumber(amount)
+        : asset.balance.amount * 0.1;
+    let _recipient =
+      recipient && isValidAddress(recipient)
+        ? recipient
+        : '0x737e583620f4ac1842d4e354789ca0c5e0651fbb';
     const transferMethodHash = smartContractMethods.token_transfer.hash;
     let value = convertAssetAmountFromBigNumber(_amount, asset.decimals);
     value = convertStringToHex(value);
-    data = getDataString(transferMethodHash, [
+    const data = getDataString(transferMethodHash, [
       removeHexPrefix(_recipient),
       value,
     ]);
-    estimateGasData = { from: address, to: asset.address, data, value: '0x0' };
+    const estimateGasData = { from: address, to: asset.address, data, value: '0x0' };
     gasLimit = await web3Instance.eth.estimateGas(estimateGasData);
   }
   return gasLimit;

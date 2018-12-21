@@ -178,6 +178,7 @@ export const accountUpdateAccountAddress = (accountAddress, accountType) => (
     type: ACCOUNT_UPDATE_ACCOUNT_ADDRESS,
     payload: { accountAddress, accountType },
   });
+  dispatch(accountInitializeState());
   dispatch(accountUpdateNetwork(network));
   dispatch(accountGetAccountTransactions());
   dispatch(accountGetAccountBalances());
@@ -459,7 +460,6 @@ const accountGetAccountTransactions = () => (dispatch, getState) => {
         const lastTxHash = lastSuccessfulTxn ? lastSuccessfulTxn.hash : '';
         dispatch(accountGetTransactions(accountAddress, network, lastTxHash, 1));
       }).catch(error => {
-        console.log('error', error);
         dispatch({ type: ACCOUNT_GET_ACCOUNT_TRANSACTIONS_FAILURE });
       });
     }
@@ -635,7 +635,6 @@ export default (state = INITIAL_ACCOUNT_STATE, action) => {
       return {
         ...state,
         fetchingNativePrices: false,
-        nativePriceRequest: 'USD',
       };
     case ACCOUNT_INITIALIZE_PRICES_SUCCESS:
       return {
@@ -653,6 +652,7 @@ export default (state = INITIAL_ACCOUNT_STATE, action) => {
       return {
         ...state,
         nativeCurrency: action.payload.nativeCurrency,
+        nativePriceRequest: action.payload.nativeCurrency,
         prices: action.payload.prices,
         accountInfo: action.payload.accountInfo,
       };

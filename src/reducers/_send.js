@@ -49,6 +49,7 @@ const SEND_UPDATE_NATIVE_AMOUNT = 'send/SEND_UPDATE_NATIVE_AMOUNT';
 const SEND_UPDATE_RECIPIENT = 'send/SEND_UPDATE_RECIPIENT';
 const SEND_UPDATE_ASSET_AMOUNT = 'send/SEND_UPDATE_ASSET_AMOUNT';
 const SEND_UPDATE_SELECTED = 'send/SEND_UPDATE_SELECTED';
+const SEND_UPDATE_NFT_SELECTED = 'send/SEND_UPDATE_NFT_SELECTED';
 const SEND_UPDATE_HAS_PENDING_TRANSACTION =
   'send/SEND_UPDATE_HAS_PENDING_TRANSACTION';
 
@@ -350,7 +351,14 @@ export const sendUpdateNativeAmount = nativeAmount => (dispatch, getState) => {
 
 export const sendUpdateSelected = (value, isNft=false) => (dispatch, getState) => {
   if (isNft) {
-    dispatch({ type: SEND_UPDATE_SELECTED, payload: { ...value, symbol: value.asset_contract.name, isNft: true, isSufficientBalance: true } });
+    dispatch({ type: SEND_UPDATE_NFT_SELECTED, payload: {
+      selected: {
+        ...value,
+        symbol: value.asset_contract.name,
+        isNft: true
+      },
+      isSufficientBalance: true,
+    }});
   } else {
     const state = getState();
     const assetAmount = get(state, 'send.assetAmount', 0);
@@ -479,6 +487,12 @@ export default (state = INITIAL_STATE, action) => {
       };
     case SEND_UPDATE_SELECTED:
       return { ...state, selected: action.payload };
+    case SEND_UPDATE_NFT_SELECTED:
+      return {
+        ...state,
+        selected: action.payload.selected,
+        isSufficientBalance: action.payload.isSufficientBalance
+      };
     case SEND_CLEAR_FIELDS:
       return { ...state, ...INITIAL_STATE };
     default:

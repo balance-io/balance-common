@@ -176,12 +176,10 @@ export const getTxDetails = async ({
  * @return {Object}
  */
 export const getTransferNftTransaction = transaction => {
-  console.log('GET TRANSFER NFT', transaction);
   const transferMethodHash = smartContractMethods.nft_safe_transfer.hash;
   const recipient = removeHexPrefix(transaction.to);
   const from = removeHexPrefix(transaction.from);
   const tokenId = convertStringToHex(asset.id);
-  console.log('get transfer nft', from, recipient, tokenId);
   const dataString = getDataString(transferMethodHash, [from, recipient, tokenId]);
   return {
     from: transaction.from,
@@ -220,6 +218,7 @@ export const getTransferTokenTransaction = transaction => {
  */
 export const createSignableTransaction = (transaction) =>
   new Promise((resolve, reject) => {
+    console.log('create signable txn', transaction);
     transaction.value = transaction.amount;
     if (transaction.asset.symbol !== 'ETH') {
       const isNft = get(transaction, 'asset.nft', false);
@@ -267,7 +266,7 @@ export const estimateGasLimit = async ({
       removeHexPrefix(recipient),
       convertStringToHex(asset.id)
     ]);
-    const estimateGasData = { from: address, to: asset.address, data };
+    const estimateGasData = { from: address, to: asset.asset_contract.address, data };
     console.log('EST GAS DATA', estimateGasData);
     try {
       gasLimit = await web3Instance.eth.estimateGas(estimateGasData);

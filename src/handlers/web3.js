@@ -176,7 +176,7 @@ export const getTxDetails = async ({
  * @return {Object}
  */
 export const getTransferNftTransaction = transaction => {
-  const transferMethodHash = smartContractMethods.nft_safe_transfer.hash;
+  const transferMethodHash = smartContractMethods.nft_transfer.hash;
   const recipient = removeHexPrefix(transaction.to);
   const from = removeHexPrefix(transaction.from);
   const tokenId = convertStringToHex(asset.id);
@@ -260,7 +260,7 @@ export const estimateGasLimit = async ({
   console.log('ESTIMATING GAS LIMIT', asset);
   let gasLimit = ethUnits.basic_tx;
   if (asset.isNft) {
-    const transferMethodHash = smartContractMethods.nft_safe_transfer.hash;
+    const transferMethodHash = smartContractMethods.nft_transfer.hash;
     const data = getDataString(transferMethodHash, [
       removeHexPrefix(address),
       removeHexPrefix(recipient),

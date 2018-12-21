@@ -7,6 +7,10 @@
     "method": "balanceOf(address)",
     "hash": "0x70a08231"
   },
+  "nft_transfer": {
+    "method": "transferFrom(address,address,uint256)",
+    "hash": "0x23b872dd"
+  },
   "nft_safe_transfer": {
     "method": "safeTransferFrom(address,address,uint256)",
     "hash": "0x42842e0e"

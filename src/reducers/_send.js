@@ -192,6 +192,7 @@ export const sendUpdateGasPrice = newGasPriceOption => (dispatch, getState) => {
 
 export const sendTransaction = (transactionDetails, signAndSendTransactionCb) => (dispatch, getState) => new Promise((resolve, reject) => {
   dispatch({ type: SEND_TRANSACTION_REQUEST });
+  console.log('sendTransaction');
   const {
     address,
     recipient,
@@ -211,11 +212,14 @@ export const sendTransaction = (transactionDetails, signAndSendTransactionCb) =>
     gasPrice: gasPrice.value.amount,
     gasLimit: gasLimit,
   };
+  console.log('calling create signalbe txn');
   return createSignableTransaction(txDetails)
     .then(signableTransactionDetails => {
+      console.log('created signable txn');
       const symbol = get(selected, 'symbol', 'unknown');
       const address = get(selected, 'address', '');
       const trackingName = `${symbol}:${address}`;
+      console.log('sign and send cb');
       signAndSendTransactionCb({
         accountType,
         tracking: {

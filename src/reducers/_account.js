@@ -123,11 +123,13 @@ export const accountInitializeState = () => dispatch => {
     });
   });
   getNativeCurrency().then(nativeCurrency => {
+    console.log('GOT NATIVE CURRENCY', nativeCurrency);
     dispatch({
       type: ACCOUNT_INITIALIZE_PRICES_SUCCESS,
       payload: { nativeCurrency }
     });
   }).catch(error => {
+    console.log('ERROR GETTING NATIVE CURRENCY', error);
     dispatch({
       type: ACCOUNT_INITIALIZE_PRICES_FAILURE
     });

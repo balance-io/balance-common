@@ -107,6 +107,7 @@ export const getNativeCurrency = async () => {
     'nativeCurrency',
     globalSettingsVersion,
   );
+  console.log('COMMON STORAGE NAT CURR', nativeCurrency);
   return nativeCurrency ? nativeCurrency.data : 'USD';
 };
 

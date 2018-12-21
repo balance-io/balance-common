@@ -635,7 +635,6 @@ export default (state = INITIAL_ACCOUNT_STATE, action) => {
       return {
         ...state,
         fetchingNativePrices: false,
-        nativePriceRequest: 'USD',
       };
     case ACCOUNT_INITIALIZE_PRICES_SUCCESS:
       return {

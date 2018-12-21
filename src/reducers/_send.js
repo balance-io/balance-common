@@ -95,16 +95,13 @@ export const sendModalInit = (options = {}) => (dispatch, getState) => {
 
   apiGetGasPrices()
     .then(({ data }) => {
-      console.log('SUCCESS got api gas prices');
       const gasPrices = parseGasPrices(data, prices, gasLimit, options.gasFormat === 'short');
-      console.log('PARSED api gas prices');
       dispatch({
         type: SEND_GET_GAS_PRICES_SUCCESS,
         payload: gasPrices,
       });
     })
     .catch(error => {
-      console.log('ERROR getting gas prices');
       console.error(error);
 
       dispatch({
@@ -301,6 +298,7 @@ export const sendUpdateAssetAmount = assetAmount => (dispatch, getState) => {
   }
 
   const balanceAmount = getBalanceAmount(accountInfo, gasPrice, selected);
+
   dispatch({
     type: SEND_UPDATE_ASSET_AMOUNT,
     payload: {
@@ -352,7 +350,7 @@ export const sendUpdateNativeAmount = nativeAmount => (dispatch, getState) => {
 
 export const sendUpdateSelected = (value, isNft=false) => (dispatch, getState) => {
   if (isNft) {
-    dispatch({ type: SEND_UPDATE_SELECTED, payload: { ...value, symbol: value.asset_contract.name, isNft: true } });
+    dispatch({ type: SEND_UPDATE_SELECTED, payload: { ...value, symbol: value.asset_contract.name, isNft: true, isSufficientBalance: true } });
   } else {
     const state = getState();
     const assetAmount = get(state, 'send.assetAmount', 0);

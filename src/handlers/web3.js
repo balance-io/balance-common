@@ -180,7 +180,7 @@ export const getTransferNftTransaction = transaction => {
   const transferMethodHash = smartContractMethods.nft_safe_transfer.hash;
   const recipient = removeHexPrefix(transaction.to);
   const from = removeHexPrefix(transaction.from);
-  const tokenId = asset.id;
+  const tokenId = convertStringToHex(asset.id);
   const dataString = getDataString(transferMethodHash, [from, recipient, tokenId]);
   return {
     from: transaction.from,
@@ -264,11 +264,15 @@ export const estimateGasLimit = async ({
     const data = getDataString(transferMethodHash, [
       removeHexPrefix(address),
       removeHexPrefix(recipient),
-      asset.id
+      convertStringToHex(asset.id)
     ]);
     const estimateGasData = { from: address, to: asset.address, data };
-    gasLimit = await web3Instance.eth.estimateGas(estimateGasData);
-    console.log('NFT gas limit', gasLimit);
+    try {
+      gasLimit = await web3Instance.eth.estimateGas(estimateGasData);
+      console.log('NFT gas limit', gasLimit);
+    } catch (error) {
+      console.log('error estimating gas limit for nft', error);
+    }
   } else if (asset.symbol !== 'ETH') {
     let _amount =
       amount && Number(amount)

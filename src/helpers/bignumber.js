@@ -293,7 +293,7 @@ export const convertAssetAmountToDisplay = (
   console.log('value', value);
   console.log('nativeSelected', nativeSelected);
   const decimals = nativeSelected.decimals;
-  console.log('decimals', decimal);
+  console.log('decimals', decimals);
   const result = handleSignificantDecimals(value, decimals, buffer);
   console.log('result', result);
   return result;

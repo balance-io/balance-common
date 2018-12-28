@@ -303,7 +303,6 @@ export const parseAccountBalancesPrices = (
   };
   // TODO: USD tracking selected
   let nativeSelected = nativePrices.selected.currency;
-  //if (account && nativePrices && nativePrices.selected) {
   if (account) {
     const newAssets = account.assets.map(asset => {
       if (

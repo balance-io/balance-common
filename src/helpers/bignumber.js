@@ -304,6 +304,7 @@ export const convertAssetAmountToDisplaySpecific = (
   selected,
   buffer,
 ) => {
+  const nativeSelected = nativeCurrencies[selected];
   const display = convertAssetAmountToDisplay(value, selected, buffer);
   if (nativeSelected.alignment === 'left') {
     return `${nativeSelected.symbol}${display}`;

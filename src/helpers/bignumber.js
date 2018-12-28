@@ -216,8 +216,11 @@ export const significantDecimals = (value, decimals, buffer) => {
  * @return {String}
  */
 export const convertAmountToUnformattedDisplay = (value, selected) => {
+  if (!value) return '';
   value = convertAmountFromBigNumber(value);
   const nativeSelected = nativeCurrencies[selected];
+  console.log('currency', selected);
+  console.log('SELECTED', nativeSelected);
   const decimals = nativeSelected.decimals;
   return significantDecimals(value, decimals);
 };

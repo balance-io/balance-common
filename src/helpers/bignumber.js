@@ -282,17 +282,14 @@ export const convertAmountToDisplaySpecific = (
 /**
  * @desc convert from asset amount value to display formatted string for specific currency
  * @param  {BigNumber}  value
- * @param  {Object}     nativePrices
  * @param  {Object}     asset
  * @return {String}
  */
 export const convertAssetAmountToDisplaySpecific = (
   value,
-  nativePrices,
   selected,
   buffer,
 ) => {
-  if (!nativePrices) return null;
   const nativeSelected = nativeCurrencies[selected];
   const decimals = nativeSelected.decimals;
   const display = handleSignificantDecimals(value, decimals, buffer);

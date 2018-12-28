@@ -290,6 +290,7 @@ export const convertAssetAmountToDisplaySpecific = (
   selected,
   buffer,
 ) => {
+  if (!value) return '';
   const nativeSelected = nativeCurrencies[selected];
   const decimals = nativeSelected.decimals;
   const display = handleSignificantDecimals(value, decimals, buffer);

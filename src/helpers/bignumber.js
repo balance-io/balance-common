@@ -212,18 +212,14 @@ export const significantDecimals = (value, decimals, buffer) => {
 /**
  * @desc convert from amount value to unformatted display
  * @param  {BigNumber}  value
- * @param  {Object}     nativePrices
- * @param  {Object}     asset
- * @param  {Number}     buffer
+ * @param  {String}     selected
  * @return {String}
  */
-export const convertAmountToUnformattedDisplay = (value, nativePrices) => {
+export const convertAmountToUnformattedDisplay = (value, selected) => {
   value = convertAmountFromBigNumber(value);
-  if (nativePrices) {
-    const decimals = nativePrices.selected.decimals;
-    return significantDecimals(value, decimals);
-  }
-  return value;
+  const nativeSelected = nativeCurrencies[selected];
+  const decimals = nativeSelected.decimals;
+  return significantDecimals(value, decimals);
 };
 
 /**

@@ -345,7 +345,7 @@ export const parseAccountBalancesPrices = (
       0,
     );
     const totalDisplay = convertAmountToDisplay(totalAmount, nativePrices);
-    const totalTrackingAmount = convertAmountToUnformattedDisplay(totalAmount, nativePrices);
+    const totalTrackingAmount = convertAmountToUnformattedDisplay(totalAmount, nativeSelected);
     const total = { amount: totalAmount, display: totalDisplay, totalTrackingAmount };
     newAccount = {
       ...newAccount,

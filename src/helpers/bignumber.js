@@ -219,10 +219,12 @@ export const convertAmountToUnformattedDisplay = (value, selected) => {
   if (!value) return '';
   value = convertAmountFromBigNumber(value);
   const nativeSelected = nativeCurrencies[selected];
-  console.log('currency', selected);
-  console.log('SELECTED', nativeSelected);
   const decimals = nativeSelected.decimals;
-  return significantDecimals(value, decimals);
+  console.log('value', value);
+  console.log('decimals', decimals);
+  const result = significantDecimals(value, decimals);
+  console.log('result', result);
+  return result;
 };
 
 /**

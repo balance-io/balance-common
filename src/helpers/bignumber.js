@@ -174,6 +174,7 @@ export const convertAmountFromBigNumber = value =>
  */
 export const handleSignificantDecimals = (value, decimals, buffer) => {
   const result = significantDecimals(value, decimals, buffer);
+  console.log('sigDecs', result);
   return BigNumber(`${result}`).dp() <= 2
     ? BigNumber(`${result}`).toFormat(2)
     : BigNumber(`${result}`).toFormat();
@@ -289,8 +290,13 @@ export const convertAssetAmountToDisplay = (
 ) => {
   if (!value) return '';
   const nativeSelected = nativeCurrencies[selected];
+  console.log('value', value);
+  console.log('nativeSelected', nativeSelected);
   const decimals = nativeSelected.decimals;
-  return handleSignificantDecimals(value, decimals, buffer);
+  console.log('decimals', decimal);
+  const result = handleSignificantDecimals(value, decimals, buffer);
+  console.log('result', result);
+  return result;
 };
 
 /**

@@ -212,18 +212,15 @@ export const significantDecimals = (value, decimals, buffer) => {
 /**
  * @desc convert from amount value to unformatted display
  * @param  {BigNumber}  value
- * @param  {Object}     nativePrices
- * @param  {Object}     asset
- * @param  {Number}     buffer
+ * @param  {String}     selected
  * @return {String}
  */
-export const convertAmountToUnformattedDisplay = (value, nativePrices) => {
+export const convertAmountToUnformattedDisplay = (value, selected) => {
+  if (!value) return '';
   value = convertAmountFromBigNumber(value);
-  if (nativePrices) {
-    const decimals = nativePrices.selected.decimals;
-    return significantDecimals(value, decimals);
-  }
-  return value;
+  const nativeSelected = nativeCurrencies[selected];
+  const decimals = nativeSelected.decimals;
+  return significantDecimals(value, decimals);
 };
 
 /**
@@ -282,20 +279,33 @@ export const convertAmountToDisplaySpecific = (
 /**
  * @desc convert from asset amount value to display formatted string for specific currency
  * @param  {BigNumber}  value
- * @param  {Object}     nativePrices
+ * @param  {Object}     asset
+ * @return {String}
+ */
+export const convertAssetAmountToDisplay = (
+  value,
+  selected,
+  buffer,
+) => {
+  if (!value) return '';
+  const nativeSelected = nativeCurrencies[selected];
+  const decimals = nativeSelected.decimals;
+  return handleSignificantDecimals(value, decimals, buffer);
+};
+
+/**
+ * @desc convert from asset amount value to display formatted string for specific currency
+ * @param  {BigNumber}  value
  * @param  {Object}     asset
  * @return {String}
  */
 export const convertAssetAmountToDisplaySpecific = (
   value,
-  nativePrices,
   selected,
   buffer,
 ) => {
-  if (!nativePrices) return null;
   const nativeSelected = nativeCurrencies[selected];
-  const decimals = nativeSelected.decimals;
-  const display = handleSignificantDecimals(value, decimals, buffer);
+  const display = convertAssetAmountToDisplay(value, selected, buffer);
   if (nativeSelected.alignment === 'left') {
     return `${nativeSelected.symbol}${display}`;
   }

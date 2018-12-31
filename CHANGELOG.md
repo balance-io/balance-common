@@ -13,6 +13,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/)
 
 ### Removed
 
+## [0.6.9](https://github.com/balance-io/balance-common/releases/tag/0.6.9)
+### Changed
+* Fix for native currency display on send
+* Fix for USD tracking for total balances
+
 ## [0.6.8](https://github.com/balance-io/balance-common/releases/tag/0.6.8)
 ### Changed
 * Fix for currency selection

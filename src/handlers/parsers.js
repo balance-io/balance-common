@@ -301,7 +301,6 @@ export const parseAccountBalancesPrices = (
   let newAccount = {
     ...account,
   };
-  // TODO: USD tracking selected
   let nativeSelected = nativePrices.selected.currency;
   if (account) {
     const newAssets = account.assets.map(asset => {
@@ -320,6 +319,14 @@ export const parseAccountBalancesPrices = (
       );
       const balanceRaw = multiply(balanceAmountUnit, balancePriceUnit);
       const balanceAmount = convertAmountToBigNumber(balanceRaw);
+      let trackingAmount = balanceAmount;
+      if (nativeSelected !== 'USD') {
+        const trackingPriceUnit = convertAmountFromBigNumber(
+          nativePrices['USD'][asset.symbol].price.amount,
+        );
+        const trackingRaw = multiply(balanceAmountUnit, trackingPriceUnit);
+        trackingAmount = convertAmountToBigNumber(trackingRaw);
+      }
       const balanceDisplay = convertAmountToDisplay(
         balanceAmount,
         nativePrices,
@@ -327,6 +334,7 @@ export const parseAccountBalancesPrices = (
       const assetPrice = nativePrices[nativeSelected][asset.symbol].price;
       return {
         ...asset,
+        trackingAmount,
         native: {
           selected: nativePrices.selected,
           balance: { amount: balanceAmount, display: balanceDisplay },
@@ -343,8 +351,15 @@ export const parseAccountBalancesPrices = (
         add(total, asset.native ? asset.native.balance.amount : 0),
       0,
     );
+    const totalUSDAmount = (nativeSelected === 'USD') ? totalAmount :
+      newAssets.reduce(
+        (total, asset) =>
+          add(total, asset.trackingAmount),
+        0,
+      );
     const totalDisplay = convertAmountToDisplay(totalAmount, nativePrices);
-    const totalTrackingAmount = convertAmountToUnformattedDisplay(totalAmount, nativeSelected);
+    const totalTrackingAmount = convertAmountToUnformattedDisplay(totalUSDAmount, 'USD');
+    console.log('TOTAL TRACKING AMOUNT', totalTrackingAmount);
     const total = { amount: totalAmount, display: totalDisplay, totalTrackingAmount };
     newAccount = {
       ...newAccount,

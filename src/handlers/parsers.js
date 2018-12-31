@@ -325,11 +325,8 @@ export const parseAccountBalancesPrices = (
         const trackingPriceUnit = convertAmountFromBigNumber(
           nativePrices['USD'][asset.symbol].price.amount,
         );
-        console.log('trackingPriceUnit', trackingPriceUnit);
         const trackingRaw = multiply(balanceAmountUnit, trackingPriceUnit);
-        console.log('trackingRaw', trackingRaw);
         trackingAmount = convertAmountToBigNumber(trackingRaw);
-        console.log('trackingAmount', trackingAmount);
       }
       const balanceDisplay = convertAmountToDisplay(
         balanceAmount,
@@ -358,7 +355,7 @@ export const parseAccountBalancesPrices = (
     const totalUSDAmount = (nativeSelected === 'USD') ? totalAmount :
       newAssets.reduce(
         (total, asset) =>
-          add(total, asset.trackingAmount),
+          add(total, asset.native ? asset.trackingAmount : 0),
         0,
       );
     console.log('totalUSDAmount', totalUSDAmount);

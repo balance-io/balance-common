@@ -302,7 +302,6 @@ export const parseAccountBalancesPrices = (
     ...account,
   };
   let nativeSelected = nativePrices.selected.currency;
-  console.log('nativeprices', nativePrices);
   if (account) {
     const newAssets = account.assets.map(asset => {
       if (
@@ -358,10 +357,8 @@ export const parseAccountBalancesPrices = (
           add(total, asset.native ? asset.trackingAmount : 0),
         0,
       );
-    console.log('totalUSDAmount', totalUSDAmount);
     const totalDisplay = convertAmountToDisplay(totalAmount, nativePrices);
     const totalTrackingAmount = convertAmountToUnformattedDisplay(totalUSDAmount, 'USD');
-    console.log('TOTAL TRACKING AMOUNT', totalTrackingAmount);
     const total = { amount: totalAmount, display: totalDisplay, totalTrackingAmount };
     newAccount = {
       ...newAccount,

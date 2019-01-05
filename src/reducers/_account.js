@@ -359,7 +359,6 @@ export default (state = INITIAL_ACCOUNT_STATE, action) => {
         ...state,
         accountType: action.payload.accountType,
         accountAddress: action.payload.accountAddress,
-        transactions: [],
       };
     case ACCOUNT_GET_ACCOUNT_UNIQUE_TOKENS_REQUEST:
       return {

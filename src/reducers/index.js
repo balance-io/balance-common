@@ -1,5 +1,6 @@
 import account from './_account';
 import send from './_send';
+import transactions from './_transactions';
 import {
   accountChangeLanguage,
   accountChangeNativeCurrency,
@@ -12,6 +13,11 @@ import {
   accountUpdateTransactions,
   INITIAL_ACCOUNT_STATE,
 } from './_account';
+import {
+  transactionsClearState,
+  transactionsUpdateHasPendingTransaction,
+  transactionsUpdateTransactions,
+} from './_transactions';
 import {
   sendClearFields,
   sendMaxBalance,
@@ -32,9 +38,7 @@ export {
   accountInitializeState,
   accountUpdateAccountAddress,
   accountUpdateExchange,
-  accountUpdateHasPendingTransaction,
   accountUpdateNetwork,
-  accountUpdateTransactions,
   INITIAL_ACCOUNT_STATE,
   send,
   sendClearFields,
@@ -47,4 +51,8 @@ export {
   sendUpdateNativeAmount,
   sendUpdateRecipient,
   sendUpdateSelected,
+  transactions,
+  transactionsClearState,
+  transactionsUpdateHasPendingTransaction,
+  transactionsUpdateTransactions,
 };

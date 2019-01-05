@@ -142,7 +142,7 @@ const transactionsGetTransactionsPages = ({
     });
 }
 
-const transactionsGetAccountTransactions = () => (dispatch, getState) => {
+export const transactionsGetAccountTransactions = () => (dispatch, getState) => {
   const getAccountTransactions = () => {
     const { transactions } = getState().transactions;
     const { accountAddress, network } = getState().account;

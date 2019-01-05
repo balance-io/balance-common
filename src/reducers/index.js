@@ -15,6 +15,7 @@ import {
 } from './_account';
 import {
   transactionsClearState,
+  transactionsGetAccountTransactions,
   transactionsUpdateHasPendingTransaction,
   transactionsUpdateTransactions,
 } from './_transactions';
@@ -53,6 +54,7 @@ export {
   sendUpdateSelected,
   transactions,
   transactionsClearState,
+  transactionsGetAccountTransactions,
   transactionsUpdateHasPendingTransaction,
   transactionsUpdateTransactions,
 };

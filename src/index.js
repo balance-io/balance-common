@@ -30,6 +30,7 @@ import {
   sendUpdateSelected,
   transactions,
   transactionsClearState,
+  transactionsGetAccountTransactions,
   transactionsUpdateHasPendingTransaction,
   transactionsUpdateTransactions,
 } from './reducers';
@@ -158,6 +159,7 @@ export {
   transactions,
   transactionData,
   transactionsClearState,
+  transactionsGetAccountTransactions,
   transactionsUpdateHasPendingTransaction,
   transactionsUpdateTransactions,
   web3Instance,

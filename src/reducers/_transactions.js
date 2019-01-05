@@ -47,14 +47,12 @@ export const transactionsUpdateHasPendingTransaction = (
 export const transactionsUpdateTransactions = txDetails => (dispatch, getState) => new Promise((resolve, reject) => {
   dispatch({ type: TRANSACTIONS_UPDATE_TRANSACTIONS_REQUEST });
   const currentTransactions = getState().transactions.transactions;
-  const network = getState().account.network;
-  const address = getState().account.accountAddress;
-  const nativeCurrency = getState().account.nativeCurrency;
+  const { accountAddress, nativeCurrency, network } = getState().account;
   parseNewTransaction(txDetails, nativeCurrency)
     .then(parsedTransaction => {
       let _transactions = [...currentTransactions];
       _transactions = [parsedTransaction, ..._transactions];
-      saveTransactions(address, _transactions, network);
+      saveTransactions(accountAddress, _transactions, network);
       dispatch({
         type: TRANSACTIONS_UPDATE_TRANSACTIONS_SUCCESS,
         payload: _transactions,

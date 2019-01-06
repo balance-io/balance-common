@@ -110,10 +110,9 @@ const transactionsGetTransactionsPages = ({
           return !matchingElement;
         });
       }
-      const address = getState().account.accountAddress;
       let _newPages = newTransactions.concat(transactionsForPage);
       let _transactions = _.unionBy(updatedPendingTransactions, _newPages, confirmedTransactions, 'hash');
-      saveTransactions(address, _transactions, network);
+      saveTransactions(accountAddress, _transactions, network);
       dispatch({
         type: TRANSACTIONS_GET_ACCOUNT_TRANSACTIONS_SUCCESS,
         payload: _transactions,

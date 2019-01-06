@@ -102,7 +102,7 @@ export const getTransactions = async (accountAddress, network) => {
  * @param  {String}   [address]
  * @param  {String}   [network]
  */
-export const saveTransactions = async (address, transactions, network) => {
+export const saveTransactions = async (accountAddress, transactions, network) => {
   await saveLocal(
     getTransactionsKey(accountAddress, network),
     { data: transactions },

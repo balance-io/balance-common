@@ -159,7 +159,7 @@ export const transactionsGetAccountTransactions = () => (dispatch, getState) => 
             fetchingTransactions: !transactions || !transactions.length
           },
         });
-        const lastSuccessfulTxn = _.find(confirmedTransactions, (txn) => txn.hash);
+        const lastSuccessfulTxn = _.find(transactions, (txn) => txn.hash && !txn.pending);
         const lastTxHash = lastSuccessfulTxn ? lastSuccessfulTxn.hash : '';
         dispatch(transactionsGetTransactions(accountAddress, network, lastTxHash, 1));
       }).catch(error => {

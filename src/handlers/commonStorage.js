@@ -3,6 +3,7 @@ import { omit, pickBy } from 'lodash';
 
 const defaultVersion = '0.1.0';
 const accountLocalVersion = '0.1.0';
+const transactionsLocalVersion = '0.1.0';
 const globalSettingsVersion = '0.1.0';
 const walletConnectVersion = '0.1.0';
 
@@ -79,6 +80,34 @@ export const resetAccount = (accountAddress) => {
  */
 export const getAccountLocal = async accountAddress => {
   return await getLocal(accountAddress.toLowerCase(), accountLocalVersion);
+};
+
+const getTransactionsKey = (accountAddress, network) => {
+  return `transactions-${accountAddress.toLowerCase()}-${network.toLowerCase()}`;
+};
+
+/**
+ * @desc get transactions
+ * @param  {String}   [address]
+ * @param  {String}   [network]
+ * @return {Object}
+ */
+export const getTransactions = async (accountAddress, network) => {
+  const transactions = await getLocal(getTransactionsKey(accountAddress, network), transactionsLocalVersion);
+  return transactions ? transactions.data : [];
+};
+
+/**
+ * @desc save transactions
+ * @param  {String}   [address]
+ * @param  {String}   [network]
+ */
+export const saveTransactions = async (accountAddress, transactions, network) => {
+  await saveLocal(
+    getTransactionsKey(accountAddress, network),
+    { data: transactions },
+    transactionsLocalVersion
+  );
 };
 
 /**
@@ -167,40 +196,6 @@ export const updateLocalUniqueTokens = async (
     accountLocal[network] = {};
   }
   accountLocal[network].uniqueTokens = uniqueTokens;
-  await saveLocal(address.toLowerCase(), accountLocal, accountLocalVersion);
-};
-
-/**
- * @desc update local transactions
- * @param  {String}   [address]
- * @param  {Array}    [transactions]
- * @param  {String}   [network]
- * @return {Void}
- */
-export const updateLocalTransactions = async (
-  address,
-  transactions,
-  network,
-) => {
-  if (!address) return;
-  let accountLocal = await getAccountLocal(address);
-  if (!accountLocal) {
-    accountLocal = {};
-  }
-  const pending = [];
-  const _transactions = [];
-  transactions.forEach(tx => {
-    if (tx.pending) {
-      pending.push(tx);
-    } else {
-      _transactions.push(tx);
-    }
-  });
-  if (!accountLocal[network]) {
-    accountLocal[network] = {};
-  }
-  accountLocal[network].transactions = _transactions;
-  accountLocal[network].pending = pending;
   await saveLocal(address.toLowerCase(), accountLocal, accountLocalVersion);
 };
 

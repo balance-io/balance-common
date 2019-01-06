@@ -28,6 +28,11 @@ import {
   sendUpdateNativeAmount,
   sendUpdateRecipient,
   sendUpdateSelected,
+  transactions,
+  transactionsClearState,
+  transactionsGetAccountTransactions,
+  transactionsUpdateHasPendingTransaction,
+  transactionsUpdateTransactions,
 } from './reducers';
 import {
   isValidAddress,
@@ -151,7 +156,12 @@ export {
   supportedLanguages,
   supportedNativeCurrencies,
   toChecksumAddress,
+  transactions,
   transactionData,
+  transactionsClearState,
+  transactionsGetAccountTransactions,
+  transactionsUpdateHasPendingTransaction,
+  transactionsUpdateTransactions,
   web3Instance,
   withSendComponentWithData,
 };

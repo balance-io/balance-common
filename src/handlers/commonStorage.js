@@ -94,7 +94,7 @@ const getTransactionsKey = (accountAddress, network) => {
  */
 export const getTransactions = async (accountAddress, network) => {
   const transactions = await getLocal(getTransactionsKey(accountAddress, network), transactionsLocalVersion);
-  return transactions ? transactions.data : null;
+  return transactions ? transactions.data : [];
 };
 
 /**

@@ -94,7 +94,7 @@ export const defaultGasPriceFormat = (option, timeAmount, valueAmount, valueDisp
  * @param {Object} prices
  * @param {Number} gasLimit
  */
-export const parseGasPrices = (data, prices, gasLimit, short) => {
+export const parseGasPrices = (data, prices, gasLimit, nativeCurrency, short) => {
   const gasPrices = {
     slow: null,
     average: null,
@@ -135,33 +135,36 @@ export const parseGasPrices = (data, prices, gasLimit, short) => {
       short
     );
   }
-  return parseGasPricesTxFee(gasPrices, prices, gasLimit);
+  return parseGasPricesTxFee(gasPrices, prices, gasLimit, nativeCurrency);
 };
 
-export const convertGasPricesToNative = (prices, gasPrices) => {
+export const convertGasPricesToNative = (prices, gasPrices, nativeCurrency) => {
   const nativeGases = { ...gasPrices };
   if (prices) {
-    gasPrices.fast.txFee.native = getNativeGasPrice(prices, gasPrices.fast.txFee.value.amount);
-    gasPrices.average.txFee.native = getNativeGasPrice(prices, gasPrices.average.txFee.value.amount);
-    gasPrices.slow.txFee.native = getNativeGasPrice(prices, gasPrices.slow.txFee.value.amount);
+    gasPrices.fast.txFee.native = getNativeGasPrice(prices, gasPrices.fast.txFee.value.amount, nativeCurrency);
+    gasPrices.average.txFee.native = getNativeGasPrice(prices, gasPrices.average.txFee.value.amount, nativeCurrency);
+    gasPrices.slow.txFee.native = getNativeGasPrice(prices, gasPrices.slow.txFee.value.amount, nativeCurrency);
   }
   return nativeGases;
 };
 
-export const getNativeGasPrice = (prices, feeAmount) => {
+export const getNativeGasPrice = (prices, feeAmount, nativeCurrency) => {
+  const selected = nativeCurrencies[nativeCurrency];
   const amount = convertAssetAmountToNativeAmount(
     feeAmount,
     { symbol: 'ETH' },
     prices,
+    nativeCurrency,
   );
   return {
-    selected: prices.selected,
+    selected,
     value: {
       amount,
       display: convertAmountToDisplay(
         amount,
         prices,
         null,
+        nativeCurrency,
         2,
       ),
     },
@@ -174,11 +177,11 @@ export const getNativeGasPrice = (prices, feeAmount) => {
  * @param {Object} prices
  * @param {Number} gasLimit
  */
-export const parseGasPricesTxFee = (gasPrices, prices, gasLimit) => {
+export const parseGasPricesTxFee = (gasPrices, prices, gasLimit, nativeCurrency) => {
   gasPrices.fast.txFee = getTxFee(gasPrices.fast.value.amount, gasLimit);
   gasPrices.average.txFee = getTxFee(gasPrices.average.value.amount, gasLimit);
   gasPrices.slow.txFee = getTxFee(gasPrices.slow.value.amount, gasLimit);
-  return convertGasPricesToNative(prices, gasPrices);
+  return convertGasPricesToNative(prices, gasPrices, nativeCurrency);
 };
 
 /**
@@ -346,7 +349,7 @@ export const parseHistoricalNativePrice = async transaction => {
   const feeResponse = historicalPriceResponses[1];
 
   Object.keys(nativeCurrencies).forEach(nativeCurrency => {
-    let prices = { selected: nativeCurrencies[nativeCurrency] };
+    let prices = {};
     prices[nativeCurrency] = {};
     if (response.data.response !== 'Error' && response.data[asset.symbol]) {
       const assetPriceAmount = convertAmountToBigNumber(
@@ -358,6 +361,8 @@ export const parseHistoricalNativePrice = async transaction => {
       const assetPriceDisplay = convertAmountToDisplay(
         assetPriceAmount,
         prices,
+        null,
+        nativeCurrency,
       );
       prices[nativeCurrency][asset.symbol].price.display = assetPriceDisplay;
       const assetPrice = prices[nativeCurrency][asset.symbol].price;
@@ -366,10 +371,13 @@ export const parseHistoricalNativePrice = async transaction => {
         tx.value.amount,
         asset,
         prices,
+        nativeCurrency,
       );
       const valuePriceDisplay = convertAmountToDisplay(
         valuePriceAmount,
         prices,
+        null,
+        nativeCurrency,
       );
       const valuePrice = !tx.error
         ? { amount: valuePriceAmount, display: valuePriceDisplay }
@@ -391,17 +399,20 @@ export const parseHistoricalNativePrice = async transaction => {
       prices[nativeCurrency]['ETH'] = {
         price: { amount: feePriceAmount, display: null },
       };
-      const feePriceDisplay = convertAmountToDisplay(feePriceAmount, prices);
+      const feePriceDisplay = convertAmountToDisplay(feePriceAmount, prices, null, nativeCurrency);
       prices[nativeCurrency]['ETH'].price.display = feePriceDisplay;
 
       const txFeePriceAmount = convertAssetAmountToNativeValue(
         tx.txFee.amount,
         ethFeeAsset,
         prices,
+        nativeCurrency,
       );
       const txFeePriceDisplay = convertAmountToDisplay(
         txFeePriceAmount,
         prices,
+        null,
+        nativeCurrency,
       );
       const txFeePrice = {
         amount: txFeePriceAmount,

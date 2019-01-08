@@ -77,12 +77,12 @@ function getBalanceAmount(assets, gasPrice, selected) {
 // -- Actions --------------------------------------------------------------- //
 
 export const sendModalInit = (options = {}) => (dispatch, getState) => {
-  const { accountAddress } = getState().settings;
+  const { accountAddress, nativeCurrency } = getState().settings;
   const { assets } = getState().assets;
   const { prices } = getState().prices;
   const { gasLimit } = getState().send;
 
-  const fallbackGasPrices = parseGasPrices(null, prices, gasLimit, options.gasFormat === 'short');
+  const fallbackGasPrices = parseGasPrices(null, prices, gasLimit, nativeCurrency, options.gasFormat === 'short');
   const selected = assets.filter(asset => asset.symbol === options.defaultAsset)[0] || {};
 
   dispatch({
@@ -96,7 +96,7 @@ export const sendModalInit = (options = {}) => (dispatch, getState) => {
 
   apiGetGasPrices()
     .then(({ data }) => {
-      const gasPrices = parseGasPrices(data, prices, gasLimit, options.gasFormat === 'short');
+      const gasPrices = parseGasPrices(data, prices, gasLimit, nativeCurrency, options.gasFormat === 'short');
       dispatch({
         type: SEND_GET_GAS_PRICES_SUCCESS,
         payload: gasPrices,
@@ -283,6 +283,7 @@ export const sendUpdateAssetAmount = assetAmount => (dispatch, getState) => {
       _assetAmount,
       selected,
       prices,
+      nativeCurrency,
     );
     _nativeAmount = formatInputDecimals(nativeAmount, _assetAmount);
     _trackingAmount = _nativeAmount;
@@ -321,6 +322,7 @@ export const sendUpdateNativeAmount = nativeAmount => (dispatch, getState) => {
       _nativeAmount,
       selected,
       prices,
+      nativeCurrency,
     );
     _assetAmount = formatInputDecimals(assetAmount, _nativeAmount);
 

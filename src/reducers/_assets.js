@@ -39,9 +39,18 @@ export const assetsClearState = () => dispatch => {
   dispatch({ type: ASSETS_CLEAR_STATE });
 };
 
-export const assetsRefreshState = () => dispatch => {
-  return Promise.all(dispatch(assetsGetBalances()), dispatch(assetsGetUniqueTokens()));
-};
+export const assetsRefreshState = () => dispatch => new Promise((resolve, reject) => {
+  dispatch(assetsGetBalances()).then(() => {
+    dispatch(assetsGetUniqueTokens()).then(() => {
+      resolve(true);
+    }).catch(error => {
+      reject(false);
+    });
+  }).catch(error => {
+    reject(false);
+  });
+  //return Promise.all(dispatch(assetsGetBalances()), dispatch(assetsGetUniqueTokens()));
+});
 
 const assetsGetBalances = () => (dispatch, getState) => new Promise((resolve, reject) => {
   const { accountAddress, accountType, network } = getState().settings;

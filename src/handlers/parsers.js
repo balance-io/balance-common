@@ -460,6 +460,7 @@ export const parseNewTransaction = async (
     from: txDetails.from,
     to: txDetails.to,
     error: false,
+    native: { selected: nativeCurrencies[nativeCurrency] },
     nonce: nonce,
     value: value,
     txFee: txFee,

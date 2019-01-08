@@ -69,15 +69,6 @@ export const resetAccount = (accountAddress) => {
   removeLocal('nativePrices');
 };
 
-/**
- * @desc get account local
- * @param  {String}   [address]
- * @return {Object}
- */
-export const getAccountLocal = async accountAddress => {
-  return await getLocal(accountAddress.toLowerCase());
-};
-
 const getTransactionsKey = (accountAddress, network) => {
   return `transactions-${accountAddress.toLowerCase()}-${network.toLowerCase()}`;
 };

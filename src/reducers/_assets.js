@@ -121,7 +121,7 @@ const assetsGetUniqueTokens = () => (dispatch, getState) => {
 // -- Reducer --------------------------------------------------------------- //
 export const INITIAL_ASSETS_STATE = {
   assets: [],
-  fetchingAssets: null,
+  fetchingAssets: false,
   fetchingUniqueTokens: false,
   uniqueTokens: [],
 };

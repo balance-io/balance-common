@@ -37,6 +37,7 @@ import {
 import {
   isValidAddress,
   isValidEmail,
+  isValidSeedPhrase,
 } from './helpers/validators';
 import {
   calcTxFee,
@@ -134,6 +135,7 @@ export {
   INITIAL_ACCOUNT_STATE,
   isValidAddress,
   isValidEmail,
+  isValidSeedPhrase,
   lang,
   multiply,
   parseError,

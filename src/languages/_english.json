@@ -55,6 +55,7 @@
     },
     "account": {
       "tab_balances": "Balances",
+      "tab_balances_empty_state": "Balance",
       "tab_collectibles": "Collectibles",
       "tab_transactions": "Transactions",
       "tab_interactions": "Interactions",

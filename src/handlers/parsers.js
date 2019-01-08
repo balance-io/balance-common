@@ -185,15 +185,13 @@ export const parseGasPricesTxFee = (gasPrices, prices, gasLimit) => {
  * @desc parse prices object from api response
  * @param  {Object} [data=null]
  * @param  {Array} [assets=[]]
- * @param  {String} [native='USD']
  * @return {Object}
  */
 export const parsePricesObject = (
   data = null,
   assets = [],
-  nativeSelected = 'USD',
 ) => {
-  let prices = { selected: nativeCurrencies[nativeSelected] };
+  let prices = {};
   Object.keys(nativeCurrencies).forEach(nativeCurrency => {
     prices[nativeCurrency] = {};
     assets.forEach(asset => {
@@ -237,7 +235,7 @@ export const parsePricesObject = (
  * @desc parse account assets
  * @param  {Object} [data=null]
  * @param  {String} [address=null]
- * @return {Object}
+ * @return {Array}
  */
 export const parseAccountAssets = (data = null, address = '') => {
   try {
@@ -253,6 +251,7 @@ export const parseAccountAssets = (data = null, address = '') => {
         address: assetData.contract.address || null,
         decimals: convertStringToNumber(assetData.contract.decimals),
       };
+      // TODO: can only store balance without display
       const assetBalance = convertAssetAmountToBigNumber(
         assetData.balance,
         asset.decimals,
@@ -266,7 +265,6 @@ export const parseAccountAssets = (data = null, address = '') => {
             decimals: asset.decimals,
           }),
         },
-        native: null,
       };
     });
 
@@ -274,12 +272,7 @@ export const parseAccountAssets = (data = null, address = '') => {
       asset => !!Number(asset.balance.amount) || asset.symbol === 'ETH',
     );
 
-    return {
-      address: address,
-      type: '',
-      assets: assets,
-      total: null,
-    };
+    return assets;
   } catch (error) {
     throw error;
   }
@@ -293,79 +286,74 @@ export const parseAccountAssets = (data = null, address = '') => {
  * @return {Object}
  */
 export const parseAccountBalancesPrices = (
-  account = null,
+  assets = null,
+  nativeCurrency,
   nativePrices = null,
   network = '',
 ) => {
   let totalAmount = 0;
-  let newAccount = {
-    ...account,
-  };
-  let nativeSelected = nativePrices.selected.currency;
-  if (account) {
-    const newAssets = account.assets.map(asset => {
-      if (
-        !nativePrices ||
-        (nativePrices && !nativePrices[nativeSelected][asset.symbol])
-      )
-        return asset;
+  let newAccount = null;
+  const newAssets = assets.map(asset => {
+    if (
+      !nativePrices ||
+      (nativePrices && !nativePrices[nativeCurrency][asset.symbol])
+    )
+      return asset;
 
-      const balanceAmountUnit = convertAmountFromBigNumber(
-        asset.balance.amount,
-        asset.decimals,
+    const balanceAmountUnit = convertAmountFromBigNumber(
+      asset.balance.amount,
+      asset.decimals,
+    );
+    const balancePriceUnit = convertAmountFromBigNumber(
+      nativePrices[nativeCurrency][asset.symbol].price.amount,
+    );
+    const balanceRaw = multiply(balanceAmountUnit, balancePriceUnit);
+    const balanceAmount = convertAmountToBigNumber(balanceRaw);
+    let trackingAmount = balanceAmount;
+    if (nativeCurrency !== 'USD') {
+      const trackingPriceUnit = convertAmountFromBigNumber(
+        nativePrices['USD'][asset.symbol].price.amount,
       );
-      const balancePriceUnit = convertAmountFromBigNumber(
-        nativePrices[nativeSelected][asset.symbol].price.amount,
-      );
-      const balanceRaw = multiply(balanceAmountUnit, balancePriceUnit);
-      const balanceAmount = convertAmountToBigNumber(balanceRaw);
-      let trackingAmount = balanceAmount;
-      if (nativeSelected !== 'USD') {
-        const trackingPriceUnit = convertAmountFromBigNumber(
-          nativePrices['USD'][asset.symbol].price.amount,
-        );
-        const trackingRaw = multiply(balanceAmountUnit, trackingPriceUnit);
-        trackingAmount = convertAmountToBigNumber(trackingRaw);
-      }
-      const balanceDisplay = convertAmountToDisplay(
-        balanceAmount,
-        nativePrices,
-      );
-      const assetPrice = nativePrices[nativeSelected][asset.symbol].price;
-      return {
-        ...asset,
-        trackingAmount,
-        native: {
-          selected: nativePrices.selected,
-          balance: { amount: balanceAmount, display: balanceDisplay },
-          price: assetPrice,
-          change:
-            asset.symbol === nativePrices.selected.currency
-              ? { amount: '0', display: '———' }
-              : nativePrices[nativeSelected][asset.symbol].change,
-        },
-      };
-    });
-    totalAmount = newAssets.reduce(
+      const trackingRaw = multiply(balanceAmountUnit, trackingPriceUnit);
+      trackingAmount = convertAmountToBigNumber(trackingRaw);
+    }
+    const balanceDisplay = convertAmountToDisplay(
+      balanceAmount,
+      nativePrices,
+    );
+    const assetPrice = nativePrices[nativeCurrency][asset.symbol].price;
+    return {
+      ...asset,
+      trackingAmount,
+      native: {
+        selected: nativePrices.selected,
+        balance: { amount: balanceAmount, display: balanceDisplay },
+        price: assetPrice,
+        change:
+          asset.symbol === nativeCurrency
+            ? { amount: '0', display: '———' }
+            : nativePrices[nativeCurrency][asset.symbol].change,
+      },
+    };
+  });
+  totalAmount = newAssets.reduce(
+    (total, asset) =>
+      add(total, asset.native ? asset.native.balance.amount : 0),
+    0,
+  );
+  const totalUSDAmount = (nativeCurrency === 'USD') ? totalAmount :
+    newAssets.reduce(
       (total, asset) =>
-        add(total, asset.native ? asset.native.balance.amount : 0),
+        add(total, asset.native ? asset.trackingAmount : 0),
       0,
     );
-    const totalUSDAmount = (nativeSelected === 'USD') ? totalAmount :
-      newAssets.reduce(
-        (total, asset) =>
-          add(total, asset.native ? asset.trackingAmount : 0),
-        0,
-      );
-    const totalDisplay = convertAmountToDisplay(totalAmount, nativePrices);
-    const totalTrackingAmount = convertAmountToUnformattedDisplay(totalUSDAmount, 'USD');
-    const total = { amount: totalAmount, display: totalDisplay, totalTrackingAmount };
-    newAccount = {
-      ...newAccount,
-      assets: newAssets,
-      total: total,
-    };
-  }
+  const totalDisplay = convertAmountToDisplay(totalAmount, nativePrices);
+  const totalTrackingAmount = convertAmountToUnformattedDisplay(totalUSDAmount, 'USD');
+  const total = { amount: totalAmount, display: totalDisplay, totalTrackingAmount };
+  newAccount = {
+    assets: newAssets,
+    total: total,
+  };
   return newAccount;
 };
 

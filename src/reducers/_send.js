@@ -24,7 +24,7 @@ import {
 } from '../handlers/web3';
 import { notificationShow } from './_notification';
 import {
-  transactionsUpdateTransactions,
+  transactionsAddNewTransaction,
   transactionsUpdateHasPendingTransaction,
 } from './_transactions';
 
@@ -225,14 +225,9 @@ export const sendTransaction = (transactionDetails, signAndSendTransactionCb) =>
         transaction: signableTransactionDetails,
       })
       .then((txHash) => {
-        // has pending transactions set to true for redirect to Transactions route
-        if (txHash) {
-          dispatch(transactionsUpdateHasPendingTransaction());
-        }
-
         txDetails.hash = txHash;
 
-        dispatch(transactionsUpdateTransactions(txDetails))
+        dispatch(transactionsAddNewTransaction(txDetails))
           .then(success => {
             dispatch({
               type: SEND_TRANSACTION_SUCCESS,

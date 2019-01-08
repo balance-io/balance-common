@@ -140,7 +140,7 @@ export const parseGasPrices = (data, prices, gasLimit, short) => {
 
 export const convertGasPricesToNative = (prices, gasPrices) => {
   const nativeGases = { ...gasPrices };
-  if (prices && prices.selected) {
+  if (prices) {
     gasPrices.fast.txFee.native = getNativeGasPrice(prices, gasPrices.fast.txFee.value.amount);
     gasPrices.average.txFee.native = getNativeGasPrice(prices, gasPrices.average.txFee.value.amount);
     gasPrices.slow.txFee.native = getNativeGasPrice(prices, gasPrices.slow.txFee.value.amount);
@@ -276,85 +276,6 @@ export const parseAccountAssets = (data = null, address = '') => {
   } catch (error) {
     throw error;
   }
-};
-
-/**
- * @desc parse account balances from native prices
- * @param  {Object} [account=null]
- * @param  {Object} [prices=null]
- * @param  {String} [network='']
- * @return {Object}
- */
-export const parseAccountBalancesPrices = (
-  assets = null,
-  nativeCurrency,
-  nativePrices = null,
-  network = '',
-) => {
-  let totalAmount = 0;
-  let newAccount = null;
-  const newAssets = assets.map(asset => {
-    if (
-      !nativePrices ||
-      (nativePrices && !nativePrices[nativeCurrency][asset.symbol])
-    )
-      return asset;
-
-    const balanceAmountUnit = convertAmountFromBigNumber(
-      asset.balance.amount,
-      asset.decimals,
-    );
-    const balancePriceUnit = convertAmountFromBigNumber(
-      nativePrices[nativeCurrency][asset.symbol].price.amount,
-    );
-    const balanceRaw = multiply(balanceAmountUnit, balancePriceUnit);
-    const balanceAmount = convertAmountToBigNumber(balanceRaw);
-    let trackingAmount = balanceAmount;
-    if (nativeCurrency !== 'USD') {
-      const trackingPriceUnit = convertAmountFromBigNumber(
-        nativePrices['USD'][asset.symbol].price.amount,
-      );
-      const trackingRaw = multiply(balanceAmountUnit, trackingPriceUnit);
-      trackingAmount = convertAmountToBigNumber(trackingRaw);
-    }
-    const balanceDisplay = convertAmountToDisplay(
-      balanceAmount,
-      nativePrices,
-    );
-    const assetPrice = nativePrices[nativeCurrency][asset.symbol].price;
-    return {
-      ...asset,
-      trackingAmount,
-      native: {
-        selected: nativePrices.selected,
-        balance: { amount: balanceAmount, display: balanceDisplay },
-        price: assetPrice,
-        change:
-          asset.symbol === nativeCurrency
-            ? { amount: '0', display: '———' }
-            : nativePrices[nativeCurrency][asset.symbol].change,
-      },
-    };
-  });
-  totalAmount = newAssets.reduce(
-    (total, asset) =>
-      add(total, asset.native ? asset.native.balance.amount : 0),
-    0,
-  );
-  const totalUSDAmount = (nativeCurrency === 'USD') ? totalAmount :
-    newAssets.reduce(
-      (total, asset) =>
-        add(total, asset.native ? asset.trackingAmount : 0),
-      0,
-    );
-  const totalDisplay = convertAmountToDisplay(totalAmount, nativePrices);
-  const totalTrackingAmount = convertAmountToUnformattedDisplay(totalUSDAmount, 'USD');
-  const total = { amount: totalAmount, display: totalDisplay, totalTrackingAmount };
-  newAccount = {
-    assets: newAssets,
-    total: total,
-  };
-  return newAccount;
 };
 
 /**
@@ -542,7 +463,6 @@ export const parseNewTransaction = async (
     nonce: nonce,
     value: value,
     txFee: txFee,
-    native: { selected: nativeCurrencies[nativeCurrency] },
     pending: txDetails.hash ? true : false,
     asset: txDetails.asset,
   };

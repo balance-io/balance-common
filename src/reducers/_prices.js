@@ -30,7 +30,7 @@ export const pricesClearState = () => dispatch => {
 
 const getNativePrices = () => (dispatch, getState) => {
   const getPrices = () => {
-    const { assets } = getState().account;
+    const { assets } = getState().assets;
     const assetSymbols = assets.map(asset => asset.symbol);
     dispatch({ type: PRICES_GET_NATIVE_PRICES_REQUEST });
     apiGetPrices(assetSymbols)

@@ -6,7 +6,7 @@ import transactions from './_transactions';
 import {
   assetsClearState,
   assetsRefreshState,
-  INITIAL_ASSETS_STATE, // TODO
+  INITIAL_ASSETS_STATE,
 } from './_assets';
 import {
   pricesClearState,

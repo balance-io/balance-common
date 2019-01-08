@@ -119,21 +119,9 @@ const assetsGetUniqueTokens = () => (dispatch, getState) => {
 
 
 // -- Reducer --------------------------------------------------------------- //
-// TODO: assets with default ETH 
 export const INITIAL_ASSETS_STATE = {
-  assets: [
-    {
-      name: 'Ethereum',
-      symbol: 'ETH',
-      address: null,
-      decimals: 18,
-      balance: {
-        amount: '',
-        display: '0.00 ETH',
-      },
-    },
-  ],
-  fetchingAssets: null, // TODO
+  assets: [],
+  fetchingAssets: null,
   fetchingUniqueTokens: false,
   uniqueTokens: [],
 };

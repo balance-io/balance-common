@@ -68,10 +68,12 @@ const assetsGetBalances = () => (dispatch, getState) => new Promise((resolve, re
           type: ASSETS_GET_BALANCES_SUCCESS,
           payload: assets,
         });
-        dispatch(assetsUpdateBalances());
-        resolve(true);
-        })
-      .catch(error => {
+        dispatch(assetsUpdateBalances()).then(() => {
+          resolve(true);
+        }).catch(error => {
+          reject(false);
+        });
+      }).catch(error => {
         const message = parseError(error);
         dispatch(notificationShow(message, true));
         reject(false);

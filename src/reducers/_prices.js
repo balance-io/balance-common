@@ -17,40 +17,31 @@ const PRICES_CLEAR_STATE =
   'prices/PRICES_CLEAR_STATE';
 
 // -- Actions --------------------------------------------------------------- //
-let getPricesInterval = null;
-
-export const pricesRefreshState = () => dispatch => {
-  dispatch(getNativePrices());
-};
 
 export const pricesClearState = () => dispatch => {
-  clearInterval(getPricesInterval);
   dispatch({ type: PRICES_CLEAR_STATE });
 };
 
-const getNativePrices = () => (dispatch, getState) => {
-  const getPrices = () => {
-    const { assets } = getState().assets;
-    const assetSymbols = assets.map(asset => asset.symbol);
-    dispatch({ type: PRICES_GET_NATIVE_PRICES_REQUEST });
-    apiGetPrices(assetSymbols)
-      .then(({ data }) => {
-        const prices = parsePricesObject(data, assetSymbols);
-        dispatch({
-          type: PRICES_GET_NATIVE_PRICES_SUCCESS,
-          payload: prices,
-        });
-      })
-      .catch(error => {
-        dispatch({ type: PRICES_GET_NATIVE_PRICES_FAILURE });
-        const message = parseError(error);
-        dispatch(notificationShow(message, true));
+export const getNativePrices = () => (dispatch, getState) => new Promise((resolve, reject) => {
+  const { assets } = getState().assets;
+  const assetSymbols = assets.map(asset => asset.symbol);
+  dispatch({ type: PRICES_GET_NATIVE_PRICES_REQUEST });
+  apiGetPrices(assetSymbols)
+    .then(({ data }) => {
+      const prices = parsePricesObject(data, assetSymbols);
+      dispatch({
+        type: PRICES_GET_NATIVE_PRICES_SUCCESS,
+        payload: prices,
       });
-  }
-  getPrices();
-  clearInterval(getPricesInterval);
-  getPricesInterval = setInterval(getPrices, 15000); // 15 secs
-};
+      resolve(true);
+    })
+    .catch(error => {
+      dispatch({ type: PRICES_GET_NATIVE_PRICES_FAILURE });
+      const message = parseError(error);
+      dispatch(notificationShow(message, true));
+      reject(false);
+    });
+});
 
 // -- Reducer --------------------------------------------------------------- //
 export const INITIAL_STATE = {

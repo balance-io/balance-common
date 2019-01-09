@@ -7,6 +7,7 @@ import {
   getUniqueTokens,
   saveUniqueTokens,
 } from '../handlers/commonStorage';
+import { getNativePrices } from './_prices';
 import { notificationShow } from './_notification';
 
 // -- Constants ------------------------------------------------------------- //
@@ -92,7 +93,11 @@ const assetsUpdateBalances = () => (dispatch, getState) => new Promise((resolve,
           type: ASSETS_UPDATE_BALANCES_SUCCESS,
           payload: assets,
         });
-        resolve(true);
+        dispatch(getNativePrices()).then(() => {
+          resolve(true);
+        }).catch(error => {
+          reject(false);
+        });
       })
       .catch(error => {
         const message = parseError(error);
@@ -102,6 +107,7 @@ const assetsUpdateBalances = () => (dispatch, getState) => new Promise((resolve,
       });
   });
   getBalances().then(() => {
+    console.log('RESET BALANCES INTERVAL');
     clearInterval(getBalancesInterval);
     getBalancesInterval = setInterval(getBalances, 15000); // 15 secs
     resolve(true);

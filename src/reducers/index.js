@@ -10,7 +10,6 @@ import {
 } from './_assets';
 import {
   pricesClearState,
-  pricesRefreshState,
 } from './_prices';
 import {
   settingsChangeLanguage,
@@ -44,7 +43,6 @@ export {
   INITIAL_ASSETS_STATE,
   prices,
   pricesClearState,
-  pricesRefreshState,
   send,
   sendClearFields,
   sendMaxBalance,

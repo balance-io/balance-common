@@ -7,6 +7,7 @@ import {
   getUniqueTokens,
   saveUniqueTokens,
 } from '../handlers/commonStorage';
+import { getNativePrices } from './_prices';
 import { notificationShow } from './_notification';
 
 // -- Constants ------------------------------------------------------------- //
@@ -39,15 +40,27 @@ export const assetsClearState = () => dispatch => {
   dispatch({ type: ASSETS_CLEAR_STATE });
 };
 
-export const assetsRefreshState = () => dispatch => {
-  dispatch(assetsGetBalances());
-  dispatch(assetsGetUniqueTokens());
-};
+export const assetsRefreshState = () => dispatch => new Promise((resolve, reject) => {
+  dispatch(assetsGetBalances()).then(() => {
+    dispatch(assetsGetUniqueTokens()).then(() => {
+      resolve(true);
+    }).catch(error => {
+      reject(false);
+    });
+  }).catch(error => {
+    reject(false);
+  });
+  //return Promise.all(dispatch(assetsGetBalances()), dispatch(assetsGetUniqueTokens()));
+});
 
-const assetsGetBalances = () => (dispatch, getState) => {
+const assetsGetBalances = () => (dispatch, getState) => new Promise((resolve, reject) => {
   const { accountAddress, accountType, network } = getState().settings;
   if (accountAddress && accountType) {
-    dispatch(assetsUpdateBalances());
+    dispatch(assetsUpdateBalances()).then(() => {
+      resolve(true);
+    }).catch(error => {
+      reject(false);
+    });
   } else {
     dispatch({ type: ASSETS_GET_BALANCES_REQUEST });
     getAssets(accountAddress, network)
@@ -56,19 +69,23 @@ const assetsGetBalances = () => (dispatch, getState) => {
           type: ASSETS_GET_BALANCES_SUCCESS,
           payload: assets,
         });
-        dispatch(assetsUpdateBalances());
-        })
-      .catch(error => {
+        dispatch(assetsUpdateBalances()).then(() => {
+          resolve(true);
+        }).catch(error => {
+          reject(false);
+        });
+      }).catch(error => {
         const message = parseError(error);
         dispatch(notificationShow(message, true));
+        reject(false);
       });
   }
-};
+});
 
-const assetsUpdateBalances = () => (dispatch, getState) => {
+const assetsUpdateBalances = () => (dispatch, getState) => new Promise((resolve, reject) => {
   const { accountAddress, accountType, network } = getState().settings;
   dispatch({ type: ASSETS_UPDATE_BALANCES_REQUEST });
-  const getBalances = () => {
+  const getBalances = () => new Promise((resolve, reject) => {
     apiGetAccountBalances(accountAddress, network)
       .then(assets => {
         saveAssets(accountAddress, assets, network);
@@ -76,19 +93,32 @@ const assetsUpdateBalances = () => (dispatch, getState) => {
           type: ASSETS_UPDATE_BALANCES_SUCCESS,
           payload: assets,
         });
+        dispatch(getNativePrices()).then(() => {
+          resolve(true);
+        }).catch(error => {
+          reject(false);
+        });
       })
       .catch(error => {
         const message = parseError(error);
         dispatch(notificationShow(message, true));
         dispatch({ type: ASSETS_UPDATE_BALANCES_FAILURE });
+        reject(false);
       });
-  };
-  getBalances();
-  clearInterval(getBalancesInterval);
-  getBalancesInterval = setInterval(getBalances, 15000); // 15 secs
-};
+  });
+  getBalances().then(() => {
+    console.log('RESET BALANCES INTERVAL');
+    clearInterval(getBalancesInterval);
+    getBalancesInterval = setInterval(getBalances, 15000); // 15 secs
+    resolve(true);
+  }).catch(error => {
+    clearInterval(getBalancesInterval);
+    getBalancesInterval = setInterval(getBalances, 15000); // 15 secs
+    reject(false);
+  });
+});
 
-const assetsGetUniqueTokens = () => (dispatch, getState) => {
+const assetsGetUniqueTokens = () => (dispatch, getState) => new Promise((resolve, reject) => {
   dispatch({ type: ASSETS_GET_UNIQUE_TOKENS_REQUEST });
   const { accountAddress, network } = getState().settings;
   getUniqueTokens(accountAddress, network).then(cachedUniqueTokens => {
@@ -105,17 +135,20 @@ const assetsGetUniqueTokens = () => (dispatch, getState) => {
           type: ASSETS_GET_UNIQUE_TOKENS_SUCCESS,
           payload: uniqueTokens,
         });
+        resolve(true);
       })
       .catch(error => {
         const message = parseError(error);
         dispatch(notificationShow(message, true));
         dispatch({ type: ASSETS_GET_UNIQUE_TOKENS_FAILURE });
+        reject(false);
     });
   })
   .catch(error => {
     dispatch({ type: ASSETS_GET_UNIQUE_TOKENS_FAILURE });
+    reject(false);
   });
-};
+});
 
 
 // -- Reducer --------------------------------------------------------------- //

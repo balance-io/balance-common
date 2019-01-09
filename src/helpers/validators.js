@@ -25,3 +25,13 @@ export const isValidAddress = address => {
     return true;
   else return address === toChecksumAddress(address);
 };
+
+/**
+ * @desc validate seed phrase mnemonic
+ * @param  {String} seed phrase mnemonic
+ * @return {Boolean}
+ */
+export const isValidSeedPhrase = (seedPhrase) => {
+  const phrases = seedPhrase.split(' ').filter(word => !!word).length;
+  return phrases >= 12 && phrases <= 24;
+};

@@ -41,7 +41,6 @@ export const supportedLanguages = {
 
 i18next.init({
   lng: 'en',
-  debug: true, // TODO: only debug in dev mode
   resources,
 });
 

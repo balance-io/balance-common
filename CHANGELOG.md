@@ -6,12 +6,16 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/)
 
 ## [Unreleased]
-
 ### Added
 
 ### Changed
 
 ### Removed
+
+## [0.6.11](https://github.com/balance-io/balance-common/releases/tag/0.6.11)
+### Changed
+* Separate reducer for transactions, assets, prices, settings
+* Promisified assets refresh
 
 ## [0.6.9](https://github.com/balance-io/balance-common/releases/tag/0.6.9)
 ### Changed

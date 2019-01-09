@@ -231,7 +231,7 @@ export const convertAmountToUnformattedDisplay = (value, selected) => {
  * @param  {Number}     buffer
  * @return {String}
  */
-export const convertAmountToDisplay = (value, nativePrices, asset, buffer) => {
+export const convertAmountToDisplay = (value, nativePrices, asset, nativeCurrency, buffer) => {
   value = convertAmountFromBigNumber(value);
   if (!nativePrices && !asset) {
     const decimals = 2;
@@ -242,12 +242,13 @@ export const convertAmountToDisplay = (value, nativePrices, asset, buffer) => {
     const display = handleSignificantDecimals(value, decimals, buffer);
     return `${display} ${asset.symbol}`;
   } else if (nativePrices) {
-    const decimals = nativePrices.selected.decimals;
+    const nativeSelected = nativeCurrencies[nativeCurrency];
+    const decimals = nativeSelected.decimals;
     const display = handleSignificantDecimals(value, decimals, buffer);
-    if (nativePrices.selected.alignment === 'left') {
-      return `${nativePrices.selected.symbol}${display}`;
+    if (nativeSelected.alignment === 'left') {
+      return `${nativeSelected.symbol}${display}`;
     }
-    return `${display} ${nativePrices.selected.currency}`;
+    return `${display} ${nativeSelected.currency}`;
   }
   return value;
 };
@@ -349,11 +350,11 @@ export const convertAssetAmountFromBigNumber = (value, decimals) => {
  * @param  {String}   value
  * @param  {Object}   asset
  * @param  {Object}   nativePrices
+ * @param  {String}   nativeCurrency
  * @return {String}
  */
-export const convertAssetAmountToNativeValue = (value, asset, nativePrices) => {
-  const nativeSelected = nativePrices.selected.currency;
-  return convertAssetAmountToSpecifiedNativeValue(value, asset, nativePrices, nativeSelected);
+export const convertAssetAmountToNativeValue = (value, asset, nativePrices, nativeCurrency) => {
+  return convertAssetAmountToSpecifiedNativeValue(value, asset, nativePrices, nativeCurrency);
 };
 
 /**
@@ -385,10 +386,10 @@ export const convertAssetAmountFromNativeValue = (
   value,
   asset,
   nativePrices,
+  nativeCurrency,
 ) => {
-  const nativeSelected = nativePrices.selected.currency;
   const assetPriceUnit = convertAmountFromBigNumber(
-    nativePrices[nativeSelected][asset.symbol].price.amount,
+    nativePrices[nativeCurrency][asset.symbol].price.amount,
   );
   const assetAmountUnit = BigNumber(value)
     .dividedBy(BigNumber(assetPriceUnit))
@@ -407,39 +408,16 @@ export const convertAssetAmountToNativeAmount = (
   value,
   asset,
   nativePrices,
+  nativeCurrency,
 ) => {
-  const nativeSelected = nativePrices.selected.currency;
   const _value = convertAmountFromBigNumber(`${value}`);
   const assetPriceUnit = convertAmountFromBigNumber(
-    nativePrices[nativeSelected][asset.symbol].price.amount,
+    nativePrices[nativeCurrency][asset.symbol].price.amount,
   );
   const assetNativePrice = BigNumber(_value)
     .times(BigNumber(assetPriceUnit))
     .toString();
   return convertAmountToBigNumber(assetNativePrice);
-};
-
-/**
- * @desc convert to asset BigNumber amount from native price BigNumber amount
- * @param  {BigNumber}   value
- * @param  {Object}   asset
- * @param  {Object}   nativePrices
- * @return {BigNumber}
- */
-export const convertAssetAmountFromNativeAmount = (
-  value,
-  asset,
-  nativePrices,
-) => {
-  const nativeSelected = nativePrices.selected.currency;
-  const _value = convertAmountFromBigNumber(`${value}`);
-  const assetPriceUnit = convertAmountFromBigNumber(
-    nativePrices[nativeSelected][asset.symbol].price.amount,
-  );
-  const assetAmountUnit = BigNumber(_value)
-    .dividedBy(BigNumber(assetPriceUnit))
-    .toString();
-  return convertAmountToBigNumber(assetAmountUnit);
 };
 
 /**
@@ -486,6 +464,7 @@ export const formatInputDecimals = (inputOne, inputTwo) => {
  * @return {Boolean}
  */
 export const hasHighMarketValue = asset =>
+  // TODO
   asset.native &&
   greaterThan(
     convertAmountFromBigNumber(asset.native.balance.amount),
@@ -498,6 +477,7 @@ export const hasHighMarketValue = asset =>
  * @return {Boolean}
  */
 export const hasLowMarketValue = asset =>
+  // TODO
   asset.native &&
   smallerThan(
     convertAmountFromBigNumber(asset.native.balance.amount),

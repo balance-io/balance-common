@@ -24,7 +24,7 @@ import {
 } from '../handlers/web3';
 import { notificationShow } from './_notification';
 import {
-  transactionsUpdateTransactions,
+  transactionsAddNewTransaction,
   transactionsUpdateHasPendingTransaction,
 } from './_transactions';
 
@@ -54,11 +54,11 @@ const SEND_UPDATE_HAS_PENDING_TRANSACTION =
 
 const SEND_CLEAR_FIELDS = 'send/SEND_CLEAR_FIELDS';
 
-function getBalanceAmount(accountInfo, gasPrice, selected) {
+function getBalanceAmount(assets, gasPrice, selected) {
   let amount = '';
 
   if (selected.symbol === 'ETH') {
-    const ethereum = accountInfo.assets.filter(
+    const ethereum = assets.filter(
       asset => asset.symbol === 'ETH',
     )[0];
     const balanceAmount = ethereum.balance.amount;
@@ -77,11 +77,12 @@ function getBalanceAmount(accountInfo, gasPrice, selected) {
 // -- Actions --------------------------------------------------------------- //
 
 export const sendModalInit = (options = {}) => (dispatch, getState) => {
-  const { accountAddress, accountInfo, prices } = getState().account;
+  const { accountAddress, nativeCurrency } = getState().settings;
+  const { assets } = getState().assets;
+  const { prices } = getState().prices;
   const { gasLimit } = getState().send;
 
-  const fallbackGasPrices = parseGasPrices(null, prices, gasLimit, options.gasFormat === 'short');
-  const assets = get(accountInfo, 'assets', []);
+  const fallbackGasPrices = parseGasPrices(null, prices, gasLimit, nativeCurrency, options.gasFormat === 'short');
   const selected = assets.filter(asset => asset.symbol === options.defaultAsset)[0] || {};
 
   dispatch({
@@ -95,7 +96,7 @@ export const sendModalInit = (options = {}) => (dispatch, getState) => {
 
   apiGetGasPrices()
     .then(({ data }) => {
-      const gasPrices = parseGasPrices(data, prices, gasLimit, options.gasFormat === 'short');
+      const gasPrices = parseGasPrices(data, prices, gasLimit, nativeCurrency, options.gasFormat === 'short');
       dispatch({
         type: SEND_GET_GAS_PRICES_SUCCESS,
         payload: gasPrices,
@@ -136,10 +137,11 @@ export const sendUpdateGasPrice = newGasPriceOption => (dispatch, getState) => {
     amount: assetAmount,
   })
     .then(gasLimit => {
-      const { accountInfo, prices } = getState().account;
+      const { prices } = getState().prices;
+      const { assets } = getState().assets;
       gasPrices = parseGasPricesTxFee(gasPrices, prices, gasLimit);
 
-      const ethereum = accountInfo.assets.filter(
+      const ethereum = assets.filter(
         asset => asset.symbol === 'ETH',
       )[0];
 
@@ -199,7 +201,7 @@ export const sendTransaction = (transactionDetails, signAndSendTransactionCb) =>
     gasPrice,
     gasLimit,
   } = transactionDetails;
-  const { accountType } = getState().account;
+  const { accountType } = getState().settings;
   const { selected, trackingAmount } = getState().send;
   const txDetails = {
     asset: asset,
@@ -225,14 +227,9 @@ export const sendTransaction = (transactionDetails, signAndSendTransactionCb) =>
         transaction: signableTransactionDetails,
       })
       .then((txHash) => {
-        // has pending transactions set to true for redirect to Transactions route
-        if (txHash) {
-          dispatch(transactionsUpdateHasPendingTransaction());
-        }
-
         txDetails.hash = txHash;
 
-        dispatch(transactionsUpdateTransactions(txDetails))
+        dispatch(transactionsAddNewTransaction(txDetails))
           .then(success => {
             dispatch({
               type: SEND_TRANSACTION_SUCCESS,
@@ -274,7 +271,9 @@ export const sendUpdateRecipient = recipient => dispatch => {
 };
 
 export const sendUpdateAssetAmount = assetAmount => (dispatch, getState) => {
-  const { accountInfo, prices, nativeCurrency } = getState().account;
+  const { assets } = getState().assets;
+  const { prices } = getState().prices;
+  const { nativeCurrency } = getState().settings;
   const { gasPrice, selected } = getState().send;
   const _assetAmount = assetAmount.replace(/[^0-9.]/g, '');
   let _nativeAmount = '';
@@ -284,6 +283,7 @@ export const sendUpdateAssetAmount = assetAmount => (dispatch, getState) => {
       _assetAmount,
       selected,
       prices,
+      nativeCurrency,
     );
     _nativeAmount = formatInputDecimals(nativeAmount, _assetAmount);
     _trackingAmount = _nativeAmount;
@@ -297,7 +297,7 @@ export const sendUpdateAssetAmount = assetAmount => (dispatch, getState) => {
     }
   }
 
-  const balanceAmount = getBalanceAmount(accountInfo, gasPrice, selected);
+  const balanceAmount = getBalanceAmount(assets, gasPrice, selected);
   dispatch({
     type: SEND_UPDATE_ASSET_AMOUNT,
     payload: {
@@ -310,7 +310,9 @@ export const sendUpdateAssetAmount = assetAmount => (dispatch, getState) => {
 };
 
 export const sendUpdateNativeAmount = nativeAmount => (dispatch, getState) => {
-  const { accountInfo, prices, nativeCurrency } = getState().account;
+  const { assets } = getState().assets;
+  const { prices } = getState().prices;
+  const { nativeCurrency } = getState().settings;
   const { gasPrice, selected } = getState().send;
   const _nativeAmount = nativeAmount.replace(/[^0-9.]/g, '');
   let _assetAmount = '';
@@ -320,6 +322,7 @@ export const sendUpdateNativeAmount = nativeAmount => (dispatch, getState) => {
       _nativeAmount,
       selected,
       prices,
+      nativeCurrency,
     );
     _assetAmount = formatInputDecimals(assetAmount, _nativeAmount);
 
@@ -334,7 +337,7 @@ export const sendUpdateNativeAmount = nativeAmount => (dispatch, getState) => {
     }
   }
 
-  const balanceAmount = getBalanceAmount(accountInfo, gasPrice, selected);
+  const balanceAmount = getBalanceAmount(assets, gasPrice, selected);
 
   dispatch({
     type: SEND_UPDATE_ASSET_AMOUNT,
@@ -350,9 +353,9 @@ export const sendUpdateNativeAmount = nativeAmount => (dispatch, getState) => {
 export const sendUpdateSelected = value => (dispatch, getState) => {
   const state = getState();
   const assetAmount = get(state, 'send.assetAmount', 0);
-  const assets = get(state, 'account.accountInfo.assets', []);
-  const nativeCurrency = get(state, 'account.nativeCurrency', '');
-  const prices = get(state, 'account.prices', {});
+  const assets = get(state, 'assets.assets', []);
+  const nativeCurrency = get(state, 'settings.nativeCurrency', '');
+  const prices = get(state, 'prices.prices', {});
   const selected = assets.filter(asset => asset.symbol === value)[0] || {};
 
   dispatch({ type: SEND_UPDATE_SELECTED, payload: selected });
@@ -365,8 +368,8 @@ export const sendUpdateSelected = value => (dispatch, getState) => {
 
 export const sendMaxBalance = () => (dispatch, getState) => {
   const { selected, gasPrice } = getState().send;
-  const { accountInfo } = getState().account;
-  const balanceAmount = getBalanceAmount(accountInfo, gasPrice, selected);
+  const { assets } = getState().assets;
+  const balanceAmount = getBalanceAmount(assets, gasPrice, selected);
 
   dispatch(sendUpdateAssetAmount(balanceAmount));
 };

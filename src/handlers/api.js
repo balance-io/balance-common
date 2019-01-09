@@ -96,9 +96,7 @@ export const apiGetAccountBalances = async (
 ) => {
   try {
     const { data } = await api.get(`/get_balances/${network}/${address}`);
-    const accountInfo = parseAccountAssets(data, address);
-    const result = { data: accountInfo };
-    return result;
+    return parseAccountAssets(data, address);
   } catch (error) {
     console.log('Error getting acct balances from proxy', error);
     throw error;

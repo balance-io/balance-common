@@ -27,7 +27,8 @@ import {
   transactionData,
 } from '../helpers/utilities';
 
-const reduxProps = ({ send, account }) => ({
+const reduxProps = ({ send, assets, prices, settings }) => ({
+  address: settings.accountAddress,
   fetching: send.fetching,
   recipient: send.recipient,
   nativeAmount: send.nativeAmount,
@@ -42,11 +43,11 @@ const reduxProps = ({ send, account }) => ({
   gasLimit: send.gasLimit,
   gasPriceOption: send.gasPriceOption,
   confirm: send.confirm,
-  accountInfo: account.accountInfo,
-  accountType: account.accountType,
-  network: account.network,
-  nativeCurrency: account.nativeCurrency,
-  prices: account.prices,
+  assets: assets.assets,
+  accountType: settings.accountType,
+  network: settings.network,
+  nativeCurrency: settings.nativeCurrency,
+  prices: prices.prices,
 });
 
 /**
@@ -84,7 +85,7 @@ export const withSendComponentWithData = (SendComponent, options) => {
       gasLimit: PropTypes.number.isRequired,
       gasPriceOption: PropTypes.string.isRequired,
       confirm: PropTypes.bool.isRequired,
-      accountInfo: PropTypes.object.isRequired,
+      assets: PropTypes.array.isRequired,
       accountType: PropTypes.string.isRequired,
       network: PropTypes.string.isRequired,
       nativeCurrency: PropTypes.string.isRequired,
@@ -172,7 +173,7 @@ export const withSendComponentWithData = (SendComponent, options) => {
           return;
         } else if (this.props.selected.symbol === 'ETH') {
           const { requestedAmount, balance, amountWithFees } = transactionData(
-            this.props.accountInfo,
+            this.props.assets,
             this.props.assetAmount,
             this.props.gasPrice,
           );
@@ -194,7 +195,7 @@ export const withSendComponentWithData = (SendComponent, options) => {
           }
         } else {
           const { requestedAmount, balance, txFee } = transactionData(
-            this.props.accountInfo,
+            this.props.assets,
             this.props.assetAmount,
             this.props.gasPrice,
           );
@@ -222,7 +223,7 @@ export const withSendComponentWithData = (SendComponent, options) => {
         this.props.sendToggleConfirmationView(true);
 
         return this.props.sendTransaction({
-          address: this.props.accountInfo.address,
+          address: this.props.address,
           recipient: this.props.recipient,
           amount: this.props.assetAmount,
           asset: this.props.selected,

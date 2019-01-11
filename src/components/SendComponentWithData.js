@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import { compose } from 'recompact';
 import { get } from 'lodash';
 import lang from '../languages';
-import withAccountAssets from '../hoc/withAccountAssets';
+import { default as withAccountAssets } from '../hoc/withAccountAssets';
 import {
   sendModalInit,
   sendUpdateGasPrice,

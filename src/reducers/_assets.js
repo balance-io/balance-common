@@ -197,7 +197,11 @@ export default (state = INITIAL_ASSETS_STATE, action) => {
         fetchingAssets: false,
       };
     case ASSETS_UPDATE_BALANCES_FAILURE:
-      return { ...state, fetchingAssets: false };
+      return {
+        ...state,
+        assets: action.payload,
+        fetchingAssets: false,
+      };
     case ASSETS_CLEAR_STATE:
       return {
         ...state,

@@ -1,2 +1,3 @@
 import { getCountdown, getLocalTimeDate } from './time';
-export { getCountdown, getLocalTimeDate };
+import { default as sortList } from './sortList';
+export { getCountdown, getLocalTimeDate, sortList };

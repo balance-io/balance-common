@@ -1,8 +1,10 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
+import { compose } from 'recompact';
 import { get } from 'lodash';
 import lang from '../languages';
+import withAccountAssets from '../hoc/withAccountAssets';
 import {
   sendModalInit,
   sendUpdateGasPrice,
@@ -27,7 +29,7 @@ import {
   transactionData,
 } from '../helpers/utilities';
 
-const reduxProps = ({ send, assets, prices, settings }) => ({
+const mapStateToProps = ({ send, settings }) => ({
   address: settings.accountAddress,
   fetching: send.fetching,
   recipient: send.recipient,
@@ -43,11 +45,9 @@ const reduxProps = ({ send, assets, prices, settings }) => ({
   gasLimit: send.gasLimit,
   gasPriceOption: send.gasPriceOption,
   confirm: send.confirm,
-  assets: assets.assets,
   accountType: settings.accountType,
   network: settings.network,
   nativeCurrency: settings.nativeCurrency,
-  prices: prices.prices,
 });
 
 /**
@@ -89,7 +89,6 @@ export const withSendComponentWithData = (SendComponent, options) => {
       accountType: PropTypes.string.isRequired,
       network: PropTypes.string.isRequired,
       nativeCurrency: PropTypes.string.isRequired,
-      prices: PropTypes.object.isRequired,
     };
 
     constructor(props) {
@@ -298,9 +297,8 @@ export const withSendComponentWithData = (SendComponent, options) => {
     };
   }
 
-  return connect(
-    reduxProps,
-    {
+  return compose(
+    connect(mapStateToProps, {
       sendModalInit,
       sendUpdateGasPrice,
       sendTransaction,
@@ -312,6 +310,7 @@ export const withSendComponentWithData = (SendComponent, options) => {
       sendMaxBalance,
       sendToggleConfirmationView,
       notificationShow,
-    },
+    }),
+    withAccountAssets,
   )(SendComponentWithData);
 };

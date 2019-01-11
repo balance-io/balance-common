@@ -9,7 +9,6 @@ import {
   assets,
   assetsClearState,
   assetsRefreshState,
-  INITIAL_ASSETS_STATE,
   prices,
   pricesClearState,
   send,
@@ -50,6 +49,7 @@ import {
   removeHexPrefix,
   transactionData,
 } from './helpers/utilities';
+import { default as withAccountAssets } from './hoc/withAccountAssets';
 import {
   add,
   convertAmountFromBigNumber,
@@ -73,10 +73,11 @@ import {
   hasHighMarketValue,
   hasLowMarketValue,
   multiply,
+  simpleConvertAmountToDisplay,
   smallerThan,
   subtract,
 } from './helpers/bignumber';
-import { getCountdown, getLocalTimeDate } from './helpers';
+import { getCountdown, getLocalTimeDate, sortList } from './helpers';
 import {
   apiGetGasPrices,
   apiGetSinglePrice,
@@ -126,7 +127,6 @@ export {
   handleSignificantDecimals,
   hasHighMarketValue,
   hasLowMarketValue,
-  INITIAL_ASSETS_STATE,
   isValidAddress,
   isValidEmail,
   isValidSeedPhrase,
@@ -155,6 +155,7 @@ export {
   settingsInitializeState,
   settingsUpdateAccountAddress,
   settingsUpdateNetwork,
+  simpleConvertAmountToDisplay,
   smallerThan,
   subtract,
   supportedLanguages,
@@ -167,5 +168,6 @@ export {
   transactionsUpdateHasPendingTransaction,
   transactionsAddNewTransaction,
   web3Instance,
+  withAccountAssets,
   withSendComponentWithData,
 };

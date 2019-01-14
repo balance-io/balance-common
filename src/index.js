@@ -6,6 +6,9 @@ import {
   withSendComponentWithData
 } from './components/SendComponentWithData';
 import {
+  withAccountAssetsTotal
+} from './hoc';
+import {
   assets,
   assetsClearState,
   assetsRefreshState,
@@ -166,5 +169,6 @@ export {
   transactionsUpdateHasPendingTransaction,
   transactionsAddNewTransaction,
   web3Instance,
+  withAccountAssetsTotal,
   withSendComponentWithData,
 };

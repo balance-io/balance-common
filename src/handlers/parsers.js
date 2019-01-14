@@ -5,7 +5,6 @@ import {
   convertAmountFromBigNumber,
   convertAmountToBigNumber,
   convertAmountToDisplay,
-  convertAmountToDisplaySpecific,
   convertAmountToUnformattedDisplay,
   convertAssetAmountToBigNumber,
   convertAssetAmountToNativeAmount,
@@ -13,6 +12,7 @@ import {
   convertStringToNumber,
   divide,
   multiply,
+  simpleConvertAmountToDisplay,
 } from '../helpers/bignumber';
 import ethUnits from '../references/ethereum-units.json';
 import nativeCurrencies from '../references/native-currencies.json';
@@ -63,7 +63,6 @@ export const getTxFee = (gasPrice, gasLimit) => {
       amount,
       display: convertAmountToDisplay(
         amount,
-        null,
         {
           symbol: 'ETH',
           decimals: 18,
@@ -160,10 +159,8 @@ export const getNativeGasPrice = (prices, feeAmount, nativeCurrency) => {
     selected,
     value: {
       amount,
-      display: convertAmountToDisplay(
+      display: simpleConvertAmountToDisplay(
         amount,
-        prices,
-        null,
         nativeCurrency,
         2,
       ),
@@ -205,9 +202,8 @@ export const parsePricesObject = (
             amount: convertAmountToBigNumber(
               data.RAW[asset][nativeCurrency].PRICE,
             ),
-            display: convertAmountToDisplaySpecific(
+            display: simpleConvertAmountToDisplay(
               convertAmountToBigNumber(data.RAW[asset][nativeCurrency].PRICE),
-              prices,
               nativeCurrency,
             ),
           },
@@ -263,7 +259,7 @@ export const parseAccountAssets = (data = null, address = '') => {
         ...asset,
         balance: {
           amount: assetBalance,
-          display: convertAmountToDisplay(assetBalance, null, {
+          display: convertAmountToDisplay(assetBalance, {
             symbol: asset.symbol,
             decimals: asset.decimals,
           }),
@@ -358,10 +354,8 @@ export const parseHistoricalNativePrice = async transaction => {
       prices[nativeCurrency][asset.symbol] = {
         price: { amount: assetPriceAmount, display: null },
       };
-      const assetPriceDisplay = convertAmountToDisplay(
+      const assetPriceDisplay = simpleConvertAmountToDisplay(
         assetPriceAmount,
-        prices,
-        null,
         nativeCurrency,
       );
       prices[nativeCurrency][asset.symbol].price.display = assetPriceDisplay;
@@ -373,10 +367,8 @@ export const parseHistoricalNativePrice = async transaction => {
         prices,
         nativeCurrency,
       );
-      const valuePriceDisplay = convertAmountToDisplay(
+      const valuePriceDisplay = simpleConvertAmountToDisplay(
         valuePriceAmount,
-        prices,
-        null,
         nativeCurrency,
       );
       const valuePrice = !tx.error
@@ -399,7 +391,7 @@ export const parseHistoricalNativePrice = async transaction => {
       prices[nativeCurrency]['ETH'] = {
         price: { amount: feePriceAmount, display: null },
       };
-      const feePriceDisplay = convertAmountToDisplay(feePriceAmount, prices, null, nativeCurrency);
+      const feePriceDisplay = simpleConvertAmountToDisplay(feePriceAmount, nativeCurrency);
       prices[nativeCurrency]['ETH'].price.display = feePriceDisplay;
 
       const txFeePriceAmount = convertAssetAmountToNativeValue(
@@ -408,10 +400,8 @@ export const parseHistoricalNativePrice = async transaction => {
         prices,
         nativeCurrency,
       );
-      const txFeePriceDisplay = convertAmountToDisplay(
+      const txFeePriceDisplay = simpleConvertAmountToDisplay(
         txFeePriceAmount,
-        prices,
-        null,
         nativeCurrency,
       );
       const txFeePrice = {
@@ -446,7 +436,7 @@ export const parseNewTransaction = async (
   let txFee = totalGas
     ? {
         amount: totalGas,
-        display: convertAmountToDisplay(totalGas, null, {
+        display: convertAmountToDisplay(totalGas, {
           symbol: 'ETH',
           decimals: 18,
         }),
@@ -459,7 +449,7 @@ export const parseNewTransaction = async (
   );
   const value = {
     amount,
-    display: convertAmountToDisplay(amount, null, txDetails.asset),
+    display: convertAmountToDisplay(amount, txDetails.asset),
   };
   const nonce =
     txDetails.nonce ||
@@ -534,7 +524,7 @@ export const parseTransaction = async tx => {
   };
   let value = {
     amount: tx.value,
-    display: convertAmountToDisplay(tx.value, null, {
+    display: convertAmountToDisplay(tx.value, {
       symbol: 'ETH',
       decimals: 18,
     }),
@@ -542,7 +532,7 @@ export const parseTransaction = async tx => {
   let totalGas = multiply(tx.gasUsed, tx.gasPrice);
   let txFee = {
     amount: totalGas,
-    display: convertAmountToDisplay(totalGas, null, {
+    display: convertAmountToDisplay(totalGas, {
       symbol: 'ETH',
       decimals: 18,
     }),
@@ -612,7 +602,7 @@ export const parseTransaction = async tx => {
         );
         transferTx.value = {
           amount,
-          display: convertAmountToDisplay(amount, null, transferTx.asset),
+          display: convertAmountToDisplay(amount, transferTx.asset),
         };
         tokenTransfers.push(transferTx);
       });
@@ -651,4 +641,3 @@ export const parseHistoricalTransactions = async (transactions, page) => {
   );
   return _transactions;
 };
-

@@ -6,7 +6,6 @@ import transactions from './_transactions';
 import {
   assetsClearState,
   assetsRefreshState,
-  INITIAL_ASSETS_STATE,
 } from './_assets';
 import {
   pricesClearState,
@@ -40,7 +39,6 @@ export {
   assets,
   assetsClearState,
   assetsRefreshState,
-  INITIAL_ASSETS_STATE,
   prices,
   pricesClearState,
   send,

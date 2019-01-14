@@ -226,7 +226,6 @@ export const convertAmountToUnformattedDisplay = (value, selected) => {
 /**
  * @desc convert from amount value to display formatted string
  * @param  {BigNumber}  value
- * @param  {Object}     nativePrices
  * @param  {Object}     asset
  * @param  {Number}     buffer
  * @return {String}
@@ -247,8 +246,7 @@ export const convertAmountToDisplay = (value, asset, buffer) => {
 /**
  * @desc convert from amount value to display formatted string
  * @param  {BigNumber}  value
- * @param  {Object}     asset
- * @param  {Number}     buffer
+ * @param  {String}     nativeCurrency
  * @return {String}
  */
 export const simpleConvertAmountToDisplay = (value, nativeCurrency, buffer) => {

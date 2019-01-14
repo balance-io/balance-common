@@ -641,4 +641,3 @@ export const parseHistoricalTransactions = async (transactions, page) => {
   );
   return _transactions;
 };
-

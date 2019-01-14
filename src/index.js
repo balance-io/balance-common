@@ -9,7 +9,6 @@ import {
   assets,
   assetsClearState,
   assetsRefreshState,
-  INITIAL_ASSETS_STATE,
   prices,
   pricesClearState,
   send,
@@ -76,7 +75,7 @@ import {
   smallerThan,
   subtract,
 } from './helpers/bignumber';
-import { getCountdown, getLocalTimeDate } from './helpers';
+import { getCountdown, getLocalTimeDate, sortList } from './helpers';
 import {
   apiGetGasPrices,
   apiGetSinglePrice,
@@ -126,7 +125,6 @@ export {
   handleSignificantDecimals,
   hasHighMarketValue,
   hasLowMarketValue,
-  INITIAL_ASSETS_STATE,
   isValidAddress,
   isValidEmail,
   isValidSeedPhrase,
@@ -156,6 +154,7 @@ export {
   settingsUpdateAccountAddress,
   settingsUpdateNetwork,
   smallerThan,
+  sortList,
   subtract,
   supportedLanguages,
   supportedNativeCurrencies,

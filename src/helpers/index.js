@@ -1,3 +1,3 @@
-import { default as sortList } from './sortList';
 import { getCountdown, getLocalTimeDate } from './time';
+import { sortList } from './sortList';
 export { getCountdown, getLocalTimeDate, sortList };

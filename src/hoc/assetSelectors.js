@@ -4,6 +4,7 @@ import {
   add,
   convertAmountFromBigNumber,
   convertAmountToBigNumber,
+  convertAmountToUnformattedDisplay,
   multiply,
   simpleConvertAmountToDisplay,
 } from '../helpers/bignumber';

@@ -1,1 +1,1 @@
-export { default as withAccountAssetsTotal } from './withAccountAssets';
+export { default as withAccountAssets } from './withAccountAssets';

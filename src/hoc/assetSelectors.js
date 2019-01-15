@@ -29,7 +29,7 @@ const parseAssetsNativeSelector = createSelector(
 
 export const sortAssetsByNativeAmount = (originalAssets, prices, nativeCurrency) => {
   console.log('SORT ASSETS BY NATIVE AMOUNT');
-  const { assets, total } = parseNativePrices(originalAssets, nativeCurrency, prices);
+  const { assets, total } = parseAssetsNative(originalAssets, nativeCurrency, prices);
   const {
     hasValue = EMPTY_ARRAY,
     noValue = EMPTY_ARRAY,

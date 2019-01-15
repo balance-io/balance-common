@@ -111,5 +111,5 @@ const parseAssetsNative = (
   const totalDisplay = simpleConvertAmountToDisplay(totalAmount, nativeCurrency);
   const totalTrackingAmount = convertAmountToUnformattedDisplay(totalUSDAmount, 'USD');
   const total = { amount: totalAmount, display: totalDisplay, totalTrackingAmount };
-  return { assetsNativePrices, total };
+  return { assetsNativePrices: assetsNative, total };
 };

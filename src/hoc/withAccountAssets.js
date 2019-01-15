@@ -9,6 +9,8 @@ const mapStateToProps = ({
     fetchingUniqueTokens,
     uniqueTokens,
   },
+  settings: { nativeCurrency },
+  prices: { prices },
 }) => ({
   fetchingAssets,
   fetchingUniqueTokens,

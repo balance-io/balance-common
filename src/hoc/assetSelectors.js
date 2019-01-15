@@ -1,4 +1,4 @@
-import { groupBy, isNil, toNumber } from 'lodash';
+import { groupBy, isNil, map, toNumber } from 'lodash';
 //import { createSelector } from 'reselect';
 import {
   add,

@@ -6,6 +6,7 @@ import {
   withSendComponentWithData
 } from './components/SendComponentWithData';
 import {
+  accountClearState,
   assets,
   assetsClearState,
   assetsRefreshState,
@@ -88,6 +89,7 @@ import {
 } from './handlers';
 import * as commonStorage from './handlers/commonStorage';
 export {
+  accountClearState,
   add,
   apiGetGasPrices,
   apiGetSinglePrice,

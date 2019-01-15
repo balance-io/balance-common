@@ -59,16 +59,6 @@ export const removeLocal = (key = '') => {
   }
 };
 
-/**
- * @desc reset account local
- * @param  {String}   [address]
- */
-export const resetAccount = (accountAddress) => {
-  const accountAddressKey = accountAddress.toLowerCase();
-  removeLocal(accountAddressKey);
-  removeLocal('nativePrices');
-};
-
 const getTransactionsKey = (accountAddress, network) => {
   return `transactions-${accountAddress.toLowerCase()}-${network.toLowerCase()}`;
 };
@@ -105,6 +95,17 @@ export const saveAssets = async (accountAddress, assets, network) => {
 };
 
 /**
+ * @desc remove assets
+ * @param  {String}   [address]
+ * @param  {String}   [network]
+ * @return {Object}
+ */
+export const removeAssets = (accountAddress, network) => {
+  const key = getAssetsKey(accountAddress, network);
+  removeLocal(key);
+};
+
+/**
  * @desc get transactions
  * @param  {String}   [address]
  * @param  {String}   [network]
@@ -129,6 +130,17 @@ export const saveLocalTransactions = async (accountAddress, transactions, networ
 };
 
 /**
+ * @desc remove transactions
+ * @param  {String}   [address]
+ * @param  {String}   [network]
+ * @return {Object}
+ */
+export const removeLocalTransactions = (accountAddress, network) => {
+  const key = getTransactionsKey(accountAddress, network);
+  removeLocal(key);
+};
+
+/**
  * @desc get unique tokens
  * @param  {String}   [address]
  * @param  {String}   [network]
@@ -150,6 +162,17 @@ export const saveUniqueTokens = async (accountAddress, uniqueTokens, network) =>
     getUniqueTokensKey(accountAddress, network),
     { data: uniqueTokens },
   );
+};
+
+/**
+ * @desc remove unique tokens
+ * @param  {String}   [address]
+ * @param  {String}   [network]
+ * @return {Object}
+ */
+export const removeUniqueTokens = (accountAddress, network) => {
+  const key = getUniqueTokensKey(accountAddress, network);
+  removeLocal(key);
 };
 
 /**
@@ -230,6 +253,14 @@ export const removeWalletConnectSessions = async (sessionIds) => {
   const allSessions = await getAllWalletConnectSessions();
   const resultingSessions = omit(allSessions, sessionIds);
   await saveLocal('walletconnect', resultingSessions);
+};
+
+/**
+ * @desc remove all wallet connect sessions
+ * @param  {String}   [sessionId]
+ */
+export const removeWalletConnect = () => {
+  removeLocal('walletconnect');
 };
 
 /**

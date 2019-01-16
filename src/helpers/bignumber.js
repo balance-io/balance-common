@@ -394,6 +394,8 @@ export const convertAssetAmountToNativeAmount = (
   nativePrices,
   nativeCurrency,
 ) => {
+  console.log('convert nativePrices', nativePrices);
+  console.log('convert nativeCurrency', nativeCurrency);
   const _value = convertAmountFromBigNumber(`${value}`);
   const assetPriceUnit = convertAmountFromBigNumber(
     nativePrices[nativeCurrency][asset.symbol].price.amount,

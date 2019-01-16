@@ -149,7 +149,6 @@ export const convertGasPricesToNative = (prices, gasPrices, nativeCurrency) => {
 
 export const getNativeGasPrice = (prices, feeAmount, nativeCurrency) => {
   const selected = nativeCurrencies[nativeCurrency];
-  console.log('get native gas prices', prices);
   const amount = convertAssetAmountToNativeAmount(
     feeAmount,
     { symbol: 'ETH' },

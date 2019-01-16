@@ -140,7 +140,8 @@ export const sendUpdateGasPrice = newGasPriceOption => (dispatch, getState) => {
     .then(gasLimit => {
       const { prices } = getState().prices;
       const { assets } = getState().assets;
-      gasPrices = parseGasPricesTxFee(gasPrices, prices, gasLimit);
+      const { nativeCurrency } = getState().settings;
+      gasPrices = parseGasPricesTxFee(gasPrices, prices, gasLimit, nativeCurrency);
 
       const ethereum = assets.filter(
         asset => asset.symbol === 'ETH',

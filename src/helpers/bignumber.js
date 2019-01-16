@@ -244,7 +244,7 @@ export const convertAmountToDisplay = (value, asset, buffer) => {
 };
 
 /**
- * @desc convert from amount value to display formatted string for specific currency
+ * @desc convert from amount value to display formatted string
  * @param  {BigNumber}  value
  * @param  {String}     nativeCurrency
  * @return {String}
@@ -259,6 +259,7 @@ export const simpleConvertAmountToDisplay = (value, nativeCurrency, buffer) => {
   }
   return `${display} ${nativeSelected.currency}`;
 };
+
 
 /**
  * @desc convert from asset amount value to display formatted string for specific currency

@@ -5,7 +5,6 @@ import {
   convertAmountFromBigNumber,
   convertAmountToBigNumber,
   convertAmountToDisplay,
-  convertAmountToUnformattedDisplay,
   convertAssetAmountToBigNumber,
   convertAssetAmountToNativeAmount,
   convertAssetAmountToNativeValue,
@@ -56,6 +55,7 @@ export const parseError = error => {
   }
   return lang.t('notification.error.generic_error');
 };
+
 export const getTxFee = (gasPrice, gasLimit) => {
   const amount = multiply(gasPrice, gasLimit);
   return {

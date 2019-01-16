@@ -121,7 +121,6 @@ const assetsUpdateBalances = () => (dispatch, getState) => new Promise((resolve,
       });
   });
   getBalances().then(() => {
-    console.log('RESET BALANCES INTERVAL');
     clearInterval(getBalancesInterval);
     getBalancesInterval = setInterval(getBalances, 15000); // 15 secs
     resolve(true);

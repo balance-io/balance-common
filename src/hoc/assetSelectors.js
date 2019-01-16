@@ -1,5 +1,5 @@
 import { groupBy, isEmpty, isNil, map, toNumber } from 'lodash';
-//import { createSelector } from 'reselect';
+import { createSelector } from 'reselect';
 import {
   add,
   convertAmountFromBigNumber,
@@ -12,21 +12,19 @@ import { sortList } from '../helpers';
 
 const EMPTY_ARRAY = [];
 
-/*
-export const sortAssetsByNativeAmountSelector = createSelector(
-  [ parseAssetsNativeSelector ],
-  sortAssetsByNativeAmount
-);
-
-const assetsSelector = state => state.assets.assets;
-const nativeCurrencySelector = state => state.settings.nativeCurrency;
-const nativePricesSelector = state => state.prices.prices;
+const assetsSelector = state => state.assets;
+const nativeCurrencySelector = state => state.nativeCurrency;
+const nativePricesSelector = state => state.prices;
 
 const parseAssetsNativeSelector = createSelector(
   [ assetsSelector, nativeCurrencySelector, nativePricesSelector ],
   parseAssetsNative
 );
-*/
+
+export const sortAssetsByNativeAmountSelector = createSelector(
+  [ parseAssetsNativeSelector ],
+  sortAssetsByNativeAmount
+);
 
 export const sortAssetsByNativeAmount = (originalAssets, prices, nativeCurrency) => {
   console.log('SORT ASSETS BY NATIVE AMOUNT', prices);
@@ -66,6 +64,7 @@ const parseAssetsNative = (
   nativeCurrency,
   nativePrices,
 ) => {
+  console.log('parse assets native');
   const nativePricesForNativeCurrency = nativePrices[nativeCurrency];
   let assetsNative = assets;
   assetsNative = map(assets, asset => {

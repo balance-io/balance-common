@@ -29,9 +29,11 @@ const parseAssetsNativeSelector = createSelector(
 */
 
 export const sortAssetsByNativeAmount = (originalAssets, prices, nativeCurrency) => {
+  /*
   if (isEmpty(originalAssets) || isEmpty(prices)) {
     return;
   }
+  */
   console.log('SORT ASSETS BY NATIVE AMOUNT', originalAssets);
   console.log('prices', prices);
   const { assetsNativePrices, total } = parseAssetsNative(originalAssets, nativeCurrency, prices);
@@ -71,8 +73,10 @@ const parseAssetsNative = (
   const nativePricesForNativeCurrency = nativePrices[nativeCurrency];
   const assetsNative = map(assets, asset => {
     const assetNativePrice = nativePricesForNativeCurrency[asset.symbol];
-    if (isNil(assetNativePrice) || isEmpty(assetNativePrice))
-      return null;
+    if (isNil(assetNativePrice)) {
+      console.log('nill asset price');
+      return asset;
+    }
 
     const balanceAmountUnit = convertAmountFromBigNumber(
       asset.balance.amount,
@@ -109,7 +113,7 @@ const parseAssetsNative = (
       },
     };
   });
-  console.log('collecting total');
+  console.log('collecting total', assetsNative);
   let totalAmount = assetsNative.reduce(
     (total, asset) =>
     add(total, asset.native ? asset.native.balance.amount : 0),

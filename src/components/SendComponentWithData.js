@@ -125,6 +125,7 @@ export const withSendComponentWithData = (SendComponent, options) => {
       if (recipient !== prevProps.recipient) {
         this.setState({ isValidAddress: isValidAddress(recipient) });
       }
+      console.log('finished send component update');
     }
 
     onAddressInputFocus = () => {

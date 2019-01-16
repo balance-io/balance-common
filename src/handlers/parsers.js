@@ -55,6 +55,7 @@ export const parseError = error => {
   }
   return lang.t('notification.error.generic_error');
 };
+
 export const getTxFee = (gasPrice, gasLimit) => {
   const amount = multiply(gasPrice, gasLimit);
   return {
@@ -148,6 +149,7 @@ export const convertGasPricesToNative = (prices, gasPrices, nativeCurrency) => {
 
 export const getNativeGasPrice = (prices, feeAmount, nativeCurrency) => {
   const selected = nativeCurrencies[nativeCurrency];
+  console.log('get native gas prices', prices);
   const amount = convertAssetAmountToNativeAmount(
     feeAmount,
     { symbol: 'ETH' },

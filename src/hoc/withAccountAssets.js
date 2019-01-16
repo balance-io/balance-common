@@ -20,7 +20,7 @@ const mapStateToProps = ({
   uniqueTokens,
 });
 
-const sortAssets = (state) => console.log('STATE', state) || sortAssetsByNativeAmountSelector(state);
+const sortAssets = (state) => sortAssetsByNativeAmountSelector(state);
 
 export default Component => compose(
   connect(mapStateToProps),

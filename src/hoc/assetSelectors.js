@@ -1,4 +1,10 @@
-import { groupBy, isEmpty, isNil, map, toNumber } from 'lodash';
+import {
+  groupBy,
+  isEmpty,
+  isNil,
+  map,
+  toNumber
+} from 'lodash';
 import { createSelector } from 'reselect';
 import {
   add,
@@ -12,7 +18,7 @@ import { sortList } from '../helpers';
 
 const EMPTY_ARRAY = [];
 
-const assetsSelector = state => state.assets;
+const assetsSelector = state => console.log('assest state', state) || state.assets;
 const nativeCurrencySelector = state => state.nativeCurrency;
 const nativePricesSelector = state => state.prices;
 
@@ -26,7 +32,7 @@ export const sortAssetsByNativeAmountSelector = createSelector(
   sortAssetsByNativeAmount
 );
 
-export const sortAssetsByNativeAmount = (originalAssets, prices, nativeCurrency) => {
+const sortAssetsByNativeAmount = (originalAssets, prices, nativeCurrency) => {
   console.log('SORT ASSETS BY NATIVE AMOUNT', prices);
   let assetsNativePrices = originalAssets;
   let total = null;

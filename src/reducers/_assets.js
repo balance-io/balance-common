@@ -4,10 +4,14 @@ import { parseError } from '../handlers/parsers';
 import {
   getAssets,
   saveAssets,
+  removeAssets,
   getUniqueTokens,
   saveUniqueTokens,
+  removeUniqueTokens,
+  removeWalletConnect,
 } from '../handlers/commonStorage';
-import { getNativePrices } from './_prices';
+import { transactionsClearState } from './_transactions';
+import { getNativePrices, pricesClearState } from './_prices';
 import { notificationShow } from './_notification';
 
 // -- Constants ------------------------------------------------------------- //
@@ -35,7 +39,17 @@ const ASSETS_CLEAR_STATE = 'assets/ASSETS_CLEAR_STATE';
 // -- Actions --------------------------------------------------------------- //
 let getBalancesInterval = null;
 
-export const assetsClearState = () => dispatch => {
+export const accountClearState = () => dispatch => {
+  dispatch(pricesClearState());
+  dispatch(assetsClearState());
+  dispatch(transactionsClearState());
+  removeWalletConnect();
+};
+
+const assetsClearState = () => (dispatch, getState) => {
+  const { accountAddress, network } = getState().settings;
+  removeAssets(accountAddress, network);
+  removeUniqueTokens(accountAddress, network);
   clearInterval(getBalancesInterval);
   dispatch({ type: ASSETS_CLEAR_STATE });
 };
@@ -107,7 +121,6 @@ const assetsUpdateBalances = () => (dispatch, getState) => new Promise((resolve,
       });
   });
   getBalances().then(() => {
-    console.log('RESET BALANCES INTERVAL');
     clearInterval(getBalancesInterval);
     getBalancesInterval = setInterval(getBalances, 15000); // 15 secs
     resolve(true);

@@ -6,12 +6,13 @@ import {
   withSendComponentWithData
 } from './components/SendComponentWithData';
 import {
+  withAccountAssets
+} from './hoc';
+import {
+  accountClearState,
   assets,
-  assetsClearState,
   assetsRefreshState,
-  INITIAL_ASSETS_STATE,
   prices,
-  pricesClearState,
   send,
   sendClearFields,
   sendMaxBalance,
@@ -30,7 +31,6 @@ import {
   settingsUpdateAccountAddress,
   settingsUpdateNetwork,
   transactions,
-  transactionsClearState,
   transactionsRefreshState,
   transactionsUpdateHasPendingTransaction,
   transactionsAddNewTransaction,
@@ -54,7 +54,6 @@ import {
   add,
   convertAmountFromBigNumber,
   convertAmountToBigNumber,
-  convertAmountToDisplay,
   convertAssetAmountFromBigNumber,
   convertAssetAmountToDisplay,
   convertAssetAmountToDisplaySpecific,
@@ -73,10 +72,11 @@ import {
   hasHighMarketValue,
   hasLowMarketValue,
   multiply,
+  simpleConvertAmountToDisplay,
   smallerThan,
   subtract,
 } from './helpers/bignumber';
-import { getCountdown, getLocalTimeDate } from './helpers';
+import { getCountdown, getLocalTimeDate, sortList } from './helpers';
 import {
   apiGetGasPrices,
   apiGetSinglePrice,
@@ -89,18 +89,17 @@ import {
 } from './handlers';
 import * as commonStorage from './handlers/commonStorage';
 export {
+  accountClearState,
   add,
   apiGetGasPrices,
   apiGetSinglePrice,
   assets,
-  assetsClearState,
   assetsRefreshState,
   calcTxFee,
   capitalize,
   commonStorage,
   convertAmountFromBigNumber,
   convertAmountToBigNumber,
-  convertAmountToDisplay,
   convertAssetAmountFromBigNumber,
   convertAssetAmountToDisplay,
   convertAssetAmountToDisplaySpecific,
@@ -126,7 +125,6 @@ export {
   handleSignificantDecimals,
   hasHighMarketValue,
   hasLowMarketValue,
-  INITIAL_ASSETS_STATE,
   isValidAddress,
   isValidEmail,
   isValidSeedPhrase,
@@ -135,7 +133,6 @@ export {
   parseError,
   parseGasPrices,
   prices,
-  pricesClearState,
   removeHexPrefix,
   resources,
   send,
@@ -155,17 +152,19 @@ export {
   settingsInitializeState,
   settingsUpdateAccountAddress,
   settingsUpdateNetwork,
+  simpleConvertAmountToDisplay,
   smallerThan,
+  sortList,
   subtract,
   supportedLanguages,
   supportedNativeCurrencies,
   toChecksumAddress,
   transactionData,
   transactions,
-  transactionsClearState,
   transactionsRefreshState,
   transactionsUpdateHasPendingTransaction,
   transactionsAddNewTransaction,
   web3Instance,
+  withAccountAssets,
   withSendComponentWithData,
 };

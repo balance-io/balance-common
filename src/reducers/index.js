@@ -4,13 +4,9 @@ import send from './_send';
 import settings from './_settings';
 import transactions from './_transactions';
 import {
-  assetsClearState,
+  accountClearState,
   assetsRefreshState,
-  INITIAL_ASSETS_STATE,
 } from './_assets';
-import {
-  pricesClearState,
-} from './_prices';
 import {
   settingsChangeLanguage,
   settingsChangeNativeCurrency,
@@ -19,7 +15,6 @@ import {
   settingsUpdateNetwork,
 } from './_settings';
 import {
-  transactionsClearState,
   transactionsRefreshState,
   transactionsUpdateHasPendingTransaction,
   transactionsAddNewTransaction,
@@ -37,12 +32,10 @@ import {
   sendUpdateSelected,
 } from './_send';
 export {
+  accountClearState,
   assets,
-  assetsClearState,
   assetsRefreshState,
-  INITIAL_ASSETS_STATE,
   prices,
-  pricesClearState,
   send,
   sendClearFields,
   sendMaxBalance,
@@ -61,7 +54,6 @@ export {
   settingsUpdateAccountAddress,
   settingsUpdateNetwork,
   transactions,
-  transactionsClearState,
   transactionsRefreshState,
   transactionsUpdateHasPendingTransaction,
   transactionsAddNewTransaction,

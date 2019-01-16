@@ -226,49 +226,32 @@ export const convertAmountToUnformattedDisplay = (value, selected) => {
 /**
  * @desc convert from amount value to display formatted string
  * @param  {BigNumber}  value
- * @param  {Object}     nativePrices
  * @param  {Object}     asset
  * @param  {Number}     buffer
  * @return {String}
  */
-export const convertAmountToDisplay = (value, nativePrices, asset, nativeCurrency, buffer) => {
+export const convertAmountToDisplay = (value, asset, buffer) => {
   value = convertAmountFromBigNumber(value);
-  if (!nativePrices && !asset) {
-    const decimals = 2;
-    const display = handleSignificantDecimals(value, decimals, buffer);
-    return `${display}%`;
-  } else if (!nativePrices && asset) {
+  if (asset) {
     const decimals = asset.decimals || 18;
     const display = handleSignificantDecimals(value, decimals, buffer);
     return `${display} ${asset.symbol}`;
-  } else if (nativePrices) {
-    const nativeSelected = nativeCurrencies[nativeCurrency];
-    const decimals = nativeSelected.decimals;
+  } else {
+    const decimals = 2;
     const display = handleSignificantDecimals(value, decimals, buffer);
-    if (nativeSelected.alignment === 'left') {
-      return `${nativeSelected.symbol}${display}`;
-    }
-    return `${display} ${nativeSelected.currency}`;
+    return `${display}%`;
   }
-  return value;
 };
 
 /**
- * @desc convert from amount value to display formatted string for specific currency
+ * @desc convert from amount value to display formatted string
  * @param  {BigNumber}  value
- * @param  {Object}     nativePrices
- * @param  {Object}     asset
+ * @param  {String}     nativeCurrency
  * @return {String}
  */
-export const convertAmountToDisplaySpecific = (
-  value,
-  nativePrices,
-  selected,
-  buffer,
-) => {
-  if (!nativePrices) return null;
+export const simpleConvertAmountToDisplay = (value, nativeCurrency, buffer) => {
   value = convertAmountFromBigNumber(value);
-  const nativeSelected = nativeCurrencies[selected];
+  const nativeSelected = nativeCurrencies[nativeCurrency];
   const decimals = nativeSelected.decimals;
   const display = handleSignificantDecimals(value, decimals, buffer);
   if (nativeSelected.alignment === 'left') {
@@ -276,6 +259,7 @@ export const convertAmountToDisplaySpecific = (
   }
   return `${display} ${nativeSelected.currency}`;
 };
+
 
 /**
  * @desc convert from asset amount value to display formatted string for specific currency

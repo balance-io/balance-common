@@ -8,6 +8,7 @@ import {
 import {
   getLocalTransactions,
   saveLocalTransactions,
+  removeLocalTransactions,
 } from '../handlers/commonStorage';
 import { notificationShow } from './_notification';
 
@@ -68,7 +69,9 @@ export const transactionsAddNewTransaction = txDetails => (dispatch, getState) =
     });
 });
 
-export const transactionsClearState = () => dispatch => {
+export const transactionsClearState = () => (dispatch, getState) => {
+  const { accountAddress, network } = getState().settings;
+  removeLocalTransactions(accountAddress, network);
   clearInterval(getTransactionsInterval);
   dispatch({ type: TRANSACTIONS_CLEAR_STATE });
 };

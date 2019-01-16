@@ -5,7 +5,6 @@ import {
   convertAmountFromBigNumber,
   convertAmountToBigNumber,
   convertAmountToDisplay,
-  convertAmountToUnformattedDisplay,
   convertAssetAmountToBigNumber,
   convertAssetAmountToNativeAmount,
   convertAssetAmountToNativeValue,

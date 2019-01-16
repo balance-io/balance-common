@@ -1,9 +1,16 @@
-import { groupBy, isNil, toNumber } from 'lodash';
+import {
+  groupBy,
+  isEmpty,
+  isNil,
+  map,
+  toNumber
+} from 'lodash';
 import { createSelector } from 'reselect';
 import {
   add,
   convertAmountFromBigNumber,
   convertAmountToBigNumber,
+  convertAmountToUnformattedDisplay,
   multiply,
   simpleConvertAmountToDisplay,
 } from '../helpers/bignumber';
@@ -11,22 +18,19 @@ import { sortList } from '../helpers';
 
 const EMPTY_ARRAY = [];
 
-export const sortAssetsByNativeAmountSelector = createSelector(
-  [ parseAssetsNativeSelector ],
-  sortAssetsByNativeAmount
-);
+const assetsSelector = state => state.assets;
+const nativeCurrencySelector = state => state.nativeCurrency;
+const nativePricesSelector = state => state.prices;
 
-const assetsSelector = state => state.assets.assets;
-const nativeCurrencySelector = state => state.settings.nativeCurrency;
-const nativePricesSelector = state => state.prices.prices;
-
-const parseAssetsNativeSelector = createSelector(
-  [ assetsSelector, nativeCurrencySelector, nativePricesSelector ],
-  parseAssetsNative
-);
-
-const sortAssetsByNativeAmount = ({ assetsNativePrices, total }) => {
-  console.log('SORT ASSETS BY NATIVE AMOUNT');
+const sortAssetsByNativeAmount = (originalAssets, nativeCurrency, prices) => {
+  console.log('SORT ASSETS BY NATIVE AMOUNT', prices);
+  let assetsNativePrices = originalAssets;
+  let total = null;
+  if (!isEmpty(originalAssets) && !isEmpty(prices)) {
+    const parsedAssets = parseAssetsNative(originalAssets, nativeCurrency, prices);
+    assetsNativePrices = parsedAssets.assetsNativePrices;
+    total = parsedAssets.total;
+  }
   const {
     hasValue = EMPTY_ARRAY,
     noValue = EMPTY_ARRAY,
@@ -56,11 +60,14 @@ const parseAssetsNative = (
   nativeCurrency,
   nativePrices,
 ) => {
+  console.log('parse assets native');
   const nativePricesForNativeCurrency = nativePrices[nativeCurrency];
-  const assetsNative = map(assets, asset => {
+  let assetsNative = assets;
+  assetsNative = map(assets, asset => {
     const assetNativePrice = nativePricesForNativeCurrency[asset.symbol];
-    if (!assetNativePrice)
-      return null;
+    if (isNil(assetNativePrice)) {
+      return asset;
+    }
 
     const balanceAmountUnit = convertAmountFromBigNumber(
       asset.balance.amount,
@@ -107,5 +114,10 @@ const parseAssetsNative = (
   const totalDisplay = simpleConvertAmountToDisplay(totalAmount, nativeCurrency);
   const totalTrackingAmount = convertAmountToUnformattedDisplay(totalUSDAmount, 'USD');
   const total = { amount: totalAmount, display: totalDisplay, totalTrackingAmount };
-  return { assetsNativePrices, total };
+  return { assetsNativePrices: assetsNative, total };
 };
+
+export const sortAssetsByNativeAmountSelector = createSelector(
+  [ assetsSelector, nativeCurrencySelector, nativePricesSelector ],
+  sortAssetsByNativeAmount
+);

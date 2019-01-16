@@ -6,11 +6,13 @@ import {
   withSendComponentWithData
 } from './components/SendComponentWithData';
 import {
+  withAccountAssets
+} from './hoc';
+import {
+  accountClearState,
   assets,
-  assetsClearState,
   assetsRefreshState,
   prices,
-  pricesClearState,
   send,
   sendClearFields,
   sendMaxBalance,
@@ -29,7 +31,6 @@ import {
   settingsUpdateAccountAddress,
   settingsUpdateNetwork,
   transactions,
-  transactionsClearState,
   transactionsRefreshState,
   transactionsUpdateHasPendingTransaction,
   transactionsAddNewTransaction,
@@ -49,7 +50,6 @@ import {
   removeHexPrefix,
   transactionData,
 } from './helpers/utilities';
-import { default as withAccountAssets } from './hoc/withAccountAssets';
 import {
   add,
   convertAmountFromBigNumber,
@@ -89,11 +89,11 @@ import {
 } from './handlers';
 import * as commonStorage from './handlers/commonStorage';
 export {
+  accountClearState,
   add,
   apiGetGasPrices,
   apiGetSinglePrice,
   assets,
-  assetsClearState,
   assetsRefreshState,
   calcTxFee,
   capitalize,
@@ -133,7 +133,6 @@ export {
   parseError,
   parseGasPrices,
   prices,
-  pricesClearState,
   removeHexPrefix,
   resources,
   send,
@@ -162,7 +161,6 @@ export {
   toChecksumAddress,
   transactionData,
   transactions,
-  transactionsClearState,
   transactionsRefreshState,
   transactionsUpdateHasPendingTransaction,
   transactionsAddNewTransaction,

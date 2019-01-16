@@ -1,4 +1,4 @@
-import { groupBy, isNil, map, toNumber } from 'lodash';
+import { groupBy, isEmpty, isNil, map, toNumber } from 'lodash';
 //import { createSelector } from 'reselect';
 import {
   add,
@@ -63,10 +63,11 @@ const parseAssetsNative = (
   nativeCurrency,
   nativePrices,
 ) => {
+  console.log('NATIVE PRICES', nativePrices);
   const nativePricesForNativeCurrency = nativePrices[nativeCurrency];
   const assetsNative = map(assets, asset => {
     const assetNativePrice = nativePricesForNativeCurrency[asset.symbol];
-    if (!assetNativePrice)
+    if (isNil(assetNativePrice) || isEmpty(assetNativePrice))
       return null;
 
     const balanceAmountUnit = convertAmountFromBigNumber(
@@ -104,6 +105,7 @@ const parseAssetsNative = (
       },
     };
   });
+  console.log('collecting total');
   let totalAmount = assetsNative.reduce(
     (total, asset) =>
     add(total, asset.native ? asset.native.balance.amount : 0),

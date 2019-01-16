@@ -356,6 +356,7 @@ export const sendUpdateSelected = value => (dispatch, getState) => {
   const assets = get(state, 'assets.assets', []);
   const nativeCurrency = get(state, 'settings.nativeCurrency', '');
   const prices = get(state, 'prices.prices', {});
+  console.log('update selected prices', prices);
   const selected = assets.filter(asset => asset.symbol === value)[0] || {};
 
   dispatch({ type: SEND_UPDATE_SELECTED, payload: selected });

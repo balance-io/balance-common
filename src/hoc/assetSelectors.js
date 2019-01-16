@@ -5,6 +5,7 @@ import {
   map,
   toNumber
 } from 'lodash';
+import { createSelector } from 'reselect';
 import {
   add,
   convertAmountFromBigNumber,
@@ -14,15 +15,12 @@ import {
   simpleConvertAmountToDisplay,
 } from '../helpers/bignumber';
 import { sortList } from '../helpers';
-import { createSelector } from 'reselect';
-
-console.log('CREATE SELECTOR', createSelector);
 
 const EMPTY_ARRAY = [];
 
-const assetsSelector = state => console.log('assets', state.assets) || state.assets;
-const nativeCurrencySelector = state => console.log('nativecurr', state.nativeCurrency) || state.nativeCurrency;
-const nativePricesSelector = state => console.log('prices', state.prices) || state.prices;
+const assetsSelector = state => state.assets;
+const nativeCurrencySelector = state => state.nativeCurrency;
+const nativePricesSelector = state => state.prices;
 
 const sortAssetsByNativeAmount = (originalAssets, nativeCurrency, prices) => {
   console.log('SORT ASSETS BY NATIVE AMOUNT', prices);
@@ -123,5 +121,3 @@ export const sortAssetsByNativeAmountSelector = createSelector(
   [ assetsSelector, nativeCurrencySelector, nativePricesSelector ],
   sortAssetsByNativeAmount
 );
-console.log('SORT ASSETS SELECTOR', sortAssetsByNativeAmountSelector);
-

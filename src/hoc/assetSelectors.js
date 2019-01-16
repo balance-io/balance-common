@@ -18,21 +18,16 @@ import { sortList } from '../helpers';
 
 const EMPTY_ARRAY = [];
 
-const assetsSelector = state => console.log('assest state', state) || state.assets;
+const assetsSelector = state => state.assets;
 const nativeCurrencySelector = state => state.nativeCurrency;
 const nativePricesSelector = state => state.prices;
 
-const parseAssetsNativeSelector = createSelector(
-  [ assetsSelector, nativeCurrencySelector, nativePricesSelector ],
-  parseAssetsNative
-);
-
 export const sortAssetsByNativeAmountSelector = createSelector(
-  [ parseAssetsNativeSelector ],
+  [ assetsSelector, nativeCurrencySelector, nativePricesSelector ],
   sortAssetsByNativeAmount
 );
 
-const sortAssetsByNativeAmount = (originalAssets, prices, nativeCurrency) => {
+const sortAssetsByNativeAmount = (originalAssets, nativeCurrency, prices) => {
   console.log('SORT ASSETS BY NATIVE AMOUNT', prices);
   let assetsNativePrices = originalAssets;
   let total = null;

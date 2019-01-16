@@ -109,6 +109,7 @@ export const withSendComponentWithData = (SendComponent, options) => {
     }
 
     componentDidUpdate(prevProps) {
+      console.log('send component updated');
       const { assetAmount, recipient, selected, sendUpdateGasPrice } = this.props;
 
       if (recipient.length >= 42) {

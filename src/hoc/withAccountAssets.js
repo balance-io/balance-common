@@ -5,6 +5,7 @@ import { sortAssetsByNativeAmount } from './assetSelectors';
 
 const mapStateToProps = ({
   assets: {
+    assets,
     fetchingAssets,
     fetchingUniqueTokens,
     uniqueTokens,
@@ -12,6 +13,7 @@ const mapStateToProps = ({
   settings: { nativeCurrency },
   prices: { prices },
 }) => ({
+  assets,
   fetchingAssets,
   fetchingUniqueTokens,
   nativeCurrency,

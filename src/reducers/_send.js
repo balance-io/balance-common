@@ -113,7 +113,6 @@ export const sendModalInit = (options = {}) => (dispatch, getState) => {
 };
 
 export const sendUpdateGasPrice = newGasPriceOption => (dispatch, getState) => {
-  console.log('send update gas price');
   const {
     selected,
     address,
@@ -273,7 +272,6 @@ export const sendUpdateRecipient = recipient => dispatch => {
 };
 
 export const sendUpdateAssetAmount = assetAmount => (dispatch, getState) => {
-  console.log('send update asset amount');
   const { assets } = getState().assets;
   const { prices } = getState().prices;
   const { nativeCurrency } = getState().settings;
@@ -281,7 +279,6 @@ export const sendUpdateAssetAmount = assetAmount => (dispatch, getState) => {
   const _assetAmount = assetAmount.replace(/[^0-9.]/g, '');
   let _nativeAmount = '';
   let _trackingAmount = '';
-  console.log('checks for update asset amount');
   if (_assetAmount.length && prices[nativeCurrency][selected.symbol]) {
     const nativeAmount = convertAssetAmountToNativeValue(
       _assetAmount,
@@ -360,14 +357,11 @@ export const sendUpdateSelected = value => (dispatch, getState) => {
   const assets = get(state, 'assets.assets', []);
   const nativeCurrency = get(state, 'settings.nativeCurrency', '');
   const prices = get(state, 'prices.prices', {});
-  console.log('update selected prices', prices);
-  console.log('update selected value', value);
   const selected = assets.filter(asset => asset.symbol === value)[0] || {};
 
   dispatch({ type: SEND_UPDATE_SELECTED, payload: selected });
   dispatch(sendUpdateGasPrice());
 
-  console.log('send update asset amount if price');
   if (prices[nativeCurrency] && prices[nativeCurrency][selected.symbol]) {
     dispatch(sendUpdateAssetAmount(assetAmount));
   }

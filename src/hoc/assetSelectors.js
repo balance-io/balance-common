@@ -23,10 +23,11 @@ const nativeCurrencySelector = state => state.nativeCurrency;
 const nativePricesSelector = state => state.prices;
 
 const sortAssetsByNativeAmount = (originalAssets, nativeCurrency, prices) => {
-  console.log('SORT ASSETS BY NATIVE AMOUNT', prices);
+  console.log('Calling SortAssets selector');
   let assetsNativePrices = originalAssets;
   let total = null;
   if (!isEmpty(originalAssets) && !isEmpty(prices)) {
+    console.log('Sorting assets with prices');
     const parsedAssets = parseAssetsNative(originalAssets, nativeCurrency, prices);
     assetsNativePrices = parsedAssets.assetsNativePrices;
     total = parsedAssets.total;

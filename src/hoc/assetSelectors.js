@@ -29,14 +29,16 @@ const parseAssetsNativeSelector = createSelector(
 */
 
 export const sortAssetsByNativeAmount = (originalAssets, prices, nativeCurrency) => {
-  /*
-  if (isEmpty(originalAssets) || isEmpty(prices)) {
-    return;
-  }
-  */
   console.log('SORT ASSETS BY NATIVE AMOUNT', originalAssets);
   console.log('prices', prices);
-  const { assetsNativePrices, total } = parseAssetsNative(originalAssets, nativeCurrency, prices);
+  let assetsNativePrices = originalAssets;
+  let total = null;
+  if (!isEmpty(originalAssets) && !isNil(prices)) {
+    console.log('parse assets native');
+    const parsedAssets = parseAssetsNative(originalAssets, nativeCurrency, prices);
+    assetsNativePrices = parsedAssets.assetsNativePrices;
+    total = parsedAssets.total;
+  }
   console.log('assetsNativePrices', assetsNativePrices);
   const {
     hasValue = EMPTY_ARRAY,
@@ -69,12 +71,12 @@ const parseAssetsNative = (
   nativeCurrency,
   nativePrices,
 ) => {
-  console.log('NATIVE PRICES', nativePrices);
   const nativePricesForNativeCurrency = nativePrices[nativeCurrency];
-  const assetsNative = map(assets, asset => {
+  let assetsNative = assets;
+  assetsNative = map(assets, asset => {
     const assetNativePrice = nativePricesForNativeCurrency[asset.symbol];
     if (isNil(assetNativePrice)) {
-      console.log('nill asset price');
+      console.log('nil asset price');
       return asset;
     }
 

@@ -29,12 +29,15 @@ const parseAssetsNativeSelector = createSelector(
 */
 
 export const sortAssetsByNativeAmount = (originalAssets, prices, nativeCurrency) => {
-  console.log('SORT ASSETS BY NATIVE AMOUNT', prices, nativeCurrency);
+  console.log('SORT ASSETS BY NATIVE AMOUNT', originalAssets);
   const { assetsNativePrices, total } = parseAssetsNative(originalAssets, nativeCurrency, prices);
+  console.log('assetsNativePrices', assetsNativePrices);
   const {
     hasValue = EMPTY_ARRAY,
     noValue = EMPTY_ARRAY,
   } = groupAssetsByMarketValue(assetsNativePrices);
+  console.log('has value', hasValue);
+  console.log('no value', noValue);
 
   const sortedAssets = sortList(hasValue, 'native.balance.amount', 'desc', 0, toNumber);
   const sortedShitcoins = sortList(noValue, 'name', 'asc');

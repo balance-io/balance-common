@@ -56,6 +56,7 @@ const assetsClearState = () => (dispatch, getState) => {
 
 export const assetsRefreshState = () => dispatch => new Promise((resolve, reject) => {
   dispatch(assetsGetBalances()).then(() => {
+    console.log('Got asset balances');
     dispatch(assetsGetUniqueTokens()).then(() => {
       resolve(true);
     }).catch(error => {
@@ -97,6 +98,7 @@ const assetsGetBalances = () => (dispatch, getState) => new Promise((resolve, re
 });
 
 const assetsUpdateBalances = () => (dispatch, getState) => new Promise((resolve, reject) => {
+  console.log('assets update balances');
   const { accountAddress, accountType, network } = getState().settings;
   dispatch({ type: ASSETS_UPDATE_BALANCES_REQUEST });
   const getBalances = () => new Promise((resolve, reject) => {

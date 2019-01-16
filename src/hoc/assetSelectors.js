@@ -33,7 +33,7 @@ export const sortAssetsByNativeAmount = (originalAssets, prices, nativeCurrency)
   console.log('prices', prices);
   let assetsNativePrices = originalAssets;
   let total = null;
-  if (!isEmpty(originalAssets) && !isNil(prices)) {
+  if (!isEmpty(originalAssets) && !isEmpty(prices)) {
     console.log('parse assets native');
     const parsedAssets = parseAssetsNative(originalAssets, nativeCurrency, prices);
     assetsNativePrices = parsedAssets.assetsNativePrices;

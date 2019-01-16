@@ -28,7 +28,9 @@ export const getNativePrices = () => (dispatch, getState) => new Promise((resolv
   dispatch({ type: PRICES_GET_NATIVE_PRICES_REQUEST });
   apiGetPrices(assetSymbols)
     .then(({ data }) => {
+      console.log('API GET PRICES', data);
       const prices = parsePricesObject(data, assetSymbols);
+      console.log('PARSED PRICES', prices);
       dispatch({
         type: PRICES_GET_NATIVE_PRICES_SUCCESS,
         payload: prices,

@@ -29,23 +29,18 @@ const parseAssetsNativeSelector = createSelector(
 */
 
 export const sortAssetsByNativeAmount = (originalAssets, prices, nativeCurrency) => {
-  console.log('SORT ASSETS BY NATIVE AMOUNT', originalAssets);
-  console.log('prices', prices);
+  console.log('SORT ASSETS BY NATIVE AMOUNT', prices);
   let assetsNativePrices = originalAssets;
   let total = null;
   if (!isEmpty(originalAssets) && !isEmpty(prices)) {
-    console.log('parse assets native');
     const parsedAssets = parseAssetsNative(originalAssets, nativeCurrency, prices);
     assetsNativePrices = parsedAssets.assetsNativePrices;
     total = parsedAssets.total;
   }
-  console.log('assetsNativePrices', assetsNativePrices);
   const {
     hasValue = EMPTY_ARRAY,
     noValue = EMPTY_ARRAY,
   } = groupAssetsByMarketValue(assetsNativePrices);
-  console.log('has value', hasValue);
-  console.log('no value', noValue);
 
   const sortedAssets = sortList(hasValue, 'native.balance.amount', 'desc', 0, toNumber);
   const sortedShitcoins = sortList(noValue, 'name', 'asc');
@@ -76,7 +71,6 @@ const parseAssetsNative = (
   assetsNative = map(assets, asset => {
     const assetNativePrice = nativePricesForNativeCurrency[asset.symbol];
     if (isNil(assetNativePrice)) {
-      console.log('nil asset price');
       return asset;
     }
 
@@ -115,7 +109,6 @@ const parseAssetsNative = (
       },
     };
   });
-  console.log('collecting total', assetsNative);
   let totalAmount = assetsNative.reduce(
     (total, asset) =>
     add(total, asset.native ? asset.native.balance.amount : 0),

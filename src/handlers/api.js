@@ -12,18 +12,6 @@ import { formatInputDecimals } from '../helpers/bignumber';
 import nativeCurrencies from '../references/native-currencies.json';
 
 /**
- * @desc get single asset price
- * @param  {String}   [asset='']
- * @param  {String}   [native='USD']
- * @return {Promise}
- */
-export const apiGetSinglePrice = (asset = '', native = 'USD') => {
-  return cryptocompare.get(
-    `/price?fsym=${asset}&tsyms=${native}&apiKey=${REACT_APP_CRYPTOCOMPARE_API_KEY}`,
-  );
-};
-
-/**
  * Configuration for cryptocompare api
  * @type axios instance
  */
@@ -67,7 +55,7 @@ export const apiGetHistoricalPrices = (
     '',
   );
   return cryptocompare.get(
-    `/pricehistorical?fsym=${assetSymbol}&tsyms=${nativeQuery}&ts=${timestamp}&apiKey=${REACT_APP_CRYPTOCOMPARE_API_KEY}`,
+    `/pricehistorical?fsym=${assetSymbol}&tsyms=${nativeQuery}&ts=${timestamp}`,
   );
 };
 

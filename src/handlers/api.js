@@ -1,9 +1,6 @@
 import axios from 'axios';
 import { findIndex, slice } from 'lodash';
 import {
-  REACT_APP_CRYPTOCOMPARE_API_KEY,
-} from 'react-native-dotenv';
-import {
   parseAccountAssets,
   parseAccountTransactions,
   parseHistoricalTransactions,

@@ -12,6 +12,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/)
 
 ### Removed
 
+## [0.6.14](https://github.com/balance-io/balance-common/releases/tag/0.6.14)
+### Removed
+* API key for CC
+
 ## [0.6.13](https://github.com/balance-io/balance-common/releases/tag/0.6.13)
 ### Changed
 * Fixes for Send component for reselect assets

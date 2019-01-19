@@ -186,7 +186,10 @@ export default (state = INITIAL_ASSETS_STATE, action) => {
         uniqueTokens: action.payload,
       };
     case ASSETS_GET_UNIQUE_TOKENS_FAILURE:
-      return { ...state, fetchingUniqueTokens: false };
+      return {
+        ...state,
+        fetchingUniqueTokens: false
+      };
     case ASSETS_GET_BALANCES_REQUEST:
       return {
         ...state,
@@ -212,7 +215,6 @@ export default (state = INITIAL_ASSETS_STATE, action) => {
     case ASSETS_UPDATE_BALANCES_FAILURE:
       return {
         ...state,
-        assets: action.payload,
         fetchingAssets: false,
       };
     case ASSETS_CLEAR_STATE:

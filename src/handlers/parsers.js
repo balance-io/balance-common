@@ -582,9 +582,7 @@ export const parseTransaction = async tx => {
         };
         const contractEnabled = get(transferData, 'contract.enabled', true);
         const contractName = get(transferData, 'contract.name', null);
-        const name = (contractEnabled &&
-                      contractName &&
-                      !contractName.startsWith('0x'))
+        const name = (contractEnabled && contractName)
           ? contractName
           : get(transferData, 'contract.symbol', 'Unknown Token');
         transferTx.asset = {

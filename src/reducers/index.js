@@ -5,6 +5,7 @@ import settings from './_settings';
 import transactions from './_transactions';
 import {
   accountClearState,
+  accountLoadState,
   assetsRefreshState,
 } from './_assets';
 import {
@@ -33,6 +34,7 @@ import {
 } from './_send';
 export {
   accountClearState,
+  accountLoadState,
   assets,
   assetsRefreshState,
   prices,

@@ -10,6 +10,7 @@ import {
 } from './hoc';
 import {
   accountClearState,
+  accountLoadState,
   assets,
   assetsRefreshState,
   prices,
@@ -90,6 +91,7 @@ import {
 import * as commonStorage from './handlers/commonStorage';
 export {
   accountClearState,
+  accountLoadState,
   add,
   apiGetGasPrices,
   apiGetSinglePrice,

@@ -59,16 +59,46 @@ export const removeLocal = (key = '') => {
   }
 };
 
-const getTransactionsKey = (accountAddress, network) => {
-  return `transactions-${accountAddress.toLowerCase()}-${network.toLowerCase()}`;
+const getAssetsKey = (accountAddress, network) => `assets-${accountAddress.toLowerCase()}-${network.toLowerCase()}`;
+
+const getPricesKey = (accountAddress, network) => `prices-${accountAddress.toLowerCase()}-${network.toLowerCase()}`;
+
+const getTransactionsKey = (accountAddress, network) => `transactions-${accountAddress.toLowerCase()}-${network.toLowerCase()}`;
+
+const getUniqueTokensKey = (accountAddress, network) => `uniquetokens-${accountAddress.toLowerCase()}-${network.toLowerCase()}`;
+
+/**
+ * @desc get prices
+ * @param  {String}   [address]
+ * @param  {String}   [network]
+ * @return {Object}
+ */
+export const getPrices = async (accountAddress, network) => {
+  const prices = await getLocal(getPricesKey(accountAddress, network));
+  return prices ? prices.data : {};
 };
 
-const getUniqueTokensKey = (accountAddress, network) => {
-  return `uniquetokens-${accountAddress.toLowerCase()}-${network.toLowerCase()}`;
+/**
+ * @desc save prices
+ * @param  {String}   [address]
+ * @param  {String}   [network]
+ */
+export const savePrices = async (accountAddress, prices, network) => {
+  await saveLocal(
+    getPricesKey(accountAddress, network),
+    { data: prices },
+  );
 };
 
-const getAssetsKey = (accountAddress, network) => {
-  return `assets-${accountAddress.toLowerCase()}-${network.toLowerCase()}`;
+/**
+ * @desc remove prices
+ * @param  {String}   [address]
+ * @param  {String}   [network]
+ * @return {Object}
+ */
+export const removePrices = (accountAddress, network) => {
+  const key = getPricesKey(accountAddress, network);
+  removeLocal(key);
 };
 
 /**

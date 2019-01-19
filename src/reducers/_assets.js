@@ -12,7 +12,11 @@ import {
   removeWalletConnect,
 } from '../handlers/commonStorage';
 import { transactionsClearState, transactionsLoadState } from './_transactions';
-import { getNativePrices, pricesClearState } from './_prices';
+import {
+  getNativePrices,
+  pricesClearState,
+  pricesLoadState,
+} from './_prices';
 import { notificationShow } from './_notification';
 
 // -- Constants ------------------------------------------------------------- //
@@ -58,6 +62,7 @@ export const accountClearState = () => dispatch => {
 
 export const accountLoadState = () => dispatch => {
   dispatch(assetsLoadState());
+  dispatch(pricesLoadState());
   dispatch(transactionsLoadState());
 };
 

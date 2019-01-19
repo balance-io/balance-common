@@ -70,6 +70,8 @@ export const assetsRefreshState = () => dispatch => new Promise((resolve, reject
 const assetsGetBalances = () => (dispatch, getState) => new Promise((resolve, reject) => {
   const { accountAddress, accountType, network } = getState().settings;
   if (accountAddress && accountType) {
+    console.log('account address', accountAddress);
+    console.log('account type', accountType);
     dispatch(assetsUpdateBalances()).then(() => {
       resolve(true);
     }).catch(error => {

@@ -62,6 +62,7 @@ export const accountLoadState = () => dispatch => {
 };
 
 const assetsLoadState = () => (dispatch, getState) => {
+  const { accountAddress, network } = getState().settings;
   dispatch({ type: ASSETS_LOAD_BALANCES_REQUEST });
   getAssets(accountAddress, network)
     .then(assets => {

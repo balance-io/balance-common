@@ -580,7 +580,7 @@ export const parseTransaction = async tx => {
           pending: false,
           asset,
         };
-        const contractEnabled = get(transferData, 'contract.enabled', false);
+        const contractEnabled = get(transferData, 'contract.enabled', true);
         const contractName = get(transferData, 'contract.name', null);
         const name = (contractEnabled &&
                       contractName &&

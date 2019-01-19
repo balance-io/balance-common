@@ -66,6 +66,7 @@ const assetsLoadState = () => (dispatch, getState) => {
   dispatch({ type: ASSETS_LOAD_BALANCES_REQUEST });
   getAssets(accountAddress, network)
     .then(assets => {
+      console.log('load assets', assets);
       dispatch({
         type: ASSETS_LOAD_BALANCES_SUCCESS,
         payload: assets,
@@ -109,11 +110,13 @@ export const assetsRefreshState = () => dispatch => new Promise((resolve, reject
 });
 
 const assetsUpdateBalances = () => (dispatch, getState) => new Promise((resolve, reject) => {
-  const { accountAddress, accountType, network } = getState().settings;
+  console.log('assets update balances');
+  const { accountAddress, network } = getState().settings;
   dispatch({ type: ASSETS_UPDATE_BALANCES_REQUEST });
   const getBalances = () => new Promise((resolve, reject) => {
     apiGetAccountBalances(accountAddress, network)
       .then(assets => {
+        console.log('save assets');
         saveAssets(accountAddress, assets, network);
         dispatch({
           type: ASSETS_UPDATE_BALANCES_SUCCESS,
@@ -146,32 +149,20 @@ const assetsUpdateBalances = () => (dispatch, getState) => new Promise((resolve,
 const assetsGetUniqueTokens = () => (dispatch, getState) => new Promise((resolve, reject) => {
   dispatch({ type: ASSETS_GET_UNIQUE_TOKENS_REQUEST });
   const { accountAddress, network } = getState().settings;
-  getUniqueTokens(accountAddress, network).then(cachedUniqueTokens => {
-    if (cachedUniqueTokens) {
+  apiGetAccountUniqueTokens(accountAddress)
+    .then(uniqueTokens => {
+      saveUniqueTokens(accountAddress, uniqueTokens, network);
       dispatch({
         type: ASSETS_GET_UNIQUE_TOKENS_SUCCESS,
-        payload: cachedUniqueTokens,
+        payload: uniqueTokens,
       });
-    }
-    apiGetAccountUniqueTokens(accountAddress)
-      .then(uniqueTokens => {
-        saveUniqueTokens(accountAddress, uniqueTokens, network);
-        dispatch({
-          type: ASSETS_GET_UNIQUE_TOKENS_SUCCESS,
-          payload: uniqueTokens,
-        });
-        resolve(true);
-      })
-      .catch(error => {
-        const message = parseError(error);
-        dispatch(notificationShow(message, true));
-        dispatch({ type: ASSETS_GET_UNIQUE_TOKENS_FAILURE });
-        reject(false);
-    });
-  })
-  .catch(error => {
-    dispatch({ type: ASSETS_GET_UNIQUE_TOKENS_FAILURE });
-    reject(false);
+      resolve(true);
+    })
+    .catch(error => {
+      const message = parseError(error);
+      dispatch(notificationShow(message, true));
+      dispatch({ type: ASSETS_GET_UNIQUE_TOKENS_FAILURE });
+      reject(false);
   });
 });
 

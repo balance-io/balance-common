@@ -13,6 +13,13 @@ import {
 import { notificationShow } from './_notification';
 
 // -- Constants ------------------------------------------------------------- //
+const TRANSACTIONS_LOAD_REQUEST =
+  'transactions/TRANSACTIONS_LOAD_REQUEST';
+const TRANSACTIONS_LOAD_SUCCESS =
+  'transactions/TRANSACTIONS_LOAD_SUCCESS';
+const TRANSACTIONS_LOAD_FAILURE =
+  'transactions/TRANSACTIONS_LOAD_FAILURE';
+
 const TRANSACTIONS_GET_TRANSACTIONS_REQUEST =
   'transactions/TRANSACTIONS_GET_TRANSACTIONS_REQUEST';
 const TRANSACTIONS_GET_TRANSACTIONS_SUCCESS =
@@ -76,28 +83,26 @@ export const transactionsClearState = () => (dispatch, getState) => {
   dispatch({ type: TRANSACTIONS_CLEAR_STATE });
 };
 
+export const transactionsLoadState = () => (dispatch, getState) => {
+  const { accountAddress, network } = getState().settings;
+  dispatch({ type: TRANSACTIONS_LOAD_REQUEST });
+  getLocalTransactions(accountAddress, network).then(transactions => {
+    dispatch({
+      type: TRANSACTIONS_LOAD_SUCCESS,
+      payload: transactions,
+    });
+  }).catch(error => {
+    dispatch({ type: TRANSACTIONS_LOAD_FAILURE });
+  });
+};
+
 const getAccountTransactions = () => (dispatch, getState) => {
   const getTransactions = () => {
     const { transactions } = getState().transactions;
     const { accountAddress, network } = getState().settings;
-    if (transactions.length) {
-      const lastSuccessfulTxn = _.find(transactions, (txn) => txn.hash && !txn.pending);
-      const lastTxHash = lastSuccessfulTxn ? lastSuccessfulTxn.hash : '';
-      dispatch(fetchAllTransactions(accountAddress, network, lastTxHash, 1));
-    } else {
-      dispatch({ type: TRANSACTIONS_GET_TRANSACTIONS_REQUEST });
-      getLocalTransactions(accountAddress, network).then(transactions => {
-        dispatch({
-          type: TRANSACTIONS_GET_TRANSACTIONS_SUCCESS,
-          payload: transactions,
-        });
-        const lastSuccessfulTxn = _.find(transactions, (txn) => txn.hash && !txn.pending);
-        const lastTxHash = lastSuccessfulTxn ? lastSuccessfulTxn.hash : '';
-        dispatch(fetchAllTransactions(accountAddress, network, lastTxHash, 1));
-      }).catch(error => {
-        dispatch({ type: TRANSACTIONS_GET_TRANSACTIONS_FAILURE });
-      });
-    }
+    const lastSuccessfulTxn = _.find(transactions, (txn) => txn.hash && !txn.pending);
+    const lastTxHash = lastSuccessfulTxn ? lastSuccessfulTxn.hash : '';
+    dispatch(fetchAllTransactions(accountAddress, network, lastTxHash, 1));
   };
   getTransactions();
   clearInterval(getTransactionsInterval);
@@ -176,6 +181,7 @@ const getPages = ({
 
 // -- Reducer --------------------------------------------------------------- //
 export const INITIAL_STATE = {
+  loadingTransactions: false,
   fetchingTransactions: false,
   hasPendingTransaction: false,
   transactions: [],
@@ -183,6 +189,16 @@ export const INITIAL_STATE = {
 
 export default (state = INITIAL_STATE, action) => {
   switch (action.type) {
+    case TRANSACTIONS_LOAD_REQUEST:
+      return { ...state, loadingTransactions: true };
+    case TRANSACTIONS_LOAD_SUCCESS:
+      return {
+        ...state,
+        loadingTransactions: false,
+        transactions: action.payload,
+      };
+    case TRANSACTIONS_LOAD_FAILURE:
+      return { ...state, loadingTransactions: false };
     case TRANSACTIONS_GET_TRANSACTIONS_REQUEST:
       return { ...state, fetchingTransactions: true };
     case TRANSACTIONS_GET_TRANSACTIONS_SUCCESS:

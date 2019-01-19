@@ -66,7 +66,6 @@ const assetsLoadState = () => (dispatch, getState) => {
   dispatch({ type: ASSETS_LOAD_BALANCES_REQUEST });
   getAssets(accountAddress, network)
     .then(assets => {
-      console.log('load assets', assets);
       dispatch({
         type: ASSETS_LOAD_BALANCES_SUCCESS,
         payload: assets,
@@ -110,13 +109,11 @@ export const assetsRefreshState = () => dispatch => new Promise((resolve, reject
 });
 
 const assetsUpdateBalances = () => (dispatch, getState) => new Promise((resolve, reject) => {
-  console.log('assets update balances');
   const { accountAddress, network } = getState().settings;
   dispatch({ type: ASSETS_UPDATE_BALANCES_REQUEST });
   const getBalances = () => new Promise((resolve, reject) => {
     apiGetAccountBalances(accountAddress, network)
       .then(assets => {
-        console.log('save assets');
         saveAssets(accountAddress, assets, network);
         dispatch({
           type: ASSETS_UPDATE_BALANCES_SUCCESS,

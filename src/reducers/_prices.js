@@ -30,7 +30,7 @@ const PRICES_CLEAR_STATE =
 
 // -- Actions --------------------------------------------------------------- //
 
-export const pricesClearState = () => dispatch => {
+export const pricesClearState = () => (dispatch, getState) => {
   const { accountAddress, network } = getState().settings;
   removePrices(accountAddress, network);
   dispatch({ type: PRICES_CLEAR_STATE });

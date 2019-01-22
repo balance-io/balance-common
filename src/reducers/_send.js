@@ -228,18 +228,21 @@ export const sendTransaction = (transactionDetails, signAndSendTransactionCb) =>
         transaction: signableTransactionDetails,
       })
       .then((txHash) => {
-        txDetails.hash = txHash;
-
-        dispatch(transactionsAddNewTransaction(txDetails))
-          .then(success => {
-            dispatch({
-              type: SEND_TRANSACTION_SUCCESS,
-              payload: txHash,
+        if (!isEmpty(txHash)) {
+          txDetails.hash = txHash;
+          dispatch(transactionsAddNewTransaction(txDetails))
+            .then(success => {
+              dispatch({
+                type: SEND_TRANSACTION_SUCCESS,
+                payload: txHash,
+              });
+              resolve(txHash);
+            }).catch(error => {
+              reject(error);
             });
-            resolve(txHash);
-          }).catch(error => {
-            reject(error);
-          });
+        } else {
+          dispatch({ type: SEND_TRANSACTION_FAILURE });
+        }
       }).catch(error => {
         const message = parseError(error);
         dispatch(notificationShow(message, true));

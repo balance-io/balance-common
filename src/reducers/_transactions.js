@@ -98,31 +98,27 @@ export const transactionsLoadState = () => (dispatch, getState) => {
 
 const getAccountTransactions = () => (dispatch, getState) => {
   const getTransactions = () => {
+    dispatch({ type: TRANSACTIONS_GET_TRANSACTIONS_REQUEST });
     const { transactions } = getState().transactions;
+    console.log('requesting transactions', transactions.length);
     const { accountAddress, network } = getState().settings;
     const lastSuccessfulTxn = _.find(transactions, (txn) => txn.hash && !txn.pending);
     const lastTxHash = lastSuccessfulTxn ? lastSuccessfulTxn.hash : '';
-    dispatch(fetchAllTransactions(accountAddress, network, lastTxHash, 1));
+    const partitions = _.partition(transactions, (txn) => txn.pending);
+    dispatch(getPages({
+      newTransactions: [],
+      pendingTransactions: partitions[0],
+      confirmedTransactions: partitions[1],
+      accountAddress,
+      network,
+      lastTxHash,
+      page: 1
+    }));
   };
   getTransactions();
   clearInterval(getTransactionsInterval);
   getTransactionsInterval = setInterval(getTransactions, 15000); // 15 secs
 };
-
-const fetchAllTransactions = (accountAddress, network, lastTxHash, page) => (dispatch, getState) => {
-  dispatch({ type: TRANSACTIONS_GET_TRANSACTIONS_REQUEST });
-  const { transactions } = getState().transactions;
-  const partitions = _.partition(transactions, (txn) => txn.pending);
-  dispatch(getPages({
-    newTransactions: [],
-    pendingTransactions: partitions[0],
-    confirmedTransactions: partitions[1],
-    accountAddress,
-    network,
-    lastTxHash,
-    page
-  }));
-}
 
 const getPages = ({
   newTransactions,
@@ -133,9 +129,11 @@ const getPages = ({
   lastTxHash,
   page
 }) => dispatch => {
+  console.log('get page', page);
   apiGetAccountTransactions(accountAddress, network, lastTxHash, page)
     .then(({ data: transactionsForPage, pages }) => {
       if (!transactionsForPage.length) {
+        console.log('no new transactions');
         dispatch({
           type: TRANSACTIONS_GET_NO_NEW_PAYLOAD_SUCCESS
         });
@@ -143,6 +141,7 @@ const getPages = ({
       }
       let updatedPendingTransactions = pendingTransactions;
       if (pendingTransactions.length) {
+        console.log('has pending txns');
         updatedPendingTransactions = _.filter(pendingTransactions, (pendingTxn) => {
           const matchingElement = _.find(transactionsForPage, (txn) => txn.hash && txn.hash.startsWith(pendingTxn.hash));
           return !matchingElement;
@@ -151,6 +150,7 @@ const getPages = ({
       let _newPages = newTransactions.concat(transactionsForPage);
       let _transactions = _.unionBy(updatedPendingTransactions, _newPages, confirmedTransactions, 'hash');
       saveLocalTransactions(accountAddress, _transactions, network);
+      console.log('updating transactions', _transactions.length);
       dispatch({
         type: TRANSACTIONS_GET_TRANSACTIONS_SUCCESS,
         payload: _transactions,

@@ -115,10 +115,12 @@ export const apiGetAccountTransactions = async (
 ) => {
   try {
     // TODO: hit api directly instead of through indexer
+    console.log('api call', lastTxHash);
     let { data } = await apiGetTransactionData(address, network, page);
     let { transactions, pages } = await parseAccountTransactions(data, address, network);
     if (transactions.length && lastTxHash) {
       const lastTxnHashIndex = findIndex(transactions, (txn) => { return txn.hash === lastTxHash });
+      console.log('txn hash index', lastTxnHashIndex);
       if (lastTxnHashIndex > -1) {
         transactions = slice(transactions, 0, lastTxnHashIndex); 
         pages = page;

@@ -98,31 +98,28 @@ export const transactionsLoadState = () => (dispatch, getState) => {
 
 const getAccountTransactions = () => (dispatch, getState) => {
   const getTransactions = () => {
-    const { transactions } = getState().transactions;
+    dispatch({ type: TRANSACTIONS_GET_TRANSACTIONS_REQUEST });
+    const { loadingTransactions, transactions } = getState().transactions;
     const { accountAddress, network } = getState().settings;
     const lastSuccessfulTxn = _.find(transactions, (txn) => txn.hash && !txn.pending);
     const lastTxHash = lastSuccessfulTxn ? lastSuccessfulTxn.hash : '';
-    dispatch(fetchAllTransactions(accountAddress, network, lastTxHash, 1));
+    const partitions = _.partition(transactions, (txn) => txn.pending);
+    if (!loadingTransactions) {
+      dispatch(getPages({
+        newTransactions: [],
+        pendingTransactions: partitions[0],
+        confirmedTransactions: partitions[1],
+        accountAddress,
+        network,
+        lastTxHash,
+        page: 1
+      }));
+    }
   };
   getTransactions();
   clearInterval(getTransactionsInterval);
   getTransactionsInterval = setInterval(getTransactions, 15000); // 15 secs
 };
-
-const fetchAllTransactions = (accountAddress, network, lastTxHash, page) => (dispatch, getState) => {
-  dispatch({ type: TRANSACTIONS_GET_TRANSACTIONS_REQUEST });
-  const { transactions } = getState().transactions;
-  const partitions = _.partition(transactions, (txn) => txn.pending);
-  dispatch(getPages({
-    newTransactions: [],
-    pendingTransactions: partitions[0],
-    confirmedTransactions: partitions[1],
-    accountAddress,
-    network,
-    lastTxHash,
-    page
-  }));
-}
 
 const getPages = ({
   newTransactions,

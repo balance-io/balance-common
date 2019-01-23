@@ -99,21 +99,24 @@ export const transactionsLoadState = () => (dispatch, getState) => {
 const getAccountTransactions = () => (dispatch, getState) => {
   const getTransactions = () => {
     dispatch({ type: TRANSACTIONS_GET_TRANSACTIONS_REQUEST });
-    const { transactions } = getState().transactions;
+    const { loadingTransactions, transactions } = getState().transactions;
+    console.log('loading transactions', loadingTransactions);
     console.log('requesting transactions', transactions.length);
     const { accountAddress, network } = getState().settings;
     const lastSuccessfulTxn = _.find(transactions, (txn) => txn.hash && !txn.pending);
     const lastTxHash = lastSuccessfulTxn ? lastSuccessfulTxn.hash : '';
     const partitions = _.partition(transactions, (txn) => txn.pending);
-    dispatch(getPages({
-      newTransactions: [],
-      pendingTransactions: partitions[0],
-      confirmedTransactions: partitions[1],
-      accountAddress,
-      network,
-      lastTxHash,
-      page: 1
-    }));
+    if (!loadingTransactions) {
+      dispatch(getPages({
+        newTransactions: [],
+        pendingTransactions: partitions[0],
+        confirmedTransactions: partitions[1],
+        accountAddress,
+        network,
+        lastTxHash,
+        page: 1
+      }));
+    }
   };
   getTransactions();
   clearInterval(getTransactionsInterval);

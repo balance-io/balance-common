@@ -147,6 +147,20 @@ const getPages = ({
       }
       let _newPages = newTransactions.concat(transactionsForPage);
       let _transactions = _.unionBy(updatedPendingTransactions, _newPages, confirmedTransactions, 'hash');
+
+      // TODO: save to database
+      if (transactionsForPage.length) {
+        console.log('txns for page length');
+        const transactionsCollection = database.collections.get('transactions');
+        database.action(async () => {
+          const newTransactionActions = transactionsForPage.map(txn => transactionsCollection.prepareCreate(transaction => {
+            _.assign(transaction, txn);
+          }));
+          await database.batch(...newTransactionActions);
+        })
+          .then(() => { console.log('db save success') })
+          .catch(error => console.log('db error', error));
+      }
       saveLocalTransactions(accountAddress, _transactions, network);
       dispatch({
         type: TRANSACTIONS_GET_TRANSACTIONS_SUCCESS,

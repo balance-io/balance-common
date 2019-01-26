@@ -150,12 +150,13 @@ const getPages = ({
 
       // TODO: save to database
       if (transactionsForPage.length) {
-        console.log('txns for page length', transactionsForPage);
+        console.log('txns for page length');
         const transactionsCollection = database.collections.get('transactions');
         database.action(async () => {
           const newTransactionActions = transactionsForPage.map(txn => transactionsCollection.prepareCreate(transaction => {
             _.assign(transaction, txn);
           }));
+          console.log('new txn actions', newTransactionActions);
           await database.batch(...newTransactionActions);
         })
           .then(() => { console.log('db save success') })

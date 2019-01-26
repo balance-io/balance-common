@@ -509,10 +509,7 @@ export const parseAccountTransactions = async (
  */
 export const parseTransaction = async tx => {
   const hash = tx._id;
-  const timestamp = {
-    secs: `${tx.timeStamp}`,
-    ms: `${tx.timeStamp}000`,
-  };
+  const timestamp = parseInt(`${tx.timeStamp}000`);
   const error = !!tx.error;
   let from = tx.from;
   let to = tx.to;

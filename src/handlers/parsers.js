@@ -268,7 +268,7 @@ export const parseAccountAssets = (data = null, address = '') => {
     });
 
     assets = assets.filter(
-      asset => !!Number(asset.balance.amount) || asset.symbol === 'ETH',
+      asset => !!Number(asset.balance.amount),
     );
 
     return assets;

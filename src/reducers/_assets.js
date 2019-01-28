@@ -101,17 +101,11 @@ const assetsClearState = () => (dispatch, getState) => {
   dispatch({ type: ASSETS_CLEAR_STATE });
 };
 
-export const assetsRefreshState = () => dispatch => new Promise((resolve, reject) => {
-  dispatch(assetsUpdateBalances()).then(() => {
-    dispatch(assetsGetUniqueTokens()).then(() => {
-      resolve(true);
-    }).catch(error => {
-      reject(false);
-    });
-  }).catch(error => {
-    reject(false);
-  });
-});
+export const assetsRefreshState = () => dispatch => {
+  const a = dispatch(assetsUpdateBalances());
+  const b = dispatch(assetsGetUniqueTokens());
+  return Promise.all(a, b);
+};
 
 const assetsUpdateBalances = () => (dispatch, getState) => new Promise((resolve, reject) => {
   const { accountAddress, network } = getState().settings;

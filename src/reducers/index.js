@@ -2,7 +2,6 @@ import assets from './_assets';
 import prices from './_prices';
 import send from './_send';
 import settings from './_settings';
-import transactions from './_transactions';
 import {
   accountClearState,
   accountLoadState,
@@ -15,11 +14,6 @@ import {
   settingsUpdateAccountAddress,
   settingsUpdateNetwork,
 } from './_settings';
-import {
-  transactionsRefreshState,
-  transactionsUpdateHasPendingTransaction,
-  transactionsAddNewTransaction,
-} from './_transactions';
 import {
   sendClearFields,
   sendMaxBalance,
@@ -55,8 +49,4 @@ export {
   settingsInitializeState,
   settingsUpdateAccountAddress,
   settingsUpdateNetwork,
-  transactions,
-  transactionsRefreshState,
-  transactionsUpdateHasPendingTransaction,
-  transactionsAddNewTransaction,
 };

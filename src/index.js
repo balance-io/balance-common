@@ -31,10 +31,6 @@ import {
   settingsInitializeState,
   settingsUpdateAccountAddress,
   settingsUpdateNetwork,
-  transactions,
-  transactionsRefreshState,
-  transactionsUpdateHasPendingTransaction,
-  transactionsAddNewTransaction,
 } from './reducers';
 import {
   isValidAddress,
@@ -79,12 +75,14 @@ import {
 } from './helpers/bignumber';
 import { getCountdown, getLocalTimeDate, sortList } from './helpers';
 import {
+  addNewTransaction,
   apiGetGasPrices,
   apiGetSinglePrice,
   estimateGasLimit,
   getTransactionCount,
   parseError,
   parseGasPrices,
+  transactionsRefreshState,
   toChecksumAddress,
   web3Instance,
 } from './handlers';
@@ -162,10 +160,8 @@ export {
   supportedNativeCurrencies,
   toChecksumAddress,
   transactionData,
-  transactions,
   transactionsRefreshState,
-  transactionsUpdateHasPendingTransaction,
-  transactionsAddNewTransaction,
+  addNewTransaction,
   web3Instance,
   withAccountAssets,
   withSendComponentWithData,

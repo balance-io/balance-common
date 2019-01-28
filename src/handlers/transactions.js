@@ -1,21 +1,32 @@
 import _ from 'lodash';
 import lang from '../languages';
-import { apiGetAccountTransactions } from '../handlers/api';
+import { apiGetAccountTransactions } from './api';
 import {
   parseError,
   parseNewTransaction,
-} from '../handlers/parsers';
-import { notificationShow } from './_notification';
+} from './parsers';
 
 let getTransactionsInterval = null;
 
-export const transactionsRefreshState = () => dispatch => {
-  dispatch(getAccountTransactions());
+export const transactionsRefreshState = (accountAddress, network) => {
+  const getTransactions = () => {
+    // TODO: how to deal with pending
+    //TODO get last successful txn hash from transactions
+    const lastSuccessfulTxn = _.find(transactions, (txn) => txn.hash && !txn.pending);
+    const lastTxHash = lastSuccessfulTxn ? lastSuccessfulTxn.hash : '';
+    getPages({
+      accountAddress,
+      network,
+      lastTxHash,
+      page: 1
+    });
+  };
+  getTransactions();
+  clearInterval(getTransactionsInterval);
+  getTransactionsInterval = setInterval(getTransactions, 15000); // 15 secs
 };
 
-//TODO is this still needed? who uses it and what happens when app restarted
-export const transactionsAddNewTransaction = txDetails => (dispatch, getState) => new Promise((resolve, reject) => {
-  const { nativeCurrency } = getState().settings;
+export const addNewTransaction = (txDetails, nativeCurrency) => new Promise((resolve, reject) => {
   parseNewTransaction(txDetails, nativeCurrency)
     .then(parsedTransaction => {
       //TODO add parsedTransaction
@@ -23,33 +34,13 @@ export const transactionsAddNewTransaction = txDetails => (dispatch, getState) =
     })
     .catch(error => {
       const message = parseError(error);
-      dispatch(notificationShow(message, true));
       reject(false);
     });
 });
 
 // TODO do anything with database?
-export const transactionsClearState = () => (dispatch, getState) => {
+export const transactionsClearState = () => {
   clearInterval(getTransactionsInterval);
-};
-
-const getAccountTransactions = () => (dispatch, getState) => {
-  const getTransactions = () => {
-    const { accountAddress, network } = getState().settings;
-    // TODO: how to deal with pending
-    //TODO get last successful txn hash from transactions
-    const lastSuccessfulTxn = _.find(transactions, (txn) => txn.hash && !txn.pending);
-    const lastTxHash = lastSuccessfulTxn ? lastSuccessfulTxn.hash : '';
-    dispatch(getPages({
-      accountAddress,
-      network,
-      lastTxHash,
-      page: 1
-    }));
-  };
-  getTransactions();
-  clearInterval(getTransactionsInterval);
-  getTransactionsInterval = setInterval(getTransactions, 15000); // 15 secs
 };
 
 const getPages = ({
@@ -57,7 +48,7 @@ const getPages = ({
   network,
   lastTxHash,
   page
-}) => dispatch => {
+}) => {
   //TODO deal with pending
   apiGetAccountTransactions(accountAddress, network, lastTxHash, page)
     .then(({ data: transactionsForPage, pages }) => {
@@ -78,20 +69,14 @@ const getPages = ({
 
       if (page < pages) {
         const nextPage = page + 1;
-        dispatch(getPages({
+        getPages({
           accountAddress,
           network,
           lastTxHash,
           page: nextPage
-        }));
+        });
       }
     })
     .catch(error => {
-      dispatch(
-        notificationShow(
-          lang.t('notification.error.failed_get_account_tx'),
-          true,
-        ),
-      );
     });
 }

@@ -136,41 +136,6 @@ export const removeAssets = (accountAddress, network) => {
 };
 
 /**
- * @desc get transactions
- * @param  {String}   [address]
- * @param  {String}   [network]
- * @return {Object}
- */
-export const getLocalTransactions = async (accountAddress, network) => {
-  const transactions = await getLocal(getTransactionsKey(accountAddress, network));
-  return transactions ? transactions.data : [];
-};
-
-/**
- * @desc save transactions
- * @param  {String}   [address]
- * @param  {Array}   [transactions]
- * @param  {String}   [network]
- */
-export const saveLocalTransactions = async (accountAddress, transactions, network) => {
-  await saveLocal(
-    getTransactionsKey(accountAddress, network),
-    { data: transactions },
-  );
-};
-
-/**
- * @desc remove transactions
- * @param  {String}   [address]
- * @param  {String}   [network]
- * @return {Object}
- */
-export const removeLocalTransactions = (accountAddress, network) => {
-  const key = getTransactionsKey(accountAddress, network);
-  removeLocal(key);
-};
-
-/**
  * @desc get unique tokens
  * @param  {String}   [address]
  * @param  {String}   [network]

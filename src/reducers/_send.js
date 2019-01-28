@@ -23,10 +23,7 @@ import {
   estimateGasLimit,
 } from '../handlers/web3';
 import { notificationShow } from './_notification';
-import {
-  transactionsAddNewTransaction,
-  transactionsUpdateHasPendingTransaction,
-} from './_transactions';
+import { addNewTransaction } from '../handlers/transactions';
 
 // -- Constants ------------------------------------------------------------- //
 
@@ -49,8 +46,6 @@ const SEND_UPDATE_NATIVE_AMOUNT = 'send/SEND_UPDATE_NATIVE_AMOUNT';
 const SEND_UPDATE_RECIPIENT = 'send/SEND_UPDATE_RECIPIENT';
 const SEND_UPDATE_ASSET_AMOUNT = 'send/SEND_UPDATE_ASSET_AMOUNT';
 const SEND_UPDATE_SELECTED = 'send/SEND_UPDATE_SELECTED';
-const SEND_UPDATE_HAS_PENDING_TRANSACTION =
-  'send/SEND_UPDATE_HAS_PENDING_TRANSACTION';
 
 const SEND_CLEAR_FIELDS = 'send/SEND_CLEAR_FIELDS';
 
@@ -202,7 +197,7 @@ export const sendTransaction = (transactionDetails, signAndSendTransactionCb) =>
     gasPrice,
     gasLimit,
   } = transactionDetails;
-  const { accountType } = getState().settings;
+  const { accountType, nativeCurrency } = getState().settings;
   const { selected, trackingAmount } = getState().send;
   const txDetails = {
     asset: asset,
@@ -230,7 +225,7 @@ export const sendTransaction = (transactionDetails, signAndSendTransactionCb) =>
       .then((txHash) => {
         if (!isEmpty(txHash)) {
           txDetails.hash = txHash;
-          dispatch(transactionsAddNewTransaction(txDetails))
+          addNewTransaction(txDetails, nativeCurrency)
             .then(success => {
               dispatch({
                 type: SEND_TRANSACTION_SUCCESS,
@@ -463,8 +458,6 @@ export default (state = INITIAL_STATE, action) => {
         txHash: '',
         confirm: false,
       };
-    case SEND_UPDATE_HAS_PENDING_TRANSACTION:
-      return { ...state, hasPendingTransaction: action.payload };
     case SEND_TOGGLE_CONFIRMATION_VIEW:
       return {
         ...state,

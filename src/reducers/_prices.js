@@ -67,6 +67,8 @@ export const getNativePrices = () => (dispatch, getState) => new Promise((resolv
           type: PRICES_GET_NATIVE_PRICES_SUCCESS,
           payload: prices,
         });
+      } else {
+        dispatch({ type: PRICES_GET_NATIVE_PRICES_FAILURE });
       }
       resolve(true);
     })

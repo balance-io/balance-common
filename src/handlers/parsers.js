@@ -193,39 +193,41 @@ export const parsePricesObject = (
 ) => {
   let prices = {};
   Object.keys(nativeCurrencies).forEach(nativeCurrency => {
-    prices[nativeCurrency] = {};
-    assets.forEach(asset => {
-      let assetPrice = null;
-      if (data.RAW && data.RAW[asset]) {
-        assetPrice = {
-          price: {
-            amount: convertAmountToBigNumber(
-              data.RAW[asset][nativeCurrency].PRICE,
-            ),
-            display: simpleConvertAmountToDisplay(
-              convertAmountToBigNumber(data.RAW[asset][nativeCurrency].PRICE),
-              nativeCurrency,
-            ),
-          },
-          change: {
-            amount: convertAmountToBigNumber(
-              data.RAW[asset][nativeCurrency].CHANGEPCT24HOUR,
-            ),
-            display: convertAmountToDisplay(
-              convertAmountToBigNumber(
+    if (data.RAW) {
+      prices[nativeCurrency] = {};
+      assets.forEach(asset => {
+        let assetPrice = null;
+        if (data.RAW[asset]) {
+          assetPrice = {
+            price: {
+              amount: convertAmountToBigNumber(
+                data.RAW[asset][nativeCurrency].PRICE,
+              ),
+              display: simpleConvertAmountToDisplay(
+                convertAmountToBigNumber(data.RAW[asset][nativeCurrency].PRICE),
+                nativeCurrency,
+              ),
+            },
+            change: {
+              amount: convertAmountToBigNumber(
                 data.RAW[asset][nativeCurrency].CHANGEPCT24HOUR,
               ),
-            ),
-          },
-        };
-      }
-      if (asset !== 'WETH') {
-        prices[nativeCurrency][asset] = assetPrice;
-      }
-      if (asset === 'ETH') {
-        prices[nativeCurrency]['WETH'] = assetPrice;
-      }
-    });
+              display: convertAmountToDisplay(
+                convertAmountToBigNumber(
+                  data.RAW[asset][nativeCurrency].CHANGEPCT24HOUR,
+                ),
+              ),
+            },
+          };
+        }
+        if (asset !== 'WETH') {
+          prices[nativeCurrency][asset] = assetPrice;
+        }
+        if (asset === 'ETH') {
+          prices[nativeCurrency]['WETH'] = assetPrice;
+        }
+      });
+    }
   });
   return prices;
 };

@@ -1,3 +1,4 @@
+import { isEmpty } from 'lodash';
 import { apiGetPrices } from '../handlers/api';
 import {
   getPrices,
@@ -60,11 +61,13 @@ export const getNativePrices = () => (dispatch, getState) => new Promise((resolv
   apiGetPrices(assetSymbols)
     .then(({ data }) => {
       const prices = parsePricesObject(data, assetSymbols);
-      savePrices(accountAddress, prices, network);
-      dispatch({
-        type: PRICES_GET_NATIVE_PRICES_SUCCESS,
-        payload: prices,
-      });
+      if (!isEmpty(prices)) {
+        savePrices(accountAddress, prices, network);
+        dispatch({
+          type: PRICES_GET_NATIVE_PRICES_SUCCESS,
+          payload: prices,
+        });
+      }
       resolve(true);
     })
     .catch(error => {

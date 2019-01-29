@@ -606,12 +606,7 @@ export const parseTransaction = async tx => {
         };
         tokenTransfers.push(transferTx);
       });
-      if (!Number(tx.value)) {
-        results = [...tokenTransfers];
-      } else {
-        result.hash = `${result.hash}-0`;
-        results = [...tokenTransfers, result];
-      }
+      results = [...tokenTransfers];
     }
   }
 

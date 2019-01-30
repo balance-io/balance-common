@@ -10,6 +10,7 @@ import {
   convertAssetAmountToNativeValue,
   convertHexToString,
   convertStringToNumber,
+  fromWei,
   divide,
   multiply,
   simpleConvertAmountToDisplay,
@@ -610,10 +611,10 @@ export const parseTransaction = async (assets, tx) => {
       });
       results = [...tokenTransfers];
     } else {
+      const dataPayload = tx.input.replace(smartContractMethods.token_transfer.hash, '');
       const toAddress = `0x${dataPayload.slice(0, 64).replace(/^0+/, '')}`;
       const contractAddress = to;
       const parsedAsset = getAssetDetails(contractAddress, assets);
-      const dataPayload = input.replace(smartContractMethods.token_transfer.hash, '');
       const dataAmount = `0x${dataPayload.slice(64, 128).replace(/^0+/, '')}`;
       const amount = fromWei(convertHexToString(dataAmount), parsedAsset.decimals);
       const transferTx = {

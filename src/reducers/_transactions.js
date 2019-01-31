@@ -99,6 +99,7 @@ export const transactionsLoadState = () => (dispatch, getState) => {
 const getAccountTransactions = () => (dispatch, getState) => {
   const getTransactions = () => {
     dispatch({ type: TRANSACTIONS_GET_TRANSACTIONS_REQUEST });
+    const { assets } = getState().assets;
     const { loadingTransactions, transactions } = getState().transactions;
     const { accountAddress, network } = getState().settings;
     const lastSuccessfulTxn = _.find(transactions, (txn) => txn.hash && !txn.pending);
@@ -106,6 +107,7 @@ const getAccountTransactions = () => (dispatch, getState) => {
     const partitions = _.partition(transactions, (txn) => txn.pending);
     if (!loadingTransactions) {
       dispatch(getPages({
+        assets,
         newTransactions: [],
         pendingTransactions: partitions[0],
         confirmedTransactions: partitions[1],
@@ -122,6 +124,7 @@ const getAccountTransactions = () => (dispatch, getState) => {
 };
 
 const getPages = ({
+  assets,
   newTransactions,
   pendingTransactions,
   confirmedTransactions,
@@ -130,7 +133,7 @@ const getPages = ({
   lastTxHash,
   page
 }) => dispatch => {
-  apiGetAccountTransactions(accountAddress, network, lastTxHash, page)
+  apiGetAccountTransactions(assets, accountAddress, network, lastTxHash, page)
     .then(({ data: transactionsForPage, pages }) => {
       if (!transactionsForPage.length) {
         dispatch({
@@ -155,6 +158,7 @@ const getPages = ({
       if (page < pages) {
         const nextPage = page + 1;
         dispatch(getPages({
+          assets,
           newTransactions: _newPages,
           pendingTransactions: updatedPendingTransactions,
           confirmedTransactions,

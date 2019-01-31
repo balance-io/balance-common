@@ -8,11 +8,13 @@ import {
   convertAssetAmountToBigNumber,
   convertAssetAmountToNativeAmount,
   convertAssetAmountToNativeValue,
+  convertHexToString,
   convertStringToNumber,
   divide,
   multiply,
   simpleConvertAmountToDisplay,
 } from '../helpers/bignumber';
+import smartContractMethods from '../references/smartcontract-methods.json';
 import ethUnits from '../references/ethereum-units.json';
 import nativeCurrencies from '../references/native-currencies.json';
 import timeUnits from '../references/time-units.json';
@@ -476,22 +478,21 @@ export const parseNewTransaction = async (
 
 /**
  * @desc parse account transactions
- * @param  {Object} [data=null]
- * @param  {String} [address='']
- * @param  {String} [networks='']
+ * @param  {Object} [data]
+ * @param  {String} [address]
+ * @param  {String} [networks]
  * @return {Array}
  */
 export const parseAccountTransactions = async (
-  data = null,
-  address = '',
-  network = '',
+  data,
+  assets,
+  address,
+  network,
 ) => {
   if (!data || !data.docs) return { transactions: [], pages: 0 };
 
   let transactions = await Promise.all(
-    data.docs.map(async tx => {
-      return await parseTransaction(tx);
-    }),
+    data.docs.map(async tx => parseTransaction(assets, tx)),
   );
   let _transactions = [];
 
@@ -504,12 +505,21 @@ export const parseAccountTransactions = async (
   return { transactions: _transactions, pages: data.pages };
 };
 
+const getAssetDetails = (contractAddress, assets) => {
+  for (var item of assets) {
+    if (item.address === contractAddress) {
+      return { ...item };
+    }
+  }
+  return null;
+};
+
 /**
  * @desc parse transaction
  * @param  {Object} [data=null]
  * @return {Array}
  */
-export const parseTransaction = async tx => {
+export const parseTransaction = (assets, tx) => {
   const hash = tx._id;
   const timestamp = {
     secs: `${tx.timeStamp}`,
@@ -540,18 +550,6 @@ export const parseTransaction = async tx => {
     }),
   };
 
-  const includesTokenTransfer = (() => {
-    if (tx.input !== '0x' && tx.operations && tx.operations.length) {
-      const tokenTransfers = tx.operations.filter(
-        operation => operation.type === 'token_transfer',
-      );
-      if (tokenTransfers.length) {
-        return true;
-      }
-    }
-    return false;
-  })();
-
   let result = {
     hash,
     timestamp,
@@ -565,6 +563,8 @@ export const parseTransaction = async tx => {
     asset,
   };
   let results = [result];
+
+  const includesTokenTransfer = tx.input.startsWith(smartContractMethods.token_transfer.hash);
 
   if (includesTokenTransfer) {
     const tokenTransfers = [];
@@ -607,6 +607,34 @@ export const parseTransaction = async tx => {
         tokenTransfers.push(transferTx);
       });
       results = [...tokenTransfers];
+    } else if (tx.error) {
+      const dataPayload = tx.input.replace(smartContractMethods.token_transfer.hash, '');
+      const toAddress = `0x${dataPayload.slice(0, 64).replace(/^0+/, '')}`;
+      const contractAddress = to;
+      const parsedAsset = getAssetDetails(contractAddress, assets);
+      if (parsedAsset) {
+        const dataAmount = `0x${dataPayload.slice(64, 128).replace(/^0+/, '')}`;
+        const amount = convertAssetAmountToBigNumber(
+          convertHexToString(dataAmount),
+          parsedAsset.decimals,
+        );
+        const transferTx = {
+          hash: result.hash,
+          timestamp,
+          from,
+          to: toAddress,
+          error,
+          value: {
+            amount,
+            display: convertAmountToDisplay(amount, parsedAsset),
+          },
+          txFee,
+          native: {},
+          pending: false,
+          asset: parsedAsset,
+        };
+        results = [transferTx];
+      }
     }
   }
 

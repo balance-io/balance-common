@@ -100,17 +100,11 @@ const assetsClearState = () => (dispatch, getState) => {
   dispatch({ type: ASSETS_CLEAR_STATE });
 };
 
-export const assetsRefreshState = () => dispatch => new Promise((resolve, reject) => {
-  dispatch(assetsUpdateBalances()).then(() => {
-    dispatch(assetsGetUniqueTokens()).then(() => {
-      resolve(true);
-    }).catch(error => {
-      reject(false);
-    });
-  }).catch(error => {
-    reject(false);
-  });
-});
+export const assetsRefreshState = () => dispatch => {
+  const getBalances = dispatch(assetsUpdateBalances());
+  const getUniqueTokens = dispatch(assetsGetUniqueTokens());
+  return Promise.all([getBalances, getUniqueTokens]);
+};
 
 const assetsUpdateBalances = () => (dispatch, getState) => new Promise((resolve, reject) => {
   const { accountAddress, network } = getState().settings;
@@ -126,14 +120,14 @@ const assetsUpdateBalances = () => (dispatch, getState) => new Promise((resolve,
         dispatch(getNativePrices()).then(() => {
           resolve(true);
         }).catch(error => {
-          reject(false);
+          reject(error);
         });
       })
       .catch(error => {
         const message = parseError(error);
         dispatch(notificationShow(message, true));
         dispatch({ type: ASSETS_UPDATE_BALANCES_FAILURE });
-        reject(false);
+        reject(error);
       });
   });
   getBalances().then(() => {
@@ -143,7 +137,7 @@ const assetsUpdateBalances = () => (dispatch, getState) => new Promise((resolve,
   }).catch(error => {
     clearInterval(getBalancesInterval);
     getBalancesInterval = setInterval(getBalances, 15000); // 15 secs
-    reject(false);
+    reject(error);
   });
 });
 
@@ -163,7 +157,7 @@ const assetsGetUniqueTokens = () => (dispatch, getState) => new Promise((resolve
       const message = parseError(error);
       dispatch(notificationShow(message, true));
       dispatch({ type: ASSETS_GET_UNIQUE_TOKENS_FAILURE });
-      reject(false);
+      reject(error);
   });
 });
 

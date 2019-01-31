@@ -35,12 +35,14 @@ export const transactionsClearState = () => (dispatch, getState) => {
 
 const getAccountTransactions = () => (dispatch, getState) => {
   const getTransactions = () => {
+    const { assets } = getState().assets;
     const { accountAddress, network } = getState().settings;
     // TODO: how to deal with pending
     //TODO get last successful txn hash from transactions
     const lastSuccessfulTxn = _.find(transactions, (txn) => txn.hash && !txn.pending);
     const lastTxHash = lastSuccessfulTxn ? lastSuccessfulTxn.hash : '';
     dispatch(getPages({
+      assets,
       accountAddress,
       network,
       lastTxHash,
@@ -53,13 +55,14 @@ const getAccountTransactions = () => (dispatch, getState) => {
 };
 
 const getPages = ({
+  assets,
   accountAddress,
   network,
   lastTxHash,
   page
 }) => dispatch => {
   //TODO deal with pending
-  apiGetAccountTransactions(accountAddress, network, lastTxHash, page)
+  apiGetAccountTransactions(assets, accountAddress, network, lastTxHash, page)
     .then(({ data: transactionsForPage, pages }) => {
       if (!transactionsForPage.length) {
         return;
@@ -79,6 +82,7 @@ const getPages = ({
       if (page < pages) {
         const nextPage = page + 1;
         dispatch(getPages({
+          assets,
           accountAddress,
           network,
           lastTxHash,

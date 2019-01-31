@@ -10,7 +10,6 @@ import {
   convertAssetAmountToNativeValue,
   convertHexToString,
   convertStringToNumber,
-  fromWei,
   divide,
   multiply,
   simpleConvertAmountToDisplay,

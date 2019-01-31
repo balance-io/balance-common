@@ -493,9 +493,7 @@ export const parseAccountTransactions = async (
   if (!data || !data.docs) return { transactions: [], pages: 0 };
 
   let transactions = await Promise.all(
-    data.docs.map(async tx => {
-      return await parseTransaction(assets, tx);
-    }),
+    data.docs.map(async tx => parseTransaction(assets, tx)),
   );
   let _transactions = [];
 
@@ -522,7 +520,7 @@ const getAssetDetails = (contractAddress, assets) => {
  * @param  {Object} [data=null]
  * @return {Array}
  */
-export const parseTransaction = async (assets, tx) => {
+export const parseTransaction = (assets, tx) => {
   const hash = tx._id;
   const timestamp = {
     secs: `${tx.timeStamp}`,
@@ -610,29 +608,34 @@ export const parseTransaction = async (assets, tx) => {
         tokenTransfers.push(transferTx);
       });
       results = [...tokenTransfers];
-    } else {
+    } else if (tx.error) {
       const dataPayload = tx.input.replace(smartContractMethods.token_transfer.hash, '');
       const toAddress = `0x${dataPayload.slice(0, 64).replace(/^0+/, '')}`;
       const contractAddress = to;
       const parsedAsset = getAssetDetails(contractAddress, assets);
-      const dataAmount = `0x${dataPayload.slice(64, 128).replace(/^0+/, '')}`;
-      const amount = fromWei(convertHexToString(dataAmount), parsedAsset.decimals);
-      const transferTx = {
-        hash: `${result.hash}-${idx + 1}`,
-        timestamp,
-        from,
-        to: toAddress,
-        error,
-        value: {
-          amount,
-          display: convertAmountToDisplay(amount, parsedAsset),
-        },
-        txFee,
-        native: {},
-        pending: false,
-        asset: parsedAsset,
-      };
-      results = [transferTx];
+      if (parsedAsset) {
+        const dataAmount = `0x${dataPayload.slice(64, 128).replace(/^0+/, '')}`;
+        const amount = convertAssetAmountToBigNumber(
+          convertHexToString(dataAmount),
+          parsedAsset.decimals,
+        );
+        const transferTx = {
+          hash: result.hash,
+          timestamp,
+          from,
+          to: toAddress,
+          error,
+          value: {
+            amount,
+            display: convertAmountToDisplay(amount, parsedAsset),
+          },
+          txFee,
+          native: {},
+          pending: false,
+          asset: parsedAsset,
+        };
+        results = [transferTx];
+      }
     }
   }
 

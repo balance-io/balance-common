@@ -23,7 +23,7 @@ import {
   estimateGasLimit,
 } from '../handlers/web3';
 import { notificationShow } from './_notification';
-import { addNewTransaction } from '../handlers/transactions';
+import { transactionsAddNewTransaction } from '../reducers/_transactions';
 
 // -- Constants ------------------------------------------------------------- //
 

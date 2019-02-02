@@ -11,7 +11,10 @@ import {
   removeUniqueTokens,
   removeWalletConnect,
 } from '../handlers/commonStorage';
-import { transactionsClearState } from './_transactions';
+import {
+  transactionsClearState,
+  transactionsLoadState
+} from './_transactions';
 import {
   getNativePrices,
   pricesClearState,
@@ -58,11 +61,14 @@ export const accountClearState = () => dispatch => {
   dispatch(assetsClearState());
   dispatch(transactionsClearState());
   removeWalletConnect();
+  // TODO test
+  //database.unsafeClearDatabase();
 };
 
 export const accountLoadState = () => dispatch => {
   dispatch(assetsLoadState());
   dispatch(pricesLoadState());
+  dispatch(transactionsLoadState());
 };
 
 const assetsLoadState = () => (dispatch, getState) => {

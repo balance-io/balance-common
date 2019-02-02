@@ -2,6 +2,11 @@ import assets from './_assets';
 import prices from './_prices';
 import send from './_send';
 import settings from './_settings';
+import transactions from './_transactions';
+import {
+  transactionsRefreshState,
+  transactionsAddNewTransaction,
+} from './_transactions';
 import {
   accountClearState,
   accountLoadState,
@@ -49,4 +54,7 @@ export {
   settingsInitializeState,
   settingsUpdateAccountAddress,
   settingsUpdateNetwork,
+  transactions,
+  transactionsRefreshState,
+  transactionsAddNewTransaction,
 };

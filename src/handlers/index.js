@@ -1,8 +1,4 @@
 import {
-  addNewTransaction,
-  transactionsRefreshState,
-} from './transactions';
-import {
   estimateGasLimit,
   getTransactionCount,
   toChecksumAddress,
@@ -17,7 +13,6 @@ import {
   apiGetSinglePrice,
 } from './api';
 export {
-  addNewTransaction,
   apiGetGasPrices,
   apiGetSinglePrice,
   estimateGasLimit,
@@ -25,6 +20,5 @@ export {
   parseError,
   parseGasPrices,
   toChecksumAddress,
-  transactionsRefreshState,
   web3Instance,
 };

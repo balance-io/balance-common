@@ -7,18 +7,57 @@ import {
 } from '../handlers/parsers';
 import { notificationShow } from './_notification';
 
+// -- Constants ------------------------------------------------------------- //
+const TRANSACTIONS_LOAD_LAST_HASH_SUCCESS =
+  'transactions/TRANSACTIONS_LOAD_LAST_HASH_SUCCESS';
+
+const TRANSACTIONS_CLEAR_STATE = 'transactions/TRANSACTIONS_CLEAR_STATE';
+
+const LAST_TXN_HASH = 'lastTxnHash';
 let getTransactionsInterval = null;
 
-export const transactionsRefreshState = () => dispatch => {
-  dispatch(getAccountTransactions());
+export const transactionsLoadState = () => dispatch => {
+  database.adapter.getLocal(LAST_TXN_HASH)
+  .then(lastTxnHash => {
+    if (lastTxnHash) {
+      dispatch({
+        type: TRANSACTIONS_LOAD_LAST_HASH_SUCCESS,
+        payload: lastTxnHash
+      });
+    }
+  }).catch(error => {
+  });
 };
 
-//TODO is this still needed? who uses it and what happens when app restarted
+export const transactionsRefreshState = () => (dispatch, getState) => {
+  const getTransactions = () => {
+    const { accountAddress, network } = getState().settings;
+    const { assets } = getState().assets;
+    const { lastTxnHash } = getState().transactions;
+    getPages({
+      assets,
+      accountAddress,
+      network,
+      lastTxnHash,
+      page: 1
+    });
+  };
+  getTransactions();
+  clearInterval(getTransactionsInterval);
+  getTransactionsInterval = setInterval(getTransactions, 15000); // 15 secs
+};
+
 export const transactionsAddNewTransaction = txDetails => (dispatch, getState) => new Promise((resolve, reject) => {
   const { nativeCurrency } = getState().settings;
   parseNewTransaction(txDetails, nativeCurrency)
     .then(parsedTransaction => {
-      //TODO add parsedTransaction
+      // TODO test
+      database.action(async () => {
+        const transactionsCollection = database.collections.get('transactions');
+        await transactionsCollection.create(transaction => {
+          _.assign(transaction, parsedTransaction);
+        });
+      });
       resolve(true);
     })
     .catch(error => {
@@ -28,46 +67,30 @@ export const transactionsAddNewTransaction = txDetails => (dispatch, getState) =
     });
 });
 
-// TODO do anything with database?
 export const transactionsClearState = () => (dispatch, getState) => {
   clearInterval(getTransactionsInterval);
-};
-
-const getAccountTransactions = () => (dispatch, getState) => {
-  const getTransactions = () => {
-    const { assets } = getState().assets;
-    const { accountAddress, network } = getState().settings;
-    // TODO: how to deal with pending
-    //TODO get last successful txn hash from transactions
-    const lastSuccessfulTxn = _.find(transactions, (txn) => txn.hash && !txn.pending);
-    const lastTxHash = lastSuccessfulTxn ? lastSuccessfulTxn.hash : '';
-    dispatch(getPages({
-      assets,
-      accountAddress,
-      network,
-      lastTxHash,
-      page: 1
-    }));
-  };
-  getTransactions();
-  clearInterval(getTransactionsInterval);
-  getTransactionsInterval = setInterval(getTransactions, 15000); // 15 secs
+  database.adapter.removeLocal(LAST_TXN_HASH);
+  dispatch({ type: TRANSACTIONS_CLEAR_STATE });
 };
 
 const getPages = ({
   assets,
   accountAddress,
   network,
-  lastTxHash,
+  lastTxnHash,
   page
 }) => dispatch => {
   //TODO deal with pending
-  apiGetAccountTransactions(assets, accountAddress, network, lastTxHash, page)
+  apiGetAccountTransactions(assets, accountAddress, network, lastTxnHash, page)
     .then(({ data: transactionsForPage, pages }) => {
       if (!transactionsForPage.length) {
         return;
       }
       if (transactionsForPage.length) {
+        if (page === 1) {
+          const newLastTxnHash = get(transactionsForPage, '[0].hash', lastTxnHash);
+          database.adapter.setLocal(LAST_TXN_HASH, newLastTxnHash);
+        }
         database.action(async () => {
           const transactionsCollection = database.collections.get('transactions');
           const newTransactionActions = transactionsForPage.map(txn => transactionsCollection.prepareCreate(transaction => {
@@ -85,7 +108,7 @@ const getPages = ({
           assets,
           accountAddress,
           network,
-          lastTxHash,
+          lastTxnHash,
           page: nextPage
         }));
       }
@@ -99,3 +122,25 @@ const getPages = ({
       );
     });
 }
+
+// -- Reducer --------------------------------------------------------------- //
+export const INITIAL_STATE = {
+  lastTxnHash: null,
+};
+
+export default (state = INITIAL_STATE, action) => {
+  switch (action.type) {
+    case TRANSACTIONS_LOAD_LAST_HASH_SUCCESS:
+      return {
+        ...state,
+        lastTxnHash: action.payload,
+      };
+    case TRANSACTIONS_CLEAR_STATE:
+      return {
+        ...state,
+        ...INITIAL_STATE,
+      };
+    default:
+      return state;
+  }
+};

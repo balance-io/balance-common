@@ -225,7 +225,7 @@ export const sendTransaction = (transactionDetails, signAndSendTransactionCb) =>
       .then((txHash) => {
         if (!isEmpty(txHash)) {
           txDetails.hash = txHash;
-          addNewTransaction(txDetails, nativeCurrency)
+          transactionsAddNewTransaction(txDetails, nativeCurrency)
             .then(success => {
               dispatch({
                 type: SEND_TRANSACTION_SUCCESS,

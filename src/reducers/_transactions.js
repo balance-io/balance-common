@@ -20,6 +20,7 @@ export const transactionsLoadState = () => dispatch => {
   database.adapter.getLocal(LAST_TXN_HASH)
   .then(lastTxnHash => {
     if (lastTxnHash) {
+      console.log('got lastTxnHash from db adapter', lastTxnHash);
       dispatch({
         type: TRANSACTIONS_LOAD_LAST_HASH_SUCCESS,
         payload: lastTxnHash

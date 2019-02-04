@@ -41,13 +41,13 @@ export const transactionsRefreshState = () => (dispatch, getState) => {
     console.log('txn refresh state assets', assets);
     const { lastTxnHash } = getState().transactions;
     console.log('txn refresh state last txn hash', lastTxnHash);
-    getPages({
+    dispatch(getPages({
       assets,
       accountAddress,
       network,
       lastTxnHash,
       page: 1
-    });
+    }));
   };
   getTransactions();
   clearInterval(getTransactionsInterval);

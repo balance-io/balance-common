@@ -95,6 +95,7 @@ const getPages = ({
   console.log('get pages', lastTxnHash, page);
   apiGetAccountTransactions(assets, accountAddress, network, lastTxnHash, page)
     .then(({ data: transactionsForPage, pages }) => {
+      console.log('api got acct txns');
       if (!transactionsForPage.length) {
         console.log('no new txns for page', page);
         return;
@@ -105,6 +106,7 @@ const getPages = ({
           console.log('db adapter set local', newLastTxnHash);
           database.adapter.setLocal(LAST_TXN_HASH, newLastTxnHash);
         }
+        console.log('saving to db');
         database.action(async () => {
           const transactionsCollection = database.collections.get('transactions');
           const newTransactionActions = transactionsForPage.map(txn => transactionsCollection.prepareCreate(transaction => {
@@ -128,6 +130,7 @@ const getPages = ({
       }
     })
     .catch(error => {
+      console.log('error getting api txns', error);
       dispatch(
         notificationShow(
           lang.t('notification.error.failed_get_account_tx'),

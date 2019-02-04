@@ -11,6 +11,13 @@ import { notificationShow } from './_notification';
 const TRANSACTIONS_LOAD_LAST_HASH_SUCCESS =
   'transactions/TRANSACTIONS_LOAD_LAST_HASH_SUCCESS';
 
+const TRANSACTIONS_FETCH_REQUEST =
+  'transactions/TRANSACTIONS_FETCH_REQUEST';
+const TRANSACTIONS_FETCH_SUCCESS =
+  'transactions/TRANSACTIONS_FETCH_SUCCESS';
+const TRANSACTIONS_FETCH_FAILURE =
+  'transactions/TRANSACTIONS_FETCH_FAILURE';
+
 const TRANSACTIONS_CLEAR_STATE = 'transactions/TRANSACTIONS_CLEAR_STATE';
 
 const LAST_TXN_HASH = 'lastTxnHash';
@@ -33,6 +40,7 @@ export const transactionsLoadState = () => dispatch => {
 };
 
 export const transactionsRefreshState = () => (dispatch, getState) => {
+  console.log('transactions refresh state OUTER');
   const getTransactions = () => {
     console.log('transactions refresh state');
     const { accountAddress, network } = getState().settings;
@@ -41,6 +49,7 @@ export const transactionsRefreshState = () => (dispatch, getState) => {
     console.log('txn refresh state assets', assets);
     const { lastTxnHash } = getState().transactions;
     console.log('txn refresh state last txn hash', lastTxnHash);
+    dispatch({ type: TRANSACTIONS_FETCH_REQUEST });
     dispatch(getPages({
       assets,
       accountAddress,
@@ -49,7 +58,11 @@ export const transactionsRefreshState = () => (dispatch, getState) => {
       page: 1
     }));
   };
-  getTransactions();
+  const { fetchingTransactions } = getState().transactions;
+  console.log('fetching txns status', fetchingTransactions);
+  if (!fetchingTransactions) {
+    getTransactions();
+  }
   clearInterval(getTransactionsInterval);
   getTransactionsInterval = setInterval(getTransactions, 15000); // 15 secs
 };
@@ -127,10 +140,13 @@ const getPages = ({
           lastTxnHash,
           page: nextPage
         }));
+      } else {
+        dispatch({ type: TRANSACTIONS_FETCH_SUCCESS });
       }
     })
     .catch(error => {
       console.log('error getting api txns', error);
+      dispatch({ type: TRANSACTIONS_FETCH_FAILURE });
       dispatch(
         notificationShow(
           lang.t('notification.error.failed_get_account_tx'),
@@ -142,6 +158,7 @@ const getPages = ({
 
 // -- Reducer --------------------------------------------------------------- //
 export const INITIAL_STATE = {
+  fetchingTransactions: false,
   lastTxnHash: null,
 };
 
@@ -151,6 +168,21 @@ export default (state = INITIAL_STATE, action) => {
       return {
         ...state,
         lastTxnHash: action.payload,
+      };
+    case TRANSACTIONS_FETCH_REQUEST:
+      return {
+        ...state,
+        fetchingTransactions: true,
+      };
+    case TRANSACTIONS_FETCH_SUCCESS:
+      return {
+        ...state,
+        fetchingTransactions: false,
+      };
+    case TRANSACTIONS_FETCH_FAILURE:
+      return {
+        ...state,
+        fetchingTransactions: false,
       };
     case TRANSACTIONS_CLEAR_STATE:
       return {

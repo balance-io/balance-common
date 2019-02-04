@@ -36,8 +36,11 @@ export const transactionsRefreshState = () => (dispatch, getState) => {
   const getTransactions = () => {
     console.log('transactions refresh state');
     const { accountAddress, network } = getState().settings;
+    console.log('txn refresh state accountAddress', accountAddress, network);
     const { assets } = getState().assets;
+    console.log('txn refresh state assets', assets);
     const { lastTxnHash } = getState().transactions;
+    console.log('txn refresh state last txn hash', lastTxnHash);
     getPages({
       assets,
       accountAddress,

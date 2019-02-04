@@ -71,6 +71,10 @@ export const transactionsAddNewTransaction = txDetails => (dispatch, getState) =
 export const transactionsClearState = () => (dispatch, getState) => {
   clearInterval(getTransactionsInterval);
   database.adapter.removeLocal(LAST_TXN_HASH);
+  // TODO test
+  const transactionsCollection = database.collections.get('transactions');
+  console.log('clearing txn state', transactionsCollection);
+  transactionsCollection.query().destroyAllPermanently();
   dispatch({ type: TRANSACTIONS_CLEAR_STATE });
 };
 

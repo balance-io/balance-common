@@ -63,7 +63,7 @@ export const accountClearState = () => dispatch => {
   removeWalletConnect();
   // TODO test
   console.log('print database object', database);
-  database.unsafeClearDatabase();
+  database.unsafeResetDatabase();
 };
 
 export const accountLoadState = () => dispatch => {

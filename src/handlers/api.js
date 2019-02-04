@@ -114,6 +114,7 @@ export const apiGetAccountTransactions = async (
   lastTxHash = '',
   page = 1,
 ) => {
+  console.log('hitting api txns');
   try {
     // TODO: hit api directly instead of through indexer
     let { data } = await apiGetTransactionData(address, network, page);

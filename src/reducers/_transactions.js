@@ -17,8 +17,10 @@ const LAST_TXN_HASH = 'lastTxnHash';
 let getTransactionsInterval = null;
 
 export const transactionsLoadState = () => dispatch => {
+  console.log('transactions load state');
   database.adapter.getLocal(LAST_TXN_HASH)
   .then(lastTxnHash => {
+    console.log('db adapter get local', lastTxnHash);
     if (lastTxnHash) {
       console.log('got lastTxnHash from db adapter', lastTxnHash);
       dispatch({
@@ -32,6 +34,7 @@ export const transactionsLoadState = () => dispatch => {
 
 export const transactionsRefreshState = () => (dispatch, getState) => {
   const getTransactions = () => {
+    console.log('transactions refresh state');
     const { accountAddress, network } = getState().settings;
     const { assets } = getState().assets;
     const { lastTxnHash } = getState().transactions;
@@ -86,14 +89,17 @@ const getPages = ({
   page
 }) => dispatch => {
   //TODO deal with pending
+  console.log('get pages', lastTxnHash, page);
   apiGetAccountTransactions(assets, accountAddress, network, lastTxnHash, page)
     .then(({ data: transactionsForPage, pages }) => {
       if (!transactionsForPage.length) {
+        console.log('no new txns for page', page);
         return;
       }
       if (transactionsForPage.length) {
         if (page === 1) {
           const newLastTxnHash = get(transactionsForPage, '[0].hash', lastTxnHash);
+          console.log('db adapter set local', newLastTxnHash);
           database.adapter.setLocal(LAST_TXN_HASH, newLastTxnHash);
         }
         database.action(async () => {

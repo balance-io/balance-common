@@ -45,7 +45,7 @@ export const apiGetPrices = (assets = []) => {
  */
 export const apiGetHistoricalPrices = (
   assetSymbol = '',
-  timestamp = Date.now(), // TODO error: timestamp would be ms
+  timestamp
 ) => {
   const nativeQuery = JSON.stringify(Object.keys(nativeCurrencies)).replace(
     /[[\]"]/gi,

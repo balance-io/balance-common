@@ -338,12 +338,11 @@ const ethFeeAsset = {
  */
 export const parseHistoricalNativePrice = async transaction => {
   let tx = { ...transaction };
-  // TODO: error: Date.now() provides ms not secs
-  const timestamp = tx.timestamp ? tx.timestamp.secs : Date.now();
+  const timestampInSeconds = tx.timestamp ? tx.timestamp : (Date.now() / 1000 | 0);
   let asset = { ...tx.asset };
   asset.symbol = tx.asset.symbol === 'WETH' ? 'ETH' : tx.asset.symbol;
   const priceAssets = [asset.symbol, 'ETH'];
-  const promises = priceAssets.map(x => apiGetHistoricalPrices(x, timestamp));
+  const promises = priceAssets.map(x => apiGetHistoricalPrices(x, timestampInSeconds));
   const historicalPriceResponses = await Promise.all(promises);
   const response = historicalPriceResponses[0];
   const feeResponse = historicalPriceResponses[1];

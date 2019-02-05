@@ -117,7 +117,7 @@ const getPages = ({
       }
       if (transactionsForPage.length) {
         if (page === 1) {
-          const newLastTxnHash = _.get(transactionsForPage, '[0].hash', lastTxnHash);
+          const newLastTxnHash = (_.get(transactionsForPage, '[0].hash', lastTxnHash)).replace(/-.*/g, '');
           console.log('db adapter set local', newLastTxnHash);
           database.adapter.setLocal(LAST_TXN_HASH, newLastTxnHash);
         }

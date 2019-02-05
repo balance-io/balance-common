@@ -97,7 +97,7 @@ export const transactionsClearState = () => (dispatch, getState) => {
     const transactionsCollection = database.collections.get('transactions');
     await transactionsCollection.query().destroyAllPermanently();
   });
-  console.log('cleared txn state', transactionsCollection);
+  console.log('cleared txn state');
   dispatch({ type: TRANSACTIONS_CLEAR_STATE });
 };
 

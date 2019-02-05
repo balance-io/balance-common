@@ -93,12 +93,11 @@ export const transactionsClearState = () => (dispatch, getState) => {
   clearInterval(getTransactionsInterval);
   database.adapter.removeLocal(LAST_TXN_HASH);
   // TODO test
-  console.log('clearing txn state', transactionsCollection);
   database.action(async () => {
     const transactionsCollection = database.collections.get('transactions');
     await transactionsCollection.query().destroyAllPermanently();
   });
-  console.log('cleared state');
+  console.log('cleared txn state', transactionsCollection);
   dispatch({ type: TRANSACTIONS_CLEAR_STATE });
 };
 

@@ -24,12 +24,9 @@ const LAST_TXN_HASH = 'lastTxnHash';
 let getTransactionsInterval = null;
 
 export const transactionsLoadState = () => dispatch => {
-  console.log('transactions load state');
   database.adapter.getLocal(LAST_TXN_HASH)
   .then(lastTxnHash => {
-    console.log('db adapter get local', lastTxnHash);
     if (lastTxnHash) {
-      console.log('got lastTxnHash from db adapter', lastTxnHash);
       dispatch({
         type: TRANSACTIONS_LOAD_LAST_HASH_SUCCESS,
         payload: lastTxnHash
@@ -44,9 +41,7 @@ export const transactionsRefreshState = () => (dispatch, getState) => {
   const getTransactions = () => {
     console.log('transactions refresh state');
     const { accountAddress, network } = getState().settings;
-    console.log('txn refresh state accountAddress', accountAddress, network);
     const { assets } = getState().assets;
-    console.log('txn refresh state assets', assets);
     const { lastTxnHash } = getState().transactions;
     console.log('txn refresh state last txn hash', lastTxnHash);
     dispatch({ type: TRANSACTIONS_FETCH_REQUEST });
@@ -87,6 +82,7 @@ export const transactionsAddNewTransaction = txDetails => (dispatch, getState) =
     });
 });
 
+// TODO should promisify?
 export const transactionsClearState = () => (dispatch, getState) => {
   clearInterval(getTransactionsInterval);
   database.adapter.removeLocal(LAST_TXN_HASH);
@@ -117,7 +113,7 @@ const getPages = ({
       }
       if (transactionsForPage.length) {
         if (page === 1) {
-          const newLastTxnHash = (_.get(transactionsForPage, '[0].hash', lastTxnHash)).replace(/-.*/g, '');
+          const newLastTxnHash = _.get(transactionsForPage, '[0].hash', lastTxnHash);
           console.log('db adapter set local', newLastTxnHash);
           database.adapter.setLocal(LAST_TXN_HASH, newLastTxnHash);
         }
@@ -134,6 +130,8 @@ const getPages = ({
       }
 
       if (page < pages) {
+        // TODO
+        /*
         const nextPage = page + 1;
         dispatch(getPages({
           assets,
@@ -142,6 +140,7 @@ const getPages = ({
           lastTxnHash,
           page: nextPage
         }));
+        */
       } else {
         dispatch({ type: TRANSACTIONS_FETCH_SUCCESS });
       }

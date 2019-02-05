@@ -53,6 +53,7 @@ export const transactionsRefreshState = () => (dispatch, getState) => {
       page: 1
     }));
   };
+  /*
   const { fetchingTransactions } = getState().transactions;
   console.log('fetching txns status', fetchingTransactions);
   if (!fetchingTransactions) {
@@ -60,6 +61,7 @@ export const transactionsRefreshState = () => (dispatch, getState) => {
   }
   clearInterval(getTransactionsInterval);
   getTransactionsInterval = setInterval(getTransactions, 15000); // 15 secs
+  */
 };
 
 export const transactionsAddNewTransaction = txDetails => (dispatch, getState) => new Promise((resolve, reject) => {
@@ -141,6 +143,8 @@ const getPages = ({
           page: nextPage
         }));
         */
+        // TODO
+        dispatch({ type: TRANSACTIONS_FETCH_SUCCESS });
       } else {
         dispatch({ type: TRANSACTIONS_FETCH_SUCCESS });
       }

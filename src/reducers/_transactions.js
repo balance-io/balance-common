@@ -95,7 +95,11 @@ export const transactionsClearState = () => (dispatch, getState) => {
   // TODO test
   const transactionsCollection = database.collections.get('transactions');
   console.log('clearing txn state', transactionsCollection);
-  transactionsCollection.query().destroyAllPermanently();
+  transactionsCollection.query().destroyAllPermanently().then(() => {
+    console.log('destroyed permanently');
+  }).catch(error => {
+    console.log('error destroying transactions', error);
+  });
   dispatch({ type: TRANSACTIONS_CLEAR_STATE });
 };
 

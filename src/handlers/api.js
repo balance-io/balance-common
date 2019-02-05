@@ -127,7 +127,8 @@ export const apiGetAccountTransactions = async (
         pages = page;
       }
     }
-    transactions = await parseHistoricalTransactions(transactions, page);
+    // TODO
+    //transactions = await parseHistoricalTransactions(transactions, page);
     const result = { data: transactions, pages };
     return result;
   } catch (error) {

@@ -211,8 +211,7 @@ export const updateLocalTransactions = async (
 export const getAllValidWalletConnectSessions = async () => {
   const allSessions = await getAllWalletConnectSessions();
   const validSessions = pickBy(allSessions, (value, key) => {
-    const expiration = new Date(value.expiration);
-    return (new Date() < expiration);
+    return value.connected
   });
   return validSessions;
 };

@@ -43,9 +43,43 @@ const TRANSACTIONS_CLEAR_STATE = 'transactions/TRANSACTIONS_CLEAR_STATE';
 // -- Actions --------------------------------------------------------------- //
 let getTransactionsInterval = null;
 
-export const transactionsRefreshState = () => dispatch => {
-  dispatch(getAccountTransactions());
-};
+export const transactionsRefreshState = () => (dispatch, getState) => new Promise((resolve, reject) => {
+  const getTransactions = () => new Promise((resolve, reject) => {
+    dispatch({ type: TRANSACTIONS_GET_TRANSACTIONS_REQUEST });
+    const { assets } = getState().assets;
+    const { loadingTransactions, transactions } = getState().transactions;
+    const { accountAddress, network } = getState().settings;
+    const lastSuccessfulTxn = _.find(transactions, (txn) => txn.hash && !txn.pending);
+    const lastTxHash = lastSuccessfulTxn ? lastSuccessfulTxn.hash : '';
+    const partitions = _.partition(transactions, (txn) => txn.pending);
+    if (!loadingTransactions) {
+      dispatch(getPages({
+        assets,
+        newTransactions: [],
+        pendingTransactions: partitions[0],
+        confirmedTransactions: partitions[1],
+        accountAddress,
+        network,
+        lastTxHash,
+        page: 1
+      })).then(() => {
+        resolve(true);
+      }).catch(error => {
+        reject(error);
+      });
+    }
+  });
+  getTransactions().then(() => {
+    clearInterval(getTransactionsInterval);
+    getTransactionsInterval = setInterval(getTransactions, 15000); // 15 secs
+    resolve(true);
+  }).catch(error => {
+    clearInterval(getTransactionsInterval);
+    getTransactionsInterval = setInterval(getTransactions, 15000); // 15 secs
+    reject(error);
+  });
+});
+
 
 export const transactionsUpdateHasPendingTransaction = (hasPending = true) => dispatch => {
   dispatch({
@@ -96,33 +130,6 @@ export const transactionsLoadState = () => (dispatch, getState) => {
   });
 };
 
-const getAccountTransactions = () => (dispatch, getState) => {
-  const getTransactions = () => {
-    dispatch({ type: TRANSACTIONS_GET_TRANSACTIONS_REQUEST });
-    const { assets } = getState().assets;
-    const { loadingTransactions, transactions } = getState().transactions;
-    const { accountAddress, network } = getState().settings;
-    const lastSuccessfulTxn = _.find(transactions, (txn) => txn.hash && !txn.pending);
-    const lastTxHash = lastSuccessfulTxn ? lastSuccessfulTxn.hash : '';
-    const partitions = _.partition(transactions, (txn) => txn.pending);
-    if (!loadingTransactions) {
-      dispatch(getPages({
-        assets,
-        newTransactions: [],
-        pendingTransactions: partitions[0],
-        confirmedTransactions: partitions[1],
-        accountAddress,
-        network,
-        lastTxHash,
-        page: 1
-      }));
-    }
-  };
-  getTransactions();
-  clearInterval(getTransactionsInterval);
-  getTransactionsInterval = setInterval(getTransactions, 15000); // 15 secs
-};
-
 const getPages = ({
   assets,
   newTransactions,
@@ -132,14 +139,14 @@ const getPages = ({
   network,
   lastTxHash,
   page
-}) => dispatch => {
+}) => dispatch => new Promise((resolve, reject) => {
   apiGetAccountTransactions(assets, accountAddress, network, lastTxHash, page)
     .then(({ data: transactionsForPage, pages }) => {
       if (!transactionsForPage.length) {
         dispatch({
           type: TRANSACTIONS_GET_NO_NEW_PAYLOAD_SUCCESS
         });
-        return;
+        resolve(true);
       }
       let updatedPendingTransactions = pendingTransactions;
       if (pendingTransactions.length) {
@@ -168,6 +175,7 @@ const getPages = ({
           page: nextPage
         }));
       }
+      resolve(true);
     })
     .catch(error => {
       dispatch(
@@ -177,8 +185,9 @@ const getPages = ({
         ),
       );
       dispatch({ type: TRANSACTIONS_GET_TRANSACTIONS_FAILURE });
+      reject(error);
     });
-}
+});
 
 // -- Reducer --------------------------------------------------------------- //
 export const INITIAL_STATE = {

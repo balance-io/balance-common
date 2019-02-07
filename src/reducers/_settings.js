@@ -6,9 +6,11 @@ import {
   saveNativeCurrency,
 } from '../handlers/commonStorage';
 import { web3SetHttpProvider } from '../handlers/web3';
+import { getNetworkFromChainId, getChainIdFromNetwork } from '../helpers/utilities';
 
 // -- Constants ------------------------------------------------------------- //
 const SETTINGS_UPDATE_NETWORK = 'settings/SETTINGS_UPDATE_NETWORK';
+const SETTINGS_UPDATE_CHAIN_ID = 'settings/SETTINGS_UPDATE_CHAIN_ID';
 const SETTINGS_UPDATE_SETTINGS_ADDRESS = 'settings/SETTINGS_UPDATE_SETTINGS_ADDRESS';
 
 const SETTINGS_UPDATE_NATIVE_CURRENCY_SUCCESS = 'settings/SETTINGS_UPDATE_NATIVE_CURRENCY_SUCCESS';
@@ -53,8 +55,15 @@ export const settingsUpdateAccountAddress = (accountAddress, accountType) => (
 };
 
 export const settingsUpdateNetwork = network => dispatch => {
+  const chainId = getChainIdFromNetwork(network);
   web3SetHttpProvider(`https://${network}.infura.io/`);
-  dispatch({ type: SETTINGS_UPDATE_NETWORK, payload: network });
+  dispatch({ type: SETTINGS_UPDATE_NETWORK, payload: { network, chainId } });
+};
+
+export const settingsUpdateChainId = chainId => dispatch => {
+  const network = getNetworkFromChainId(chainId);
+  web3SetHttpProvider(`https://${network}.infura.io/`);
+  dispatch({ type: SETTINGS_UPDATE_CHAIN_ID, payload: { network, chainId } });
 };
 
 export const settingsChangeLanguage = language => dispatch => {
@@ -93,6 +102,7 @@ export const INITIAL_STATE = {
   accountAddress: '',
   language: 'en',
   nativeCurrency: 'USD',
+  chainId: 1,
   network: 'mainnet',
 };
 
@@ -116,7 +126,14 @@ export default (state = INITIAL_STATE, action) => {
     case SETTINGS_UPDATE_NETWORK:
       return {
         ...state,
-        network: action.payload,
+        network: action.payload.network,
+        chainId: action.payload.chainId
+      };
+    case SETTINGS_UPDATE_CHAIN_ID:
+      return {
+        ...state,
+        network: action.payload.network,
+        chainId: action.payload.chainId
       };
     case SETTINGS_UPDATE_LANGUAGE_SUCCESS:
       return {

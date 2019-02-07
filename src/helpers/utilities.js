@@ -3,6 +3,7 @@ import {
   convertNumberToString,
   add,
 } from './bignumber';
+import chains from '../references/chains.json'
 
 /**
  * @desc debounce api request
@@ -196,3 +197,29 @@ export const calcTxFee = (gasPrices, gasPriceOption, nativeCurrency) => {
       : '';
   return `${txFeeNative}${txFee}`;
 };
+
+/**
+ * @desc get network string from chainId
+ * @param  {Number} chainId
+ */
+export const getNetworkFromChainId = (chainId) => {
+  let result = 'mainnet';
+  const matches = chains.filter(chain => chain.chain_id === chainId);
+  if (matches && matches.length) {
+    result = matches[0].network;
+  }
+  return result;
+}
+
+/**
+ * @desc get chainId from network string
+ * @param  {String} network
+ */
+export const getChainIdFromNetwork = (chainId) => {
+  let result = 1;
+  const matches = chains.filter(chain => chain.network === network);
+  if (matches && matches.length) {
+    result = matches[0].chain_id;
+  }
+  return result;
+}

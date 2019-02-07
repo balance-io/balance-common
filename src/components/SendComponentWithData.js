@@ -1,8 +1,10 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
+import { compose } from 'recompact';
 import { get } from 'lodash';
 import lang from '../languages';
+import { withAccountAssets } from '../hoc';
 import {
   sendModalInit,
   sendUpdateGasPrice,
@@ -27,7 +29,8 @@ import {
   transactionData,
 } from '../helpers/utilities';
 
-const reduxProps = ({ send, account }) => ({
+const mapStateToProps = ({ send, settings }) => ({
+  address: settings.accountAddress,
   fetching: send.fetching,
   recipient: send.recipient,
   nativeAmount: send.nativeAmount,
@@ -42,11 +45,9 @@ const reduxProps = ({ send, account }) => ({
   gasLimit: send.gasLimit,
   gasPriceOption: send.gasPriceOption,
   confirm: send.confirm,
-  accountInfo: account.accountInfo,
-  accountType: account.accountType,
-  network: account.network,
-  nativeCurrency: account.nativeCurrency,
-  prices: account.prices,
+  accountType: settings.accountType,
+  network: settings.network,
+  nativeCurrency: settings.nativeCurrency,
 });
 
 /**
@@ -84,11 +85,10 @@ export const withSendComponentWithData = (SendComponent, options) => {
       gasLimit: PropTypes.number.isRequired,
       gasPriceOption: PropTypes.string.isRequired,
       confirm: PropTypes.bool.isRequired,
-      accountInfo: PropTypes.object.isRequired,
+      assets: PropTypes.array.isRequired,
       accountType: PropTypes.string.isRequired,
       network: PropTypes.string.isRequired,
       nativeCurrency: PropTypes.string.isRequired,
-      prices: PropTypes.object.isRequired,
     };
 
     constructor(props) {
@@ -99,7 +99,7 @@ export const withSendComponentWithData = (SendComponent, options) => {
         showQRCodeReader: false,
       };
 
-      this.defaultAsset = options.defaultAsset || 'ETH';
+      this.defaultAsset = options.defaultAsset;
       this.gasFormat = options.gasFormat || 'long';
       this.sendTransactionCallback = options.sendTransactionCallback || function noop() {};
     }
@@ -172,7 +172,7 @@ export const withSendComponentWithData = (SendComponent, options) => {
           return;
         } else if (this.props.selected.symbol === 'ETH') {
           const { requestedAmount, balance, amountWithFees } = transactionData(
-            this.props.accountInfo,
+            this.props.assets,
             this.props.assetAmount,
             this.props.gasPrice,
           );
@@ -194,7 +194,7 @@ export const withSendComponentWithData = (SendComponent, options) => {
           }
         } else {
           const { requestedAmount, balance, txFee } = transactionData(
-            this.props.accountInfo,
+            this.props.assets,
             this.props.assetAmount,
             this.props.gasPrice,
           );
@@ -222,7 +222,7 @@ export const withSendComponentWithData = (SendComponent, options) => {
         this.props.sendToggleConfirmationView(true);
 
         return this.props.sendTransaction({
-          address: this.props.accountInfo.address,
+          address: this.props.address,
           recipient: this.props.recipient,
           amount: this.props.assetAmount,
           asset: this.props.selected,
@@ -297,9 +297,8 @@ export const withSendComponentWithData = (SendComponent, options) => {
     };
   }
 
-  return connect(
-    reduxProps,
-    {
+  return compose(
+    connect(mapStateToProps, {
       sendModalInit,
       sendUpdateGasPrice,
       sendTransaction,
@@ -311,6 +310,7 @@ export const withSendComponentWithData = (SendComponent, options) => {
       sendMaxBalance,
       sendToggleConfirmationView,
       notificationShow,
-    },
+    }),
+    withAccountAssets,
   )(SendComponentWithData);
 };

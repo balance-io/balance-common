@@ -5,15 +5,16 @@ import {
   convertAmountFromBigNumber,
   convertAmountToBigNumber,
   convertAmountToDisplay,
-  convertAmountToDisplaySpecific,
-  convertAmountToUnformattedDisplay,
   convertAssetAmountToBigNumber,
   convertAssetAmountToNativeAmount,
   convertAssetAmountToNativeValue,
+  convertHexToString,
   convertStringToNumber,
   divide,
   multiply,
+  simpleConvertAmountToDisplay,
 } from '../helpers/bignumber';
+import smartContractMethods from '../references/smartcontract-methods.json';
 import ethUnits from '../references/ethereum-units.json';
 import nativeCurrencies from '../references/native-currencies.json';
 import timeUnits from '../references/time-units.json';
@@ -56,6 +57,7 @@ export const parseError = error => {
   }
   return lang.t('notification.error.generic_error');
 };
+
 export const getTxFee = (gasPrice, gasLimit) => {
   const amount = multiply(gasPrice, gasLimit);
   return {
@@ -63,7 +65,6 @@ export const getTxFee = (gasPrice, gasLimit) => {
       amount,
       display: convertAmountToDisplay(
         amount,
-        null,
         {
           symbol: 'ETH',
           decimals: 18,
@@ -94,7 +95,7 @@ export const defaultGasPriceFormat = (option, timeAmount, valueAmount, valueDisp
  * @param {Object} prices
  * @param {Number} gasLimit
  */
-export const parseGasPrices = (data, prices, gasLimit, short) => {
+export const parseGasPrices = (data, prices, gasLimit, nativeCurrency, short) => {
   const gasPrices = {
     slow: null,
     average: null,
@@ -135,33 +136,34 @@ export const parseGasPrices = (data, prices, gasLimit, short) => {
       short
     );
   }
-  return parseGasPricesTxFee(gasPrices, prices, gasLimit);
+  return parseGasPricesTxFee(gasPrices, prices, gasLimit, nativeCurrency);
 };
 
-export const convertGasPricesToNative = (prices, gasPrices) => {
+export const convertGasPricesToNative = (prices, gasPrices, nativeCurrency) => {
   const nativeGases = { ...gasPrices };
-  if (prices && prices.selected) {
-    gasPrices.fast.txFee.native = getNativeGasPrice(prices, gasPrices.fast.txFee.value.amount);
-    gasPrices.average.txFee.native = getNativeGasPrice(prices, gasPrices.average.txFee.value.amount);
-    gasPrices.slow.txFee.native = getNativeGasPrice(prices, gasPrices.slow.txFee.value.amount);
+  if (prices) {
+    gasPrices.fast.txFee.native = getNativeGasPrice(prices, gasPrices.fast.txFee.value.amount, nativeCurrency);
+    gasPrices.average.txFee.native = getNativeGasPrice(prices, gasPrices.average.txFee.value.amount, nativeCurrency);
+    gasPrices.slow.txFee.native = getNativeGasPrice(prices, gasPrices.slow.txFee.value.amount, nativeCurrency);
   }
   return nativeGases;
 };
 
-export const getNativeGasPrice = (prices, feeAmount) => {
+export const getNativeGasPrice = (prices, feeAmount, nativeCurrency) => {
+  const selected = nativeCurrencies[nativeCurrency];
   const amount = convertAssetAmountToNativeAmount(
     feeAmount,
     { symbol: 'ETH' },
     prices,
+    nativeCurrency,
   );
   return {
-    selected: prices.selected,
+    selected,
     value: {
       amount,
-      display: convertAmountToDisplay(
+      display: simpleConvertAmountToDisplay(
         amount,
-        prices,
-        null,
+        nativeCurrency,
         2,
       ),
     },
@@ -174,61 +176,60 @@ export const getNativeGasPrice = (prices, feeAmount) => {
  * @param {Object} prices
  * @param {Number} gasLimit
  */
-export const parseGasPricesTxFee = (gasPrices, prices, gasLimit) => {
+export const parseGasPricesTxFee = (gasPrices, prices, gasLimit, nativeCurrency) => {
   gasPrices.fast.txFee = getTxFee(gasPrices.fast.value.amount, gasLimit);
   gasPrices.average.txFee = getTxFee(gasPrices.average.value.amount, gasLimit);
   gasPrices.slow.txFee = getTxFee(gasPrices.slow.value.amount, gasLimit);
-  return convertGasPricesToNative(prices, gasPrices);
+  return convertGasPricesToNative(prices, gasPrices, nativeCurrency);
 };
 
 /**
  * @desc parse prices object from api response
  * @param  {Object} [data=null]
  * @param  {Array} [assets=[]]
- * @param  {String} [native='USD']
  * @return {Object}
  */
 export const parsePricesObject = (
   data = null,
   assets = [],
-  nativeSelected = 'USD',
 ) => {
-  let prices = { selected: nativeCurrencies[nativeSelected] };
+  let prices = {};
   Object.keys(nativeCurrencies).forEach(nativeCurrency => {
-    prices[nativeCurrency] = {};
-    assets.forEach(asset => {
-      let assetPrice = null;
-      if (data.RAW && data.RAW[asset]) {
-        assetPrice = {
-          price: {
-            amount: convertAmountToBigNumber(
-              data.RAW[asset][nativeCurrency].PRICE,
-            ),
-            display: convertAmountToDisplaySpecific(
-              convertAmountToBigNumber(data.RAW[asset][nativeCurrency].PRICE),
-              prices,
-              nativeCurrency,
-            ),
-          },
-          change: {
-            amount: convertAmountToBigNumber(
-              data.RAW[asset][nativeCurrency].CHANGEPCT24HOUR,
-            ),
-            display: convertAmountToDisplay(
-              convertAmountToBigNumber(
+    if (data.RAW) {
+      prices[nativeCurrency] = {};
+      assets.forEach(asset => {
+        let assetPrice = null;
+        if (data.RAW[asset]) {
+          assetPrice = {
+            price: {
+              amount: convertAmountToBigNumber(
+                data.RAW[asset][nativeCurrency].PRICE,
+              ),
+              display: simpleConvertAmountToDisplay(
+                convertAmountToBigNumber(data.RAW[asset][nativeCurrency].PRICE),
+                nativeCurrency,
+              ),
+            },
+            change: {
+              amount: convertAmountToBigNumber(
                 data.RAW[asset][nativeCurrency].CHANGEPCT24HOUR,
               ),
-            ),
-          },
-        };
-      }
-      if (asset !== 'WETH') {
-        prices[nativeCurrency][asset] = assetPrice;
-      }
-      if (asset === 'ETH') {
-        prices[nativeCurrency]['WETH'] = assetPrice;
-      }
-    });
+              display: convertAmountToDisplay(
+                convertAmountToBigNumber(
+                  data.RAW[asset][nativeCurrency].CHANGEPCT24HOUR,
+                ),
+              ),
+            },
+          };
+        }
+        if (asset !== 'WETH') {
+          prices[nativeCurrency][asset] = assetPrice;
+        }
+        if (asset === 'ETH') {
+          prices[nativeCurrency]['WETH'] = assetPrice;
+        }
+      });
+    }
   });
   return prices;
 };
@@ -237,7 +238,7 @@ export const parsePricesObject = (
  * @desc parse account assets
  * @param  {Object} [data=null]
  * @param  {String} [address=null]
- * @return {Object}
+ * @return {Array}
  */
 export const parseAccountAssets = (data = null, address = '') => {
   try {
@@ -253,6 +254,7 @@ export const parseAccountAssets = (data = null, address = '') => {
         address: assetData.contract.address || null,
         decimals: convertStringToNumber(assetData.contract.decimals),
       };
+      // TODO: can only store balance without display
       const assetBalance = convertAssetAmountToBigNumber(
         assetData.balance,
         asset.decimals,
@@ -261,99 +263,22 @@ export const parseAccountAssets = (data = null, address = '') => {
         ...asset,
         balance: {
           amount: assetBalance,
-          display: convertAmountToDisplay(assetBalance, null, {
+          display: convertAmountToDisplay(assetBalance, {
             symbol: asset.symbol,
             decimals: asset.decimals,
           }),
         },
-        native: null,
       };
     });
 
     assets = assets.filter(
-      asset => !!Number(asset.balance.amount) || asset.symbol === 'ETH',
+      asset => !!Number(asset.balance.amount),
     );
 
-    return {
-      address: address,
-      type: '',
-      assets: assets,
-      total: null,
-    };
+    return assets;
   } catch (error) {
     throw error;
   }
-};
-
-/**
- * @desc parse account balances from native prices
- * @param  {Object} [account=null]
- * @param  {Object} [prices=null]
- * @param  {String} [network='']
- * @return {Object}
- */
-export const parseAccountBalancesPrices = (
-  account = null,
-  nativePrices = null,
-  network = '',
-) => {
-  let totalAmount = 0;
-  let newAccount = {
-    ...account,
-  };
-  // TODO: USD tracking selected
-  let nativeSelected = nativePrices.selected.currency;
-  //if (account && nativePrices && nativePrices.selected) {
-  if (account) {
-    const newAssets = account.assets.map(asset => {
-      if (
-        !nativePrices ||
-        (nativePrices && !nativePrices[nativeSelected][asset.symbol])
-      )
-        return asset;
-
-      const balanceAmountUnit = convertAmountFromBigNumber(
-        asset.balance.amount,
-        asset.decimals,
-      );
-      const balancePriceUnit = convertAmountFromBigNumber(
-        nativePrices[nativeSelected][asset.symbol].price.amount,
-      );
-      const balanceRaw = multiply(balanceAmountUnit, balancePriceUnit);
-      const balanceAmount = convertAmountToBigNumber(balanceRaw);
-      const balanceDisplay = convertAmountToDisplay(
-        balanceAmount,
-        nativePrices,
-      );
-      const assetPrice = nativePrices[nativeSelected][asset.symbol].price;
-      return {
-        ...asset,
-        native: {
-          selected: nativePrices.selected,
-          balance: { amount: balanceAmount, display: balanceDisplay },
-          price: assetPrice,
-          change:
-            asset.symbol === nativePrices.selected.currency
-              ? { amount: '0', display: '———' }
-              : nativePrices[nativeSelected][asset.symbol].change,
-        },
-      };
-    });
-    totalAmount = newAssets.reduce(
-      (total, asset) =>
-        add(total, asset.native ? asset.native.balance.amount : 0),
-      0,
-    );
-    const totalDisplay = convertAmountToDisplay(totalAmount, nativePrices);
-    const totalTrackingAmount = convertAmountToUnformattedDisplay(totalAmount, nativePrices);
-    const total = { amount: totalAmount, display: totalDisplay, totalTrackingAmount };
-    newAccount = {
-      ...newAccount,
-      assets: newAssets,
-      total: total,
-    };
-  }
-  return newAccount;
 };
 
 /**
@@ -424,7 +349,7 @@ export const parseHistoricalNativePrice = async transaction => {
   const feeResponse = historicalPriceResponses[1];
 
   Object.keys(nativeCurrencies).forEach(nativeCurrency => {
-    let prices = { selected: nativeCurrencies[nativeCurrency] };
+    let prices = {};
     prices[nativeCurrency] = {};
     if (response.data.response !== 'Error' && response.data[asset.symbol]) {
       const assetPriceAmount = convertAmountToBigNumber(
@@ -433,9 +358,9 @@ export const parseHistoricalNativePrice = async transaction => {
       prices[nativeCurrency][asset.symbol] = {
         price: { amount: assetPriceAmount, display: null },
       };
-      const assetPriceDisplay = convertAmountToDisplay(
+      const assetPriceDisplay = simpleConvertAmountToDisplay(
         assetPriceAmount,
-        prices,
+        nativeCurrency,
       );
       prices[nativeCurrency][asset.symbol].price.display = assetPriceDisplay;
       const assetPrice = prices[nativeCurrency][asset.symbol].price;
@@ -444,10 +369,11 @@ export const parseHistoricalNativePrice = async transaction => {
         tx.value.amount,
         asset,
         prices,
+        nativeCurrency,
       );
-      const valuePriceDisplay = convertAmountToDisplay(
+      const valuePriceDisplay = simpleConvertAmountToDisplay(
         valuePriceAmount,
-        prices,
+        nativeCurrency,
       );
       const valuePrice = !tx.error
         ? { amount: valuePriceAmount, display: valuePriceDisplay }
@@ -469,17 +395,18 @@ export const parseHistoricalNativePrice = async transaction => {
       prices[nativeCurrency]['ETH'] = {
         price: { amount: feePriceAmount, display: null },
       };
-      const feePriceDisplay = convertAmountToDisplay(feePriceAmount, prices);
+      const feePriceDisplay = simpleConvertAmountToDisplay(feePriceAmount, nativeCurrency);
       prices[nativeCurrency]['ETH'].price.display = feePriceDisplay;
 
       const txFeePriceAmount = convertAssetAmountToNativeValue(
         tx.txFee.amount,
         ethFeeAsset,
         prices,
+        nativeCurrency,
       );
-      const txFeePriceDisplay = convertAmountToDisplay(
+      const txFeePriceDisplay = simpleConvertAmountToDisplay(
         txFeePriceAmount,
-        prices,
+        nativeCurrency,
       );
       const txFeePrice = {
         amount: txFeePriceAmount,
@@ -513,7 +440,7 @@ export const parseNewTransaction = async (
   let txFee = totalGas
     ? {
         amount: totalGas,
-        display: convertAmountToDisplay(totalGas, null, {
+        display: convertAmountToDisplay(totalGas, {
           symbol: 'ETH',
           decimals: 18,
         }),
@@ -526,7 +453,7 @@ export const parseNewTransaction = async (
   );
   const value = {
     amount,
-    display: convertAmountToDisplay(amount, null, txDetails.asset),
+    display: convertAmountToDisplay(amount, txDetails.asset),
   };
   const nonce =
     txDetails.nonce ||
@@ -538,10 +465,10 @@ export const parseNewTransaction = async (
     from: txDetails.from,
     to: txDetails.to,
     error: false,
+    native: { selected: nativeCurrencies[nativeCurrency] },
     nonce: nonce,
     value: value,
     txFee: txFee,
-    native: { selected: nativeCurrencies[nativeCurrency] },
     pending: txDetails.hash ? true : false,
     asset: txDetails.asset,
   };
@@ -551,22 +478,21 @@ export const parseNewTransaction = async (
 
 /**
  * @desc parse account transactions
- * @param  {Object} [data=null]
- * @param  {String} [address='']
- * @param  {String} [networks='']
+ * @param  {Object} [data]
+ * @param  {String} [address]
+ * @param  {String} [networks]
  * @return {Array}
  */
 export const parseAccountTransactions = async (
-  data = null,
-  address = '',
-  network = '',
+  data,
+  assets,
+  address,
+  network,
 ) => {
   if (!data || !data.docs) return { transactions: [], pages: 0 };
 
   let transactions = await Promise.all(
-    data.docs.map(async tx => {
-      return await parseTransaction(tx);
-    }),
+    data.docs.map(async tx => parseTransaction(assets, tx)),
   );
   let _transactions = [];
 
@@ -579,12 +505,21 @@ export const parseAccountTransactions = async (
   return { transactions: _transactions, pages: data.pages };
 };
 
+const getAssetDetails = (contractAddress, assets) => {
+  for (var item of assets) {
+    if (item.address === contractAddress) {
+      return { ...item };
+    }
+  }
+  return null;
+};
+
 /**
  * @desc parse transaction
  * @param  {Object} [data=null]
  * @return {Array}
  */
-export const parseTransaction = async tx => {
+export const parseTransaction = (assets, tx) => {
   const hash = tx._id;
   const timestamp = {
     secs: `${tx.timeStamp}`,
@@ -601,7 +536,7 @@ export const parseTransaction = async tx => {
   };
   let value = {
     amount: tx.value,
-    display: convertAmountToDisplay(tx.value, null, {
+    display: convertAmountToDisplay(tx.value, {
       symbol: 'ETH',
       decimals: 18,
     }),
@@ -609,23 +544,11 @@ export const parseTransaction = async tx => {
   let totalGas = multiply(tx.gasUsed, tx.gasPrice);
   let txFee = {
     amount: totalGas,
-    display: convertAmountToDisplay(totalGas, null, {
+    display: convertAmountToDisplay(totalGas, {
       symbol: 'ETH',
       decimals: 18,
     }),
   };
-
-  const includesTokenTransfer = (() => {
-    if (tx.input !== '0x' && tx.operations && tx.operations.length) {
-      const tokenTransfers = tx.operations.filter(
-        operation => operation.type === 'token_transfer',
-      );
-      if (tokenTransfers.length) {
-        return true;
-      }
-    }
-    return false;
-  })();
 
   let result = {
     hash,
@@ -640,6 +563,8 @@ export const parseTransaction = async tx => {
     asset,
   };
   let results = [result];
+
+  const includesTokenTransfer = tx.input.startsWith(smartContractMethods.token_transfer.hash);
 
   if (includesTokenTransfer) {
     const tokenTransfers = [];
@@ -657,11 +582,9 @@ export const parseTransaction = async tx => {
           pending: false,
           asset,
         };
-        const contractEnabled = get(transferData, 'contract.enabled', false);
+        const contractEnabled = get(transferData, 'contract.enabled', true);
         const contractName = get(transferData, 'contract.name', null);
-        const name = (contractEnabled &&
-                      contractName &&
-                      !contractName.startsWith('0x'))
+        const name = (contractEnabled && contractName)
           ? contractName
           : get(transferData, 'contract.symbol', 'Unknown Token');
         transferTx.asset = {
@@ -679,15 +602,38 @@ export const parseTransaction = async tx => {
         );
         transferTx.value = {
           amount,
-          display: convertAmountToDisplay(amount, null, transferTx.asset),
+          display: convertAmountToDisplay(amount, transferTx.asset),
         };
         tokenTransfers.push(transferTx);
       });
-      if (!Number(tx.value)) {
-        results = [...tokenTransfers];
-      } else {
-        result.hash = `${result.hash}-0`;
-        results = [...tokenTransfers, result];
+      results = [...tokenTransfers];
+    } else if (tx.error) {
+      const dataPayload = tx.input.replace(smartContractMethods.token_transfer.hash, '');
+      const toAddress = `0x${dataPayload.slice(0, 64).replace(/^0+/, '')}`;
+      const contractAddress = to;
+      const parsedAsset = getAssetDetails(contractAddress, assets);
+      if (parsedAsset) {
+        const dataAmount = `0x${dataPayload.slice(64, 128).replace(/^0+/, '')}`;
+        const amount = convertAssetAmountToBigNumber(
+          convertHexToString(dataAmount),
+          parsedAsset.decimals,
+        );
+        const transferTx = {
+          hash: result.hash,
+          timestamp,
+          from,
+          to: toAddress,
+          error,
+          value: {
+            amount,
+            display: convertAmountToDisplay(amount, parsedAsset),
+          },
+          txFee,
+          native: {},
+          pending: false,
+          asset: parsedAsset,
+        };
+        results = [transferTx];
       }
     }
   }
@@ -718,4 +664,3 @@ export const parseHistoricalTransactions = async (transactions, page) => {
   );
   return _transactions;
 };
-

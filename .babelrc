@@ -8,6 +8,6 @@
     "babel-plugin-transform-class-properties", 
     "@babel/plugin-transform-classes", 
     "@babel/plugin-proposal-class-properties",
-    "lodash"
+    ["lodash", { "id": "recompact" }],
   ]
 }

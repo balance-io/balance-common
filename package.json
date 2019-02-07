@@ -1,7 +1,7 @@
 {
   "name": "balance-common",
   "description": "Common library for web and mobile",
-  "version": "0.6.1",
+  "version": "0.6.29",
   "author": "Jin Chung <jin@balance.io>",
   "license": "GPL-3",
   "main": "dist/index.js",
@@ -21,11 +21,14 @@
     "lodash": "^4.17.10",
     "react": "^16.2.0",
     "react-redux": "^5.0.7",
+    "recompact": "^3.4.0",
     "redux": "^4.0.0",
+    "reselect": "^4.0.0",
     "underscore": "^1.9.1",
     "web3": "1.0.0-beta.34"
   },
   "scripts": {
+    "test": "jest",
     "build": "webpack",
     "format": "prettier --write \"src/**/*.js\""
   },
@@ -45,6 +48,7 @@
     "@babel/preset-env": "^7.0.0-beta.54",
     "@babel/preset-react": "^7.0.0-beta.54",
     "babel-eslint": "^8.2.2",
+    "babel-jest": "^23.6.0",
     "babel-loader": "^8.0.0-beta",
     "babel-plugin-lodash": "^3.3.4",
     "babel-plugin-transform-class-properties": "^6.24.1",
@@ -57,6 +61,7 @@
     "eslint-plugin-prettier": "^2.6.2",
     "eslint-plugin-react": "^7.7.0",
     "husky": "^0.14.3",
+    "jest": "^23.6.0",
     "lint-staged": "^7.1.0",
     "prettier": "^1.13.5",
     "react-native-dotenv": "^0.2.0",

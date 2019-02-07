@@ -152,13 +152,13 @@ export const getEth = assets => {
 
 /**
  * @desc returns an object
- * @param  {String} accountInfo
+ * @param  {Array} assets
  * @param  {String} assetAmount
  * @param  {String} gasPrice
  * @return {Object} ethereum, balanceAmount, balance, requestedAmount, txFeeAmount, txFee, amountWithFees
  */
-export const transactionData = (accountInfo, assetAmount, gasPrice) => {
-  const ethereum = getEth(accountInfo.assets);
+export const transactionData = (assets, assetAmount, gasPrice) => {
+  const ethereum = getEth(assets);
   const balanceAmount = ethereum.balance.amount;
   const balance = convertAmountFromBigNumber(balanceAmount);
   const requestedAmount = convertNumberToString(assetAmount);

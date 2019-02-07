@@ -25,9 +25,22 @@ export const resources = {
   el: greek,
 };
 
+export const supportedLanguages = {
+  cz: 'Čeština',
+  de: 'Deutsch',
+  el: 'Ελληνικά',
+  en: 'English',
+  es: 'Español',
+  fr: 'Français',
+  it: 'Italiano',
+  ja: '日本語',
+  pl: 'Полировать',
+  pt: 'Português',
+  ru: 'Pусский',
+};
+
 i18next.init({
   lng: 'en',
-  debug: true, // TODO: only debug in dev mode
   resources,
 });
 

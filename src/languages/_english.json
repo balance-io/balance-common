@@ -55,6 +55,7 @@
     },
     "account": {
       "tab_balances": "Balances",
+      "tab_balances_empty_state": "Balance",
       "tab_collectibles": "Collectibles",
       "tab_transactions": "Transactions",
       "tab_interactions": "Interactions",
@@ -245,7 +246,7 @@
         "please_enable_body": "It looks like you are using WalletConnect. Please enable push notifications to be notified of transaction requests from WalletConnect."
       },
       "assets": {
-        "no_price": "small balances"
+        "no_price": "Small Balances"
       },
       "intro": {
         "create_wallet": "Create a Wallet",
@@ -270,6 +271,12 @@
         "copy_seed_phrase": "Copy Seed Phrase",
         "hide_seed_phrase": "Hide Seed Phrase",
         "show_seed_phrase": "Show Seed Phrase"
+      },
+      "message_signing": {
+        "message": "Message",
+        "request": "Message Signing Request",
+        "sign": "Sign Message",
+        "failed_signing": "Failed to sign message"
       },
       "transaction": {
         "alert": {

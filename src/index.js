@@ -1,21 +1,19 @@
 import "@babel/polyfill";
-import lang, { resources } from './languages';
+import supportedNativeCurrencies from './references/native-currencies.json';
+import lang, { resources, supportedLanguages } from './languages';
 
 import {
   withSendComponentWithData
 } from './components/SendComponentWithData';
 import {
-  account,
-  accountChangeLanguage,
-  accountChangeNativeCurrency,
+  withAccountAssets
+} from './hoc';
+import {
   accountClearState,
-  accountInitializeState,
-  accountUpdateAccountAddress,
-  accountUpdateExchange,
-  accountUpdateHasPendingTransaction,
-  accountUpdateNetwork,
-  accountUpdateTransactions,
-  INITIAL_ACCOUNT_STATE,
+  accountLoadState,
+  assets,
+  assetsRefreshState,
+  prices,
   send,
   sendClearFields,
   sendMaxBalance,
@@ -27,10 +25,21 @@ import {
   sendUpdateNativeAmount,
   sendUpdateRecipient,
   sendUpdateSelected,
+  settings,
+  settingsChangeLanguage,
+  settingsChangeNativeCurrency,
+  settingsInitializeState,
+  settingsUpdateAccountAddress,
+  settingsUpdateNetwork,
+  transactions,
+  transactionsRefreshState,
+  transactionsUpdateHasPendingTransaction,
+  transactionsAddNewTransaction,
 } from './reducers';
 import {
   isValidAddress,
   isValidEmail,
+  isValidSeedPhrase,
 } from './helpers/validators';
 import {
   calcTxFee,
@@ -46,10 +55,11 @@ import {
   add,
   convertAmountFromBigNumber,
   convertAmountToBigNumber,
-  convertAmountToDisplay,
   convertAssetAmountFromBigNumber,
+  convertAssetAmountToDisplay,
   convertAssetAmountToDisplaySpecific,
   convertAssetAmountToNativeValue,
+  convertAmountToUnformattedDisplay,
   convertHexToString,
   convertNumberToString,
   convertStringToHex,
@@ -63,10 +73,11 @@ import {
   hasHighMarketValue,
   hasLowMarketValue,
   multiply,
+  simpleConvertAmountToDisplay,
   smallerThan,
   subtract,
 } from './helpers/bignumber';
-import { getCountdown, getLocalTimeDate } from './helpers';
+import { getCountdown, getLocalTimeDate, sortList } from './helpers';
 import {
   apiGetGasPrices,
   apiGetSinglePrice,
@@ -79,28 +90,23 @@ import {
 } from './handlers';
 import * as commonStorage from './handlers/commonStorage';
 export {
-  account,
-  accountChangeLanguage,
-  accountChangeNativeCurrency,
   accountClearState,
-  accountInitializeState,
-  accountUpdateAccountAddress,
-  accountUpdateExchange,
-  accountUpdateHasPendingTransaction,
-  accountUpdateNetwork,
-  accountUpdateTransactions,
+  accountLoadState,
   add,
   apiGetGasPrices,
   apiGetSinglePrice,
+  assets,
+  assetsRefreshState,
   calcTxFee,
   capitalize,
   commonStorage,
   convertAmountFromBigNumber,
   convertAmountToBigNumber,
-  convertAmountToDisplay,
   convertAssetAmountFromBigNumber,
+  convertAssetAmountToDisplay,
   convertAssetAmountToDisplaySpecific,
   convertAssetAmountToNativeValue,
+  convertAmountToUnformattedDisplay,
   convertHexToString,
   convertNumberToString,
   convertStringToHex,
@@ -121,13 +127,14 @@ export {
   handleSignificantDecimals,
   hasHighMarketValue,
   hasLowMarketValue,
-  INITIAL_ACCOUNT_STATE,
   isValidAddress,
   isValidEmail,
+  isValidSeedPhrase,
   lang,
   multiply,
   parseError,
   parseGasPrices,
+  prices,
   removeHexPrefix,
   resources,
   send,
@@ -141,10 +148,25 @@ export {
   sendUpdateNativeAmount,
   sendUpdateRecipient,
   sendUpdateSelected,
+  settings,
+  settingsChangeLanguage,
+  settingsChangeNativeCurrency,
+  settingsInitializeState,
+  settingsUpdateAccountAddress,
+  settingsUpdateNetwork,
+  simpleConvertAmountToDisplay,
   smallerThan,
+  sortList,
   subtract,
+  supportedLanguages,
+  supportedNativeCurrencies,
   toChecksumAddress,
   transactionData,
+  transactions,
+  transactionsRefreshState,
+  transactionsUpdateHasPendingTransaction,
+  transactionsAddNewTransaction,
   web3Instance,
+  withAccountAssets,
   withSendComponentWithData,
 };

@@ -1,10 +1,6 @@
-import { differenceInMinutes } from 'date-fns';
 import { omit, pickBy } from 'lodash';
 
 const defaultVersion = '0.1.0';
-const accountLocalVersion = '0.1.0';
-const globalSettingsVersion = '0.1.0';
-const walletConnectVersion = '0.2.0';
 
 /**
  * @desc save to storage
@@ -62,40 +58,150 @@ export const removeLocal = (key = '') => {
   }
 };
 
-/**
- * @desc reset account local
- * @param  {String}   [address]
- */
-export const resetAccount = (accountAddress) => {
-  const accountAddressKey = accountAddress.toLowerCase();
-  removeLocal(accountAddressKey);
-  removeLocal('nativePrices');
-};
+const getAssetsKey = (accountAddress, network) => `assets-${accountAddress.toLowerCase()}-${network.toLowerCase()}`;
+
+const getPricesKey = (accountAddress, network) => `prices-${accountAddress.toLowerCase()}-${network.toLowerCase()}`;
+
+const getTransactionsKey = (accountAddress, network) => `transactions-${accountAddress.toLowerCase()}-${network.toLowerCase()}`;
+
+const getUniqueTokensKey = (accountAddress, network) => `uniquetokens-${accountAddress.toLowerCase()}-${network.toLowerCase()}`;
 
 /**
- * @desc get account local
+ * @desc get prices
  * @param  {String}   [address]
+ * @param  {String}   [network]
  * @return {Object}
  */
-export const getAccountLocal = async accountAddress => {
-  return await getLocal(accountAddress.toLowerCase(), accountLocalVersion);
+export const getPrices = async (accountAddress, network) => {
+  const prices = await getLocal(getPricesKey(accountAddress, network));
+  return prices ? prices.data : {};
 };
 
 /**
- * @desc get native prices
+ * @desc save prices
+ * @param  {String}   [address]
+ * @param  {String}   [network]
+ */
+export const savePrices = async (accountAddress, prices, network) => {
+  await saveLocal(
+    getPricesKey(accountAddress, network),
+    { data: prices },
+  );
+};
+
+/**
+ * @desc remove prices
+ * @param  {String}   [address]
+ * @param  {String}   [network]
  * @return {Object}
  */
-export const getNativePrices = async () => {
-  const nativePrices = await getLocal('nativePrices', accountLocalVersion);
-  return nativePrices ? nativePrices.data : null;
+export const removePrices = (accountAddress, network) => {
+  const key = getPricesKey(accountAddress, network);
+  removeLocal(key);
 };
 
 /**
- * @desc save native prices
+ * @desc get assets
  * @param  {String}   [address]
+ * @param  {String}   [network]
+ * @return {Object}
  */
-export const saveNativePrices = async nativePrices => {
-  await saveLocal('nativePrices', { data: nativePrices }, accountLocalVersion);
+export const getAssets = async (accountAddress, network) => {
+  const assets = await getLocal(getAssetsKey(accountAddress, network));
+  return assets ? assets.data : [];
+};
+
+/**
+ * @desc save assets
+ * @param  {String}   [address]
+ * @param  {String}   [network]
+ */
+export const saveAssets = async (accountAddress, assets, network) => {
+  await saveLocal(
+    getAssetsKey(accountAddress, network),
+    { data: assets },
+  );
+};
+
+/**
+ * @desc remove assets
+ * @param  {String}   [address]
+ * @param  {String}   [network]
+ * @return {Object}
+ */
+export const removeAssets = (accountAddress, network) => {
+  const key = getAssetsKey(accountAddress, network);
+  removeLocal(key);
+};
+
+/**
+ * @desc get transactions
+ * @param  {String}   [address]
+ * @param  {String}   [network]
+ * @return {Object}
+ */
+export const getLocalTransactions = async (accountAddress, network) => {
+  const transactions = await getLocal(getTransactionsKey(accountAddress, network));
+  return transactions ? transactions.data : [];
+};
+
+/**
+ * @desc save transactions
+ * @param  {String}   [address]
+ * @param  {Array}   [transactions]
+ * @param  {String}   [network]
+ */
+export const saveLocalTransactions = async (accountAddress, transactions, network) => {
+  await saveLocal(
+    getTransactionsKey(accountAddress, network),
+    { data: transactions },
+  );
+};
+
+/**
+ * @desc remove transactions
+ * @param  {String}   [address]
+ * @param  {String}   [network]
+ * @return {Object}
+ */
+export const removeLocalTransactions = (accountAddress, network) => {
+  const key = getTransactionsKey(accountAddress, network);
+  removeLocal(key);
+};
+
+/**
+ * @desc get unique tokens
+ * @param  {String}   [address]
+ * @param  {String}   [network]
+ * @return {Object}
+ */
+export const getUniqueTokens = async (accountAddress, network) => {
+  const uniqueTokens = await getLocal(getUniqueTokensKey(accountAddress, network));
+  return uniqueTokens ? uniqueTokens.data : [];
+};
+
+/**
+ * @desc save unique tokens
+ * @param  {String}   [address]
+ * @param  {Array}   [uniqueTokens]
+ * @param  {String}   [network]
+ */
+export const saveUniqueTokens = async (accountAddress, uniqueTokens, network) => {
+  await saveLocal(
+    getUniqueTokensKey(accountAddress, network),
+    { data: uniqueTokens },
+  );
+};
+
+/**
+ * @desc remove unique tokens
+ * @param  {String}   [address]
+ * @param  {String}   [network]
+ * @return {Object}
+ */
+export const removeUniqueTokens = (accountAddress, network) => {
+  const key = getUniqueTokensKey(accountAddress, network);
+  removeLocal(key);
 };
 
 /**
@@ -105,7 +211,6 @@ export const saveNativePrices = async nativePrices => {
 export const getNativeCurrency = async () => {
   const nativeCurrency = await getLocal(
     'nativeCurrency',
-    globalSettingsVersion,
   );
   return nativeCurrency ? nativeCurrency.data : 'USD';
 };
@@ -118,90 +223,7 @@ export const saveNativeCurrency = async nativeCurrency => {
   await saveLocal(
     'nativeCurrency',
     { data: nativeCurrency },
-    globalSettingsVersion,
   );
-};
-
-/**
- * @desc update local balances
- * @param  {String}   [address]
- * @param  {Object}   [account]
- * @param  {String}   [network]
- * @return {Void}
- */
-export const updateLocalBalances = async (address, account, network) => {
-  if (!address) return;
-  let accountLocal = await getAccountLocal(address);
-  if (!accountLocal) {
-    accountLocal = {};
-  }
-  if (!accountLocal[network]) {
-    accountLocal[network] = {};
-  }
-  accountLocal[network].type = account.type;
-  accountLocal[network].balances = {
-    assets: account.assets,
-    total: account.total || '———',
-  };
-  await saveLocal(address.toLowerCase(), accountLocal, accountLocalVersion);
-};
-
-/**
- * @desc update local unique tokens
- * @param  {String}   [address]
- * @param  {Array}    [unique tokens]
- * @param  {String}   [network]
- * @return {Void}
- */
-export const updateLocalUniqueTokens = async (
-  address,
-  uniqueTokens,
-  network,
-) => {
-  if (!address) return;
-  let accountLocal = await getAccountLocal(address);
-  if (!accountLocal) {
-    accountLocal = {};
-  }
-  if (!accountLocal[network]) {
-    accountLocal[network] = {};
-  }
-  accountLocal[network].uniqueTokens = uniqueTokens;
-  await saveLocal(address.toLowerCase(), accountLocal, accountLocalVersion);
-};
-
-/**
- * @desc update local transactions
- * @param  {String}   [address]
- * @param  {Array}    [transactions]
- * @param  {String}   [network]
- * @return {Void}
- */
-export const updateLocalTransactions = async (
-  address,
-  transactions,
-  network,
-) => {
-  if (!address) return;
-  let accountLocal = await getAccountLocal(address);
-  if (!accountLocal) {
-    accountLocal = {};
-  }
-  const pending = [];
-  const _transactions = [];
-  transactions.forEach(tx => {
-    if (tx.pending) {
-      pending.push(tx);
-    } else {
-      _transactions.push(tx);
-    }
-  });
-  if (!accountLocal[network]) {
-    accountLocal[network] = {};
-  }
-  accountLocal[network].transactions = _transactions;
-  accountLocal[network].pending = pending;
-  await saveLocal(address.toLowerCase(), accountLocal, accountLocalVersion);
 };
 
 /**
@@ -223,7 +245,6 @@ export const getAllValidWalletConnectSessions = async () => {
 export const getAllWalletConnectSessions = async () => {
   const allSessions = await getLocal(
     'walletconnect',
-    walletConnectVersion,
   );
   return allSessions ? allSessions : {};
 };
@@ -236,9 +257,7 @@ export const getAllWalletConnectSessions = async () => {
 export const saveWalletConnectSession = async (peerId, session) => {
   let allSessions = await getAllValidWalletConnectSessions();
   allSessions[peerId] = session;
-  await saveLocal('walletconnect',
-    allSessions,
-    walletConnectVersion);
+  await saveLocal('walletconnect', allSessions);
 };
 
 /**
@@ -249,10 +268,26 @@ export const removeWalletConnectSession = async (peerId) => {
   const allSessions = await getAllWalletConnectSessions();
   const session = allSessions ? allSessions[peerId] : null;
   const resultingSessions = omit(allSessions, [peerId]);
-  await saveLocal('walletconnect',
-    resultingSessions,
-    walletConnectVersion);
+  await saveLocal('walletconnect', resultingSessions);
   return session;
+};
+
+/**
+ * @desc remove wallet connect sessions
+ * @param  {String}   [sessionId]
+ */
+export const removeWalletConnectSessions = async (sessionIds) => {
+  const allSessions = await getAllWalletConnectSessions();
+  const resultingSessions = omit(allSessions, sessionIds);
+  await saveLocal('walletconnect', resultingSessions);
+};
+
+/**
+ * @desc remove all wallet connect sessions
+ * @param  {String}   [sessionId]
+ */
+export const removeWalletConnect = () => {
+  removeLocal('walletconnect');
 };
 
 /**
@@ -260,7 +295,7 @@ export const removeWalletConnectSession = async (peerId) => {
  * @return {Object}
  */
 export const getLanguage = async () => {
-  const language = await getLocal('language', globalSettingsVersion);
+  const language = await getLocal('language');
   return language ? language.data : 'en';
 };
 
@@ -269,5 +304,5 @@ export const getLanguage = async () => {
  * @param  {String}   [language]
  */
 export const saveLanguage = async language => {
-  await saveLocal('language', { data: language }, globalSettingsVersion);
+  await saveLocal('language', { data: language });
 };

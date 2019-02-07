@@ -1,27 +1,12 @@
 import axios from 'axios';
 import { findIndex, slice } from 'lodash';
 import {
-  REACT_APP_CRYPTOCOMPARE_API_KEY,
-} from 'react-native-dotenv';
-import {
   parseAccountAssets,
   parseAccountTransactions,
   parseHistoricalTransactions,
 } from './parsers';
 import { formatInputDecimals } from '../helpers/bignumber';
 import nativeCurrencies from '../references/native-currencies.json';
-
-/**
- * @desc get single asset price
- * @param  {String}   [asset='']
- * @param  {String}   [native='USD']
- * @return {Promise}
- */
-export const apiGetSinglePrice = (asset = '', native = 'USD') => {
-  return cryptocompare.get(
-    `/price?fsym=${asset}&tsyms=${native}&apiKey=${REACT_APP_CRYPTOCOMPARE_API_KEY}`,
-  );
-};
 
 /**
  * Configuration for cryptocompare api
@@ -67,7 +52,7 @@ export const apiGetHistoricalPrices = (
     '',
   );
   return cryptocompare.get(
-    `/pricehistorical?fsym=${assetSymbol}&tsyms=${nativeQuery}&ts=${timestamp}&apiKey=${REACT_APP_CRYPTOCOMPARE_API_KEY}`,
+    `/pricehistorical?fsym=${assetSymbol}&tsyms=${nativeQuery}&ts=${timestamp}`,
   );
 };
 
@@ -96,9 +81,7 @@ export const apiGetAccountBalances = async (
 ) => {
   try {
     const { data } = await api.get(`/get_balances/${network}/${address}`);
-    const accountInfo = parseAccountAssets(data, address);
-    const result = { data: accountInfo };
-    return result;
+    return parseAccountAssets(data, address);
   } catch (error) {
     console.log('Error getting acct balances from proxy', error);
     throw error;
@@ -125,6 +108,7 @@ export const apiGetTransactionData = (
  * @return {Promise}
  */
 export const apiGetAccountTransactions = async (
+  assets,
   address = '',
   network = 'mainnet',
   lastTxHash = '',
@@ -133,7 +117,7 @@ export const apiGetAccountTransactions = async (
   try {
     // TODO: hit api directly instead of through indexer
     let { data } = await apiGetTransactionData(address, network, page);
-    let { transactions, pages } = await parseAccountTransactions(data, address, network);
+    let { transactions, pages } = await parseAccountTransactions(data, assets, address, network);
     if (transactions.length && lastTxHash) {
       const lastTxnHashIndex = findIndex(transactions, (txn) => { return txn.hash === lastTxHash });
       if (lastTxnHashIndex > -1) {

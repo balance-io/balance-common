@@ -36,6 +36,7 @@ export const transactionsLoadState = () => dispatch => {
   });
 };
 
+// TODO turn into a promise
 export const transactionsRefreshState = () => (dispatch, getState) => {
   console.log('transactions refresh state OUTER');
   const getTransactions = () => {
@@ -97,6 +98,7 @@ export const transactionsClearState = () => (dispatch, getState) => {
   dispatch({ type: TRANSACTIONS_CLEAR_STATE });
 };
 
+// TODO turn into promise
 const getPages = ({
   assets,
   accountAddress,
@@ -148,6 +150,7 @@ const getPages = ({
       } else {
         dispatch({ type: TRANSACTIONS_FETCH_SUCCESS });
       }
+    //  resolve(true);
     })
     .catch(error => {
       console.log('error getting api txns', error);
@@ -159,7 +162,7 @@ const getPages = ({
         ),
       );
     });
-}
+};
 
 // -- Reducer --------------------------------------------------------------- //
 export const INITIAL_STATE = {

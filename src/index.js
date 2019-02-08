@@ -79,7 +79,6 @@ import {
 import { getCountdown, getLocalTimeDate, sortList } from './helpers';
 import {
   apiGetGasPrices,
-  apiGetSinglePrice,
   estimateGasLimit,
   getTransactionCount,
   parseError,
@@ -93,7 +92,6 @@ export {
   accountLoadState,
   add,
   apiGetGasPrices,
-  apiGetSinglePrice,
   assets,
   assetsRefreshState,
   calcTxFee,

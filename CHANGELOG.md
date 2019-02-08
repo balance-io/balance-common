@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/)
 ### Added
 
 ### Changed
+* Promisified transactions fetching
 
 ### Removed
 

@@ -1,9 +1,9 @@
 {
   "name": "balance-common",
   "description": "Common library for web and mobile",
-  "version": "0.6.28",
+  "version": "0.6.29",
   "author": "Jin Chung <jin@balance.io>",
-  "license": "GPL-3",
+  "license": "GPL-3.0",
   "main": "dist/index.js",
   "repository": {
     "type": "git",
@@ -16,6 +16,7 @@
     "axios": "^0.18.0",
     "bignumber.js": "^7.0.1",
     "date-fns": "^1.29.0",
+    "eslint": "^5.13.0",
     "i18next": "^11.3.2",
     "jsonp": "^0.2.1",
     "lodash": "^4.17.10",
@@ -29,7 +30,9 @@
   },
   "scripts": {
     "test": "jest",
-    "build": "webpack",
+    "build:production": "webpack --mode=production",
+    "build:development": "webpack --mode=development",
+    "build": "yarn build:production",
     "format": "prettier --write \"src/**/*.js\""
   },
   "lint-staged": {
@@ -40,15 +43,15 @@
     ]
   },
   "devDependencies": {
-    "@babel/cli": "^7.0.0-beta.54",
-    "@babel/core": "^7.0.0-beta.54",
-    "@babel/plugin-proposal-class-properties": "^7.0.0-beta.54",
-    "@babel/plugin-transform-runtime": "^7.0.0-beta.56",
-    "@babel/polyfill": "^7.0.0-rc.1",
-    "@babel/preset-env": "^7.0.0-beta.54",
-    "@babel/preset-react": "^7.0.0-beta.54",
+    "@babel/cli": "^7.2.3",
+    "@babel/core": "^7.2.2",
+    "@babel/plugin-proposal-class-properties": "^7.3.0",
+    "@babel/plugin-transform-runtime": "^7.2.0",
+    "@babel/polyfill": "^7.2.5",
+    "@babel/preset-env": "^7.3.1",
+    "@babel/preset-react": "^7.0.0",
     "babel-eslint": "^8.2.2",
-    "babel-jest": "^23.6.0",
+    "babel-jest": "^24.1.0",
     "babel-loader": "^8.0.0-beta",
     "babel-plugin-lodash": "^3.3.4",
     "babel-plugin-transform-class-properties": "^6.24.1",
@@ -61,7 +64,7 @@
     "eslint-plugin-prettier": "^2.6.2",
     "eslint-plugin-react": "^7.7.0",
     "husky": "^0.14.3",
-    "jest": "^23.6.0",
+    "jest": "^24.1.0",
     "lint-staged": "^7.1.0",
     "prettier": "^1.13.5",
     "react-native-dotenv": "^0.2.0",

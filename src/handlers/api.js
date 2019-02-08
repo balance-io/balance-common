@@ -27,7 +27,8 @@ const cryptocompare = axios.create({
  * @return {Promise}
  */
 export const apiGetPrices = (assets = []) => {
-  const assetsQuery = JSON.stringify(assets).replace(/[[\]"]/gi, '');
+  const assetSymbols = assets.concat('ETH');
+  const assetsQuery = JSON.stringify(assetSymbols).replace(/[[\]"]/gi, '');
   const nativeQuery = JSON.stringify(Object.keys(nativeCurrencies)).replace(
     /[[\]"]/gi,
     '',

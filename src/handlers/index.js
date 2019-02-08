@@ -10,11 +10,9 @@ import {
 } from './parsers';
 import {
   apiGetGasPrices,
-  apiGetSinglePrice,
 } from './api';
 export {
   apiGetGasPrices,
-  apiGetSinglePrice,
   estimateGasLimit,
   getTransactionCount,
   parseError,

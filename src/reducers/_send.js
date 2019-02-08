@@ -58,10 +58,8 @@ function getBalanceAmount(assets, gasPrice, selected) {
   let amount = '';
 
   if (selected.symbol === 'ETH') {
-    const ethereum = assets.filter(
-      asset => asset.symbol === 'ETH',
-    )[0];
-    const balanceAmount = ethereum.balance.amount;
+    const ethereum = assets.filter(asset => asset.symbol === 'ETH');
+    const balanceAmount = get(ethereum, '[0].balance.amount', 0);
     const txFeeAmount = gasPrice.txFee.value.amount;
     const remaining = convertStringToNumber(
       subtract(balanceAmount, txFeeAmount),
@@ -142,11 +140,9 @@ export const sendUpdateGasPrice = newGasPriceOption => (dispatch, getState) => {
       const { nativeCurrency } = getState().settings;
       gasPrices = parseGasPricesTxFee(gasPrices, prices, gasLimit, nativeCurrency);
 
-      const ethereum = assets.filter(
-        asset => asset.symbol === 'ETH',
-      )[0];
+      const ethereum = assets.filter(asset => asset.symbol === 'ETH');
 
-      const balanceAmount = ethereum.balance.amount;
+      const balanceAmount = get(ethereum, '[0].balance.amount', 0);
       const txFeeAmount = _gasPrice.txFee.value.amount;
 
       dispatch({

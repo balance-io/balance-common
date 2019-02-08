@@ -254,7 +254,6 @@ export const parseAccountAssets = (data = null, address = '') => {
         address: assetData.contract.address || null,
         decimals: convertStringToNumber(assetData.contract.decimals),
       };
-      // TODO: can only store balance without display
       const assetBalance = convertAssetAmountToBigNumber(
         assetData.balance,
         asset.decimals,
@@ -338,8 +337,7 @@ const ethFeeAsset = {
  */
 export const parseHistoricalNativePrice = async transaction => {
   let tx = { ...transaction };
-  // TODO: error: Date.now() provides ms not secs
-  const timestamp = tx.timestamp ? tx.timestamp.secs : Date.now();
+  const timestamp = tx.timestamp ? tx.timestamp.secs : (Date.now() / 1000 | 0);
   let asset = { ...tx.asset };
   asset.symbol = tx.asset.symbol === 'WETH' ? 'ETH' : tx.asset.symbol;
   const priceAssets = [asset.symbol, 'ETH'];
@@ -363,7 +361,7 @@ export const parseHistoricalNativePrice = async transaction => {
         nativeCurrency,
       );
       prices[nativeCurrency][asset.symbol].price.display = assetPriceDisplay;
-      const assetPrice = prices[nativeCurrency][asset.symbol].price;
+      const assetPrice = get(prices, `[${nativeCurrency}][${asset.symbol}].price`, 0);
 
       const valuePriceAmount = convertAssetAmountToNativeValue(
         tx.value.amount,

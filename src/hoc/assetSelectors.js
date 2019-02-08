@@ -1,4 +1,5 @@
 import {
+  get,
   groupBy,
   isEmpty,
   isNil,
@@ -72,14 +73,14 @@ const parseAssetsNative = (
       asset.decimals,
     );
     const balancePriceUnit = convertAmountFromBigNumber(
-      assetNativePrice.price.amount,
+      get(assetNativePrice, 'price.amount', 0),
     );
     const balanceRaw = multiply(balanceAmountUnit, balancePriceUnit);
     const balanceAmount = convertAmountToBigNumber(balanceRaw);
     let trackingAmount = balanceAmount;
     if (nativeCurrency !== 'USD') {
       const trackingPriceUnit = convertAmountFromBigNumber(
-        nativePrices['USD'][asset.symbol].price.amount,
+        get(nativePrices, `['USD'][${asset.symbol}].price.amount`, 0),
       );
       const trackingRaw = multiply(balanceAmountUnit, trackingPriceUnit);
       trackingAmount = convertAmountToBigNumber(trackingRaw);

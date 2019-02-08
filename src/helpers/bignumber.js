@@ -1,3 +1,4 @@
+import { get } from 'lodash';
 import BigNumber from 'bignumber.js';
 import ethUnits from '../references/ethereum-units.json';
 import nativeCurrencies from '../references/native-currencies.json';
@@ -351,7 +352,7 @@ export const convertAssetAmountToNativeValue = (value, asset, nativePrices, nati
  */
 export const convertAssetAmountToSpecifiedNativeValue = (value, asset, nativePrices, nativeSelected = 'USD') => {
   const assetPriceUnit = convertAmountFromBigNumber(
-    nativePrices[nativeSelected][asset.symbol].price.amount,
+    get(nativePrices, `[${nativeSelected}][${asset.symbol}].price.amount`, 0)
   );
   const assetNativePrice = BigNumber(value)
     .times(BigNumber(assetPriceUnit))
@@ -373,7 +374,7 @@ export const convertAssetAmountFromNativeValue = (
   nativeCurrency,
 ) => {
   const assetPriceUnit = convertAmountFromBigNumber(
-    nativePrices[nativeCurrency][asset.symbol].price.amount,
+    get(nativePrices, `[${nativeCurrency}][${asset.symbol}].price.amount`, 0),
   );
   const assetAmountUnit = BigNumber(value)
     .dividedBy(BigNumber(assetPriceUnit))
@@ -396,7 +397,7 @@ export const convertAssetAmountToNativeAmount = (
 ) => {
   const _value = convertAmountFromBigNumber(`${value}`);
   const assetPriceUnit = convertAmountFromBigNumber(
-    nativePrices[nativeCurrency][asset.symbol].price.amount,
+    get(nativePrices, `[${nativeCurrency}][${asset.symbol}].price.amount`, 0),
   );
   const assetNativePrice = BigNumber(_value)
     .times(BigNumber(assetPriceUnit))

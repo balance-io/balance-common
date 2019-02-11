@@ -219,6 +219,7 @@ export const parsePricesObject = (
               ),
             },
           };
+          prices[nativeCurrency][asset] = assetPrice;
         }
       });
     }
@@ -331,7 +332,7 @@ export const parseHistoricalNativePrice = async transaction => {
   let tx = { ...transaction };
   const timestamp = tx.timestamp ? tx.timestamp.secs : (Date.now() / 1000 | 0);
   let asset = { ...tx.asset };
-  asset.symbol = tx.asset.symbol === 'WETH' ? 'ETH' : tx.asset.symbol;
+  asset.symbol = tx.asset.symbol === 'WETH' ? 'ETH' : (tx.asset.symbol === 'WBTC') ? 'BTC' : tx.asset.symbol;
   const priceAssets = [asset.symbol, 'ETH'];
   const promises = priceAssets.map(x => apiGetHistoricalPrices(x, timestamp));
   const historicalPriceResponses = await Promise.all(promises);

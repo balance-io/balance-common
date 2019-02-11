@@ -222,11 +222,14 @@ export const parsePricesObject = (
             },
           };
         }
-        if (asset !== 'WETH') {
+        if (asset !== 'WETH' && asset !== 'WBTC') {
           prices[nativeCurrency][asset] = assetPrice;
         }
         if (asset === 'ETH') {
           prices[nativeCurrency]['WETH'] = assetPrice;
+        }
+        if (asset === 'BTC') {
+          prices[nativeCurrency]['WBTC'] = assetPrice;
         }
       });
     }

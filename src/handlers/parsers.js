@@ -198,38 +198,28 @@ export const parsePricesObject = (
     if (data.RAW) {
       prices[nativeCurrency] = {};
       assets.forEach(asset => {
+        let assetSymbol = (asset === 'WETH') ? 'ETH' : (asset === 'WBTC') ? 'BTC' : asset;
         let assetPrice = null;
-        if (data.RAW[asset]) {
+        let rawData = get(data, `RAW[${assetSymbol}]`);
+        if (rawData) {
+          const assetPriceData = get(rawData, `[${nativeCurrency}].PRICE`);
+          const assetChangeData = get(rawData, `[${nativeCurrency}].CHANGEPCT24HOUR`);
           assetPrice = {
             price: {
-              amount: convertAmountToBigNumber(
-                data.RAW[asset][nativeCurrency].PRICE,
-              ),
+              amount: convertAmountToBigNumber(assetPriceData),
               display: simpleConvertAmountToDisplay(
-                convertAmountToBigNumber(data.RAW[asset][nativeCurrency].PRICE),
+                convertAmountToBigNumber(assetPriceData),
                 nativeCurrency,
               ),
             },
             change: {
-              amount: convertAmountToBigNumber(
-                data.RAW[asset][nativeCurrency].CHANGEPCT24HOUR,
-              ),
+              amount: convertAmountToBigNumber(assetChangeData),
               display: convertAmountToDisplay(
-                convertAmountToBigNumber(
-                  data.RAW[asset][nativeCurrency].CHANGEPCT24HOUR,
-                ),
+                convertAmountToBigNumber(assetChangeData),
               ),
             },
           };
-        }
-        if (asset !== 'WETH' && asset !== 'WBTC') {
           prices[nativeCurrency][asset] = assetPrice;
-        }
-        if (asset === 'ETH') {
-          prices[nativeCurrency]['WETH'] = assetPrice;
-        }
-        if (asset === 'BTC') {
-          prices[nativeCurrency]['WBTC'] = assetPrice;
         }
       });
     }
@@ -342,7 +332,7 @@ export const parseHistoricalNativePrice = async transaction => {
   let tx = { ...transaction };
   const timestamp = tx.timestamp ? tx.timestamp.secs : (Date.now() / 1000 | 0);
   let asset = { ...tx.asset };
-  asset.symbol = tx.asset.symbol === 'WETH' ? 'ETH' : tx.asset.symbol;
+  asset.symbol = tx.asset.symbol === 'WETH' ? 'ETH' : (tx.asset.symbol === 'WBTC') ? 'BTC' : tx.asset.symbol;
   const priceAssets = [asset.symbol, 'ETH'];
   const promises = priceAssets.map(x => apiGetHistoricalPrices(x, timestamp));
   const historicalPriceResponses = await Promise.all(promises);

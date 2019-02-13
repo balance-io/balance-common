@@ -581,9 +581,9 @@ export const parseTransaction = (assets, tx, address) => {
           : get(transferData, 'contract.symbol', 'Unknown Token');
         transferTx.asset = {
           name: name,
-          symbol: transferData.contract.symbol || '———',
-          address: transferData.contract.address || '',
-          decimals: transferData.contract.decimals || 18,
+          symbol: get(transferData, 'contract.symbol', '———'),
+          address: get(transferData, 'contract.address', ''),
+          decimals: get(transferData, 'contract.decimals', 18),
         };
 
         transferTx.from = transferData.from;

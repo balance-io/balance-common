@@ -1,4 +1,5 @@
 import '@babel/polyfill';
+
 import {
   mockERC20,
   mockNonTokenTransfer,
@@ -37,7 +38,7 @@ test('parseTransactionWhenNonTokenTransfer', () => {
 	const address = "0x203526aff6de28820e5eac5d5137f08d0395f3ca";
   const result = parseTransaction([], mockNonTokenTransfer, address);
   expect(result).toHaveLength(1);
-  expect(result[0].value.amount).toBe('1');
+  expect(result[0].value.amount).toBe('1000000000000000000');
 });
 
 test('parseTransactionWhenNonTokenTransferWithValue', () => {

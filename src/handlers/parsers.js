@@ -483,7 +483,7 @@ export const parseAccountTransactions = async (
   if (!data || !data.docs) return { transactions: [], pages: 0 };
 
   let transactions = await Promise.all(
-    data.docs.map(async tx => parseTransaction(assets, tx)),
+    data.docs.map(async tx => parseTransaction(assets, tx, address)),
   );
   let _transactions = [];
 
@@ -510,7 +510,8 @@ const getAssetDetails = (contractAddress, assets) => {
  * @param  {Object} [data=null]
  * @return {Array}
  */
-export const parseTransaction = (assets, tx) => {
+export const parseTransaction = (assets, tx, address) => {
+  const addressLower = address.toLowerCase();
   const hash = tx._id;
   const timestamp = {
     secs: `${tx.timeStamp}`,
@@ -555,14 +556,14 @@ export const parseTransaction = (assets, tx) => {
   };
   let results = [result];
 
-  const includesTokenTransfer = tx.input.startsWith(smartContractMethods.token_transfer.hash);
+  const includesTokenTransfer = tx.input !== '0x';
 
   if (includesTokenTransfer) {
     const tokenTransfers = [];
     if (tx.operations.length) {
-      tx.operations.forEach((transferData, idx) => {
+      tx.operations.forEach(transferData => {
         const transferTx = {
-          hash: `${result.hash}-${idx + 1}`,
+          hash: transferData.transactionId,
           timestamp,
           from,
           to,
@@ -595,9 +596,17 @@ export const parseTransaction = (assets, tx) => {
           amount,
           display: convertAmountToDisplay(amount, transferTx.asset),
         };
-        tokenTransfers.push(transferTx);
+        if (transferTx.from.toLowerCase() === addressLower) {
+          tokenTransfers.push(transferTx);
+        } else {
+          tokenTransfers.unshift(transferTx);
+        }
       });
       results = [...tokenTransfers];
+      if (tx.value !== '0' && (result.from.toLowerCase() === addressLower
+          || result.to.toLowerCase() === addressLower)) {
+          results.push(result);
+      }
     } else if (tx.error) {
       const dataPayload = tx.input.replace(smartContractMethods.token_transfer.hash, '');
       const toAddress = `0x${dataPayload.slice(0, 64).replace(/^0+/, '')}`;

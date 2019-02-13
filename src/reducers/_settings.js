@@ -58,7 +58,6 @@ export const settingsUpdateNetwork = network => dispatch => {
 };
 
 export const settingsChangeLanguage = language => dispatch => {
-  //TODO: needs to trigger render after change
   updateLanguage(language);
   saveLanguage(language).then( () => {
     dispatch({

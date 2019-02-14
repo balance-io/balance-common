@@ -147,6 +147,7 @@ const getPages = ({
           type: TRANSACTIONS_GET_NO_NEW_PAYLOAD_SUCCESS
         });
         resolve(true);
+        return;
       }
       let updatedPendingTransactions = pendingTransactions;
       if (pendingTransactions.length) {

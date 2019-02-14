@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/)
 
 ### Changed
 * Promisified transactions fetching
+* Improved transaction handling for non-ETH and non direct token transfers
 
 ### Removed
 

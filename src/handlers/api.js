@@ -125,10 +125,7 @@ export const apiGetAccountTransactions = async (
         pages = page;
       }
     }
-    if (process.env.NODE_ENV !== 'development') {
-      console.log('parsing historical txns', process.env.NODE_ENV);
-      transactions = await parseHistoricalTransactions(transactions, page);
-    }
+    //transactions = await parseHistoricalTransactions(transactions, page);
     const result = { data: transactions, pages };
     return result;
   } catch (error) {

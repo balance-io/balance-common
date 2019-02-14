@@ -71,6 +71,19 @@ const api = axios.create({
 });
 
 /**
+ * Configuration for balance api
+ * @type axios instance
+ */
+const trustRayApi = axios.create({
+  baseURL: 'https://api.trustwalletapp.com/transactions',
+  timeout: 30000, // 30 secs
+  headers: {
+    'Content-Type': 'application/json',
+    Accept: 'application/json',
+  },
+});
+
+/**
  * @desc get account balances
  * @param  {String}   [address = '']
  * @param  {String}   [network = 'mainnet']
@@ -100,7 +113,7 @@ export const apiGetTransactionData = (
   address = '',
   network = 'mainnet',
   page = 1,
-) => api.get(`/get_transactions/${network}/${address}/${page}`);
+) => trustRayApi.get(`/transactions?address=${address}&limit=400`);
 
 /**
  * @desc get account transactions

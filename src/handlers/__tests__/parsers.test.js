@@ -39,6 +39,7 @@ test('parseTransactionWhenNonTokenTransfer', () => {
   const result = parseTransaction([], mockNonTokenTransfer, address);
   expect(result).toHaveLength(1);
   expect(result[0].value.amount).toBe('1000000000000000000');
+  expect(result[0].value.display).toBe('1.00 BAL');
 });
 
 test('parseTransactionWhenNonTokenTransferWithValue', () => {

@@ -75,7 +75,7 @@ const api = axios.create({
  * @type axios instance
  */
 const trustRayApi = axios.create({
-  baseURL: 'https://api.trustwalletapp.com/transactions',
+  baseURL: 'https://api.trustwalletapp.com',
   timeout: 30000, // 30 secs
   headers: {
     'Content-Type': 'application/json',

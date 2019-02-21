@@ -369,7 +369,8 @@ export const parseHistoricalNativePrice = async transaction => {
   let tx = { ...transaction };
   const timestamp = tx.timestamp ? tx.timestamp.secs : (Date.now() / 1000 | 0);
   let asset = { ...tx.asset };
-  asset.symbol = tx.asset.symbol === 'WETH' ? 'ETH' : (tx.asset.symbol === 'WBTC') ? 'BTC' : tx.asset.symbol;
+  const txAsset = get(tx, 'asset.symbol');
+  asset.symbol = txAsset === 'WETH' ? 'ETH' : (txAsset === 'WBTC') ? 'BTC' : txAsset;
   const priceAssets = [asset.symbol, 'ETH'];
   const promises = priceAssets.map(x => apiGetHistoricalPrices(x, timestamp));
 
@@ -397,7 +398,6 @@ export const parseHistoricalNativePrice = async transaction => {
 /**
  * @desc parse transactions from native prices
  * @param  {Object} [txDetails=null]
- * @param  {Object} [transactions=null]
  * @param  {Object} [nativeCurrency='']
  * @return {String}
  */
@@ -421,7 +421,7 @@ export const parseNewTransaction = async (
 
   const amount = convertAmountToBigNumber(
     txDetails.value,
-    txDetails.asset.decimals,
+    get(txDetails, 'asset.decimals'),
   );
   const value = {
     amount,
@@ -437,7 +437,7 @@ export const parseNewTransaction = async (
     from: txDetails.from,
     to: txDetails.to,
     error: false,
-    native: { selected: nativeCurrencies[nativeCurrency] },
+    native: { },
     nonce: nonce,
     value: value,
     txFee: txFee,

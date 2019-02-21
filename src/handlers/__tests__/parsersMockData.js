@@ -1,3 +1,21 @@
+export const mockErrorPriceHistorical = {
+	"data": {
+    "response": "Error"
+  },
+};
+
+export const mockPriceHistorical = {
+	"data": {
+		"DAI": {
+			"USD": 1.01,
+			"GBP": 0.7586,
+			"EUR": 0.8729,
+			"BTC": 0.0002794,
+			"ETH": 0.008618,
+		},
+	},
+};
+
 export const mockERC20 = {
   operations: [
     {

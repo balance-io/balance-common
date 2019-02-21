@@ -323,6 +323,43 @@ const ethFeeAsset = {
   decimals: 18,
 };
 
+export const getAssetPrice = (amount, asset, nativeCurrency, response, prices) => {
+  if (response.data.response === 'Error') {
+    return { amount: '0', display: '--' };
+  }
+  if (!get(response, `data[${asset.symbol}]`, null)) {
+    const zeroDisplay = simpleConvertAmountToDisplay(0, nativeCurrency);
+    return { amount: '0', display: zeroDisplay };
+  }
+  const assetPriceAmount = convertAmountToBigNumber(
+    response.data[asset.symbol][nativeCurrency],
+  );
+  prices[nativeCurrency][asset.symbol] = {
+    price: { amount: assetPriceAmount, display: null },
+  };
+  const assetPriceDisplay = simpleConvertAmountToDisplay(
+    assetPriceAmount,
+    nativeCurrency,
+  );
+  prices[nativeCurrency][asset.symbol].price.display = assetPriceDisplay;
+
+  const valuePriceAmount = convertAssetAmountToNativeValue(
+    amount,
+    asset,
+    prices,
+    nativeCurrency,
+  );
+  const valuePriceDisplay = simpleConvertAmountToDisplay(
+    valuePriceAmount,
+    nativeCurrency,
+  );
+  const valuePrice = {
+    amount: valuePriceAmount,
+    display: valuePriceDisplay,
+  };
+  return valuePrice;
+};
+
 /**
  * @desc get historical native prices for transaction
  * @param  {Object} tx
@@ -335,6 +372,8 @@ export const parseHistoricalNativePrice = async transaction => {
   asset.symbol = tx.asset.symbol === 'WETH' ? 'ETH' : (tx.asset.symbol === 'WBTC') ? 'BTC' : tx.asset.symbol;
   const priceAssets = [asset.symbol, 'ETH'];
   const promises = priceAssets.map(x => apiGetHistoricalPrices(x, timestamp));
+
+  // TODO what if this throws
   const historicalPriceResponses = await Promise.all(promises);
   const response = historicalPriceResponses[0];
   const feeResponse = historicalPriceResponses[1];
@@ -342,71 +381,13 @@ export const parseHistoricalNativePrice = async transaction => {
   Object.keys(nativeCurrencies).forEach(nativeCurrency => {
     let prices = {};
     prices[nativeCurrency] = {};
-    if (response.data.response !== 'Error' && response.data[asset.symbol]) {
-      const assetPriceAmount = convertAmountToBigNumber(
-        response.data[asset.symbol][nativeCurrency],
-      );
-      prices[nativeCurrency][asset.symbol] = {
-        price: { amount: assetPriceAmount, display: null },
-      };
-      const assetPriceDisplay = simpleConvertAmountToDisplay(
-        assetPriceAmount,
-        nativeCurrency,
-      );
-      prices[nativeCurrency][asset.symbol].price.display = assetPriceDisplay;
-      const assetPrice = get(prices, `[${nativeCurrency}][${asset.symbol}].price`, 0);
+    const valuePrice = getAssetPrice(tx.value.amount, asset, nativeCurrency, response, prices);
+    const assetPrice = get(prices, `[${nativeCurrency}][${asset.symbol}].price`, { amount: '0', display: '--' });
+    tx.native[nativeCurrency] = { price: assetPrice, value: valuePrice };
 
-      const valuePriceAmount = convertAssetAmountToNativeValue(
-        tx.value.amount,
-        asset,
-        prices,
-        nativeCurrency,
-      );
-      const valuePriceDisplay = simpleConvertAmountToDisplay(
-        valuePriceAmount,
-        nativeCurrency,
-      );
-      const valuePrice = !tx.error
-        ? { amount: valuePriceAmount, display: valuePriceDisplay }
-        : { amount: '', display: '' };
-      tx.native[nativeCurrency] = {
-        price: assetPrice,
-        value: valuePrice,
-      };
-    }
-
-    if (
-      tx.txFee &&
-      feeResponse.data.response !== 'Error' &&
-      feeResponse.data['ETH']
-    ) {
-      const feePriceAmount = convertAmountToBigNumber(
-        feeResponse.data['ETH'][nativeCurrency],
-      );
-      prices[nativeCurrency]['ETH'] = {
-        price: { amount: feePriceAmount, display: null },
-      };
-      const feePriceDisplay = simpleConvertAmountToDisplay(feePriceAmount, nativeCurrency);
-      prices[nativeCurrency]['ETH'].price.display = feePriceDisplay;
-
-      const txFeePriceAmount = convertAssetAmountToNativeValue(
-        tx.txFee.amount,
-        ethFeeAsset,
-        prices,
-        nativeCurrency,
-      );
-      const txFeePriceDisplay = simpleConvertAmountToDisplay(
-        txFeePriceAmount,
-        nativeCurrency,
-      );
-      const txFeePrice = {
-        amount: txFeePriceAmount,
-        display: txFeePriceDisplay,
-      };
-      tx.native[nativeCurrency] = {
-        ...tx.native[nativeCurrency],
-        txFee: txFeePrice,
-      };
+    if (tx.txFee) {
+      const valuePrice = getAssetPrice(tx.txFee.amount, ethFeeAsset, nativeCurrency, feeResponse, prices);
+      tx.native[nativeCurrency].txFee = valuePrice;
     }
   });
 

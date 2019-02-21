@@ -1,16 +1,19 @@
 import '@babel/polyfill';
 import {
-  parseNewTransaction,
-  parsePricesObject,
-  parseTransaction
-} from '../parsers'
-import {
   mockERC20,
+  mockErrorPriceHistorical,
   mockNonTokenTransfer,
   mockNonTokenTransferKDO,
+  mockPriceHistorical,
   mockPriceResponse,
   mockTransaction
 } from './parsersMockData';
+import {
+  getAssetPrice,
+  parseNewTransaction,
+  parsePricesObject,
+  parseTransaction,
+} from '../parsers'
 import nativeCurrencies from '../../references/native-currencies.json';
 
 test('parsePricesObject', () => {
@@ -27,6 +30,55 @@ test('parsePricesObject', () => {
       )
     )
   );
+});
+
+test('getAssetPrice', () => {
+  const amount = '2000000000000000000';
+	const asset = {
+		name: 'DAI',
+		symbol: 'DAI',
+		address: null,
+		decimals: 2,
+	};
+  const nativeCurrency = 'USD';
+  const prices = { 'USD': {} };
+  const result = getAssetPrice(amount, asset, nativeCurrency, mockPriceHistorical, prices);
+  expect(result.amount).toBe('2020000000000000000');
+  expect(result.display).toBe('$2.02');
+  expect(prices.USD.DAI.price.amount).toBe('1010000000000000000');
+  expect(prices.USD.DAI.price.display).toBe('$1.01');
+});
+
+test('getAssetPriceWhenResponseError', () => {
+  const amount = '2000000000000000000';
+	const asset = {
+		name: 'DAI',
+		symbol: 'DAI',
+		address: null,
+		decimals: 2,
+	};
+  const nativeCurrency = 'USD';
+  const prices = { 'USD': {} };
+  const result = getAssetPrice(amount, asset, nativeCurrency, mockErrorPriceHistorical, prices);
+  expect(result.amount).toBe('0');
+  expect(result.display).toBe('--');
+  expect(prices.USD).toEqual({});
+});
+
+test('getAssetPriceWhenPriceDoesNotExist', () => {
+  const amount = '2000000000000000000';
+	const asset = {
+		name: 'QJT',
+		symbol: 'QJT',
+		address: null,
+		decimals: 2,
+	};
+  const nativeCurrency = 'USD';
+  const prices = { 'USD': {} };
+  const result = getAssetPrice(amount, asset, nativeCurrency, mockPriceHistorical, prices);
+  expect(result.amount).toBe('0');
+  expect(result.display).toBe('$0.00');
+  expect(prices.USD).toEqual({});
 });
 
 test('parseTransactionWhenTransfersReversed', () => {

@@ -419,14 +419,14 @@ export const parseNewTransaction = async (
       }
     : null;
 
-  const amount = convertAmountToBigNumber(
-    txDetails.value,
-    get(txDetails, 'asset.decimals'),
-  );
-  const value = {
-    amount,
-    display: convertAmountToDisplay(amount, txDetails.asset),
-  };
+  let value = null;
+  if (txDetails.value) {
+    const amount = convertAmountToBigNumber(txDetails.value);
+    value = {
+      amount,
+      display: convertAmountToDisplay(amount, txDetails.asset),
+    };
+  }
   const nonce =
     txDetails.nonce ||
     (txDetails.from ? await getTransactionCount(txDetails.from) : '');
@@ -437,15 +437,18 @@ export const parseNewTransaction = async (
     from: txDetails.from,
     to: txDetails.to,
     error: false,
-    native: { },
-    nonce: nonce,
-    value: value,
-    txFee: txFee,
+    native: {},
+    nonce,
+    value,
+    txFee,
     pending: txDetails.hash ? true : false,
     asset: txDetails.asset,
   };
 
-  return await parseHistoricalNativePrice(tx);
+  if (tx.value) {
+    return await parseHistoricalNativePrice(tx);
+  }
+  return tx;
 };
 
 /**

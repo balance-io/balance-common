@@ -232,10 +232,12 @@
     "wallet": {
       "action": {
         "cancel": "Cancel",
+        "input": "Transaction Input",
         "paste": "Paste",
         "reject": "Reject",
         "send": "Send",
-        "to": "To"
+        "to": "To",
+        "value": "Value"
       },
       "authenticate": {
         "please": "Please authenticate",

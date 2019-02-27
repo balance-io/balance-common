@@ -432,6 +432,7 @@ export const parseNewTransaction = async (
     (txDetails.from ? await getTransactionCount(txDetails.from) : '');
 
   let tx = {
+    dappName: txDetails.dappName,
     hash: txDetails.hash,
     timestamp: null,
     from: txDetails.from,

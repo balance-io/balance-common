@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](http://semver.org/)
 
 ## [Unreleased]
 ### Added
+
+### Changed
+
+### Removed
+
+## [0.6.35](https://github.com/balance-io/balance-common/releases/tag/0.6.35)
+### Added
+* English tags for default transaction data
+* Pass along dapp name in transaction details
 * WBTC pricing support
 
 ### Changed
